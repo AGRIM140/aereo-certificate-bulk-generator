@@ -55,7 +55,7 @@ def _certificate_for_recipient(job, recipient, row_number: int) -> Certificate:
 
 
 def create_job(validated_data: dict) -> GenerationJob:
-    """Save one job and one row per recipient in a single transaction.
+    """Save one job and its rows, then queue processing after commit.
 
     ``validated_data`` comes from JobRequestSerializer. The HTTP view will
     perform request-level validation before calling this service in Phase 7.
@@ -71,8 +71,24 @@ def create_job(validated_data: dict) -> GenerationJob:
             for row_number, recipient in enumerate(validated_data["recipients"], start=1)
         ]
         Certificate.objects.bulk_create(certificates)
+        dispatch_job(job.id)
     logger.info("Created certificate job %s with %s rows", job.id, len(certificates))
     return job
+
+
+def dispatch_job(job_id: uuid.UUID) -> None:
+    """Register one Celery dispatch only after the current transaction commits."""
+    def queue_job() -> None:
+        from certificates.tasks import process_job_task
+
+        try:
+            process_job_task.delay(str(job_id))
+            logger.info("Queued certificate job %s", job_id)
+        except Exception:
+            # The job already committed; keep it PENDING for later recovery.
+            logger.exception("Could not queue certificate job %s", job_id)
+
+    transaction.on_commit(queue_job)
 
 
 def _remove_partial_file(certificate: Certificate) -> None:
@@ -128,7 +144,7 @@ def _fail_interrupted_job(job: GenerationJob) -> None:
 
 
 def process_job(job_id: uuid.UUID | str) -> None:
-    """Claim and process a job synchronously; Phase 6 will add the trigger."""
+    """Claim and process a job; the Celery task calls this service."""
     with transaction.atomic():
         job = GenerationJob.objects.select_for_update().filter(pk=job_id).first()
         if job is None:

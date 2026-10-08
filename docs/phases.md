@@ -157,7 +157,8 @@
 - **Dependencies:** Phase 5.
 - **Relevant requirements:** FR-004, FR-019, FR-020, NFR-004, NFR-012, DEC-020, DEC-021, DEC-022, DEC-024, DEC-027, DEC-028.
 - **Completion criteria:** Manual end-to-end worker run succeeds; deterministic tests pass; no `threading` anywhere.
-- **Status:** `NOT_STARTED`
+- **Status:** `COMPLETE` — `config/celery.py` and `certificates/tasks.py` configured with `process_job_task` passing only job UUID string; `services.dispatch_job` registers after-commit dispatch via `transaction.on_commit` and logs broker failures while leaving jobs `PENDING`; duplicate/already-processing tasks are skipped idempotently; `CeleryEagerTestCase` shared helper provides in-process testing and temporary media; 8 Phase 6 tests and full 72-test suite pass on PostgreSQL; end-to-end processing verified with real local Redis and Celery worker (`--pool=solo`).
+
 
 ---
 

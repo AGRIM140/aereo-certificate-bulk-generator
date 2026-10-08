@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 5 COMPLETE
-Current Task: Awaiting explicit instruction before Phase 6
-Overall Progress: Phases 1–5 verified; later phases not started
+Current Phase: Phase 6 COMPLETE
+Current Task: Awaiting explicit instruction before Phase 7
+Overall Progress: Phases 1–6 verified; later phases not started
 Last Updated: 2026-10-08
 ```
 
@@ -43,6 +43,7 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 - Phase 3: request and per-recipient DRF serializers, job/certificate output serializers, and a registered JSON error-envelope handler. Added 24 tests for validation, errors, and output. The full 38-test Django suite passes on PostgreSQL; `manage.py check` reports no issues and `makemigrations --check --dry-run` reports no changes.
 - Phase 4: cleaned the supplied Recursion template's dynamic-text areas into a fixed RGB asset; bundled Cormorant Garamond regular/bold TTFs and their SIL OFL licence; added fixed layout configuration and a ReportLab generator that returns bytes without database, API, Celery, or file writes. Ten PDF tests pass. The full 48-test suite passes on PostgreSQL. Short, typical, and maximum-length PDFs were rendered and visually inspected. A typical PDF is about 388 KB after template compression.
 - Phase 5: `services.py` creates a job and one numbered certificate row per recipient in one atomic transaction, using the existing recipient serializer and certificate-number helper. Invalid rows become `FAILED/VALIDATION`. Synchronous `process_job` claims a pending job under a short PostgreSQL row lock, generates and stores PDFs for pending rows, records isolated generation failures, removes partial files, and finalizes job status from certificate rows. Sixteen new service tests pass; the full 64-test suite passes on PostgreSQL. `manage.py check` reports no issues and `makemigrations --check --dry-run` reports no changes. No schema changes were needed.
+- Phase 6: `config/celery.py` and `certificates/tasks.py` configured with `process_job_task(job_id)` passing only the job UUID string. `services.dispatch_job(job_id)` registers dispatch via `transaction.on_commit(queue_job)`; broker errors are caught and logged, leaving the job `PENDING` in PostgreSQL for later recovery. Multiple/duplicate calls to `process_job` are idempotent no-ops. Added `CeleryEagerTestCase` test helper providing in-process Celery execution and isolated temporary media storage. Eight new Celery tests pass; full 72-test suite passes on PostgreSQL; `manage.py check` and `makemigrations --check --dry-run` are clean. Real end-to-end background execution verified against a local Redis server and live Celery worker (`--pool=solo`).
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -50,13 +51,14 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 5 was completed and verified; Phase 6 requires the developer's explicit instruction.
+- No coding phase is currently in progress. Phase 6 was completed and verified; Phase 7 requires the developer's explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 6 — add the thin Celery task and register dispatch after job creation commits; leave the synchronous service logic in `services.py`.
+- Phase 7 — REST API: create job (`POST /api/jobs/`) returning 202 Accepted, and job status endpoint (`GET /api/jobs/{job_id}/`).
+
 
 ---
 
@@ -118,7 +120,10 @@ SUPERSEDED (history only)
 | 2026-10-08 | **Phase 1 started:** copied the five source documents into `docs/`; created the virtual environment, Django `config` project, `certificates` app, PostgreSQL-only settings, DRF JSON settings, Celery broker wiring, pinned requirements, environment example, README stub, and three foundation tests. `manage.py check` passed; two configuration tests passed. The full suite failed before tests ran because no PostgreSQL server is reachable at `127.0.0.1:5432`. Winget's PostgreSQL installer download returned HTTP 403; Chocolatey installation failed without Windows administrator rights. No SQLite fallback was used. |
 | 2026-10-08 | **Phase 1 completed:** with the developer's installer authorization, PostgreSQL 17.11 was installed as a local Windows service. A dedicated `bulk_certificates` database and `bulk_certificates_user` role with `CREATEDB` were created; generated local credentials are stored only in ignored `.env`. `manage.py check` passed, `migrate --noinput` applied all initial Django migrations, `makemigrations --check --dry-run` reported "No changes detected", `manage.py test --verbosity 2` created a PostgreSQL test database and passed all 3 tests, and `runserver` listened on loopback and served a local request. Temporary setup clusters were stopped and removed. No Redis or Celery worker was needed for Phase 1. |
 | 2026-10-08 | **Phase 2 completed:** added both documented models with UUID primary keys, status/error choices, timestamps, PDF file reference, `(job, row_number)` and certificate-number uniqueness, and `(job, status)` and job-status indexes. Added `get_progress()` (one aggregate query), UUID-only upload path, and the UUID-derived certificate-number helper. Generated and applied `certificates.0001_initial` on PostgreSQL. `manage.py check` passed; `makemigrations --check --dry-run` reported "No changes detected"; 11 new model tests and the full 14-test suite passed. No Phase 3 code was started. |
+| 2026-10-08 | **Phase 3 completed:** added request/recipient validation serializers, response serializers, and custom DRF exception handler returning standardized JSON error envelopes. 24 validation and error tests added; full 38-test suite passed. |
 | 2026-10-08 | **Phase 4 completed:** cleaned the supplied image's sample text with the static Recursion layout retained, then reduced the RGB PNG to 256 colours for size. Bundled [Cormorant Garamond regular and bold](https://github.com/google-fonts-bower/cormorantgaramond-bower) with its SIL OFL licence. The generator uses the image's 1.370 aspect ratio at 842 pt width, draws escaped dynamic text in measured boxes, and returns bytes only. Ten Phase 4 tests and the full 48-test PostgreSQL suite passed; short, typical and maximum-length output was visually checked with a temporary PDF renderer. `manage.py check` passed; `makemigrations --check --dry-run` found no changes. No Phase 5 code was started. |
+| 2026-10-08 | **Phase 5 completed:** added `services.py` with atomic `create_job` (saving job and certificate rows with validation status) and `process_job` claiming pending jobs under PostgreSQL row locks (`select_for_update`), generating PDFs, isolating failures, removing partial files, and computing final status. 16 tests added; full 64-test suite passed on PostgreSQL. |
+| 2026-10-08 | **Phase 6 completed:** configured Celery with Redis broker and `process_job_task(job_id)` entry point passing only the UUID string. Registered `services.dispatch_job` via `transaction.on_commit(queue_job)` to prevent race conditions before database commits; caught and logged broker exceptions leaving jobs in `PENDING` state. Added idempotent handling for duplicate and already-processing tasks. Created `CeleryEagerTestCase` test helper with temporary media root and eager execution. Added 8 Celery processing tests; full 72-test suite passed on PostgreSQL. Verified real end-to-end background execution with local Redis and Celery worker (`--pool=solo`). |
 
 *(Add rows for: phase completions, deviations from the documents, new dependencies with justification.)*
 

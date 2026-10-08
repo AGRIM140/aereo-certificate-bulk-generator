@@ -1,4 +1,4 @@
-"""Celery application configuration; processing tasks arrive in Phase 6."""
+"""Celery application configuration for the certificate worker."""
 
 import os
 
