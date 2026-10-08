@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 2 COMPLETE
-Current Task: Awaiting explicit instruction before Phase 3
-Overall Progress: Phases 1 and 2 verified; later phases not started
+Current Phase: Phase 3 COMPLETE
+Current Task: Awaiting explicit instruction before Phase 4
+Overall Progress: Phases 1–3 verified; later phases not started
 Last Updated: 2026-10-08
 ```
 
@@ -40,6 +40,7 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 - Phase 1: Django + DRF project foundation, PostgreSQL configuration, Celery wiring, local setup files, and foundation tests. Verified against PostgreSQL 17.11.
 - Phase 2: `GenerationJob` and `Certificate` PostgreSQL models, schema migration, progress and certificate-number helpers, UUID-only upload path, and 11 model tests. Verified against PostgreSQL 17.11.
+- Phase 3: request and per-recipient DRF serializers, job/certificate output serializers, and a registered JSON error-envelope handler. Added 24 tests for validation, errors, and output. The full 38-test Django suite passes on PostgreSQL; `manage.py check` reports no issues and `makemigrations --check --dry-run` reports no changes.
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -47,13 +48,13 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 2 was completed and verified; Phase 3 requires the developer's explicit instruction.
+- No coding phase is currently in progress. Phase 3 was completed and verified; Phase 4 requires the developer's explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 3 — serializers, validation, and error handling, only when the developer explicitly asks to proceed.
+- Phase 4 — cleaned template asset and PDF generator, only when the developer explicitly asks to proceed. Phase 5 will apply `RecipientSerializer` to each submitted item and persist exactly one certificate row per item, including `FAILED/VALIDATION` rows with one-based row numbers.
 
 ---
 

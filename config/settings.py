@@ -91,6 +91,7 @@ if not MEDIA_ROOT.is_absolute():
 MAX_RECIPIENTS_PER_JOB = int(os.getenv("MAX_RECIPIENTS_PER_JOB", "500"))
 
 REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "certificates.api_errors.exception_handler",
     "DEFAULT_PARSER_CLASSES": ["rest_framework.parsers.JSONParser"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
     "DEFAULT_AUTHENTICATION_CLASSES": [],

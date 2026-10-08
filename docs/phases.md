@@ -13,7 +13,7 @@
 - Work **one phase at a time, in order**. Do not start a phase until its dependencies are complete.
 - **Tests are written inside each phase**, not left for the end (Phase 10 is the gap-filling/verification pass).
 - Status values: `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `COMPLETE`.
-- Phases 1 and 2 are complete. Phase 0's remaining design questions are tracked in `memory.md`.
+- Phases 1–3 are complete. Phase 0's remaining design questions are tracked in `memory.md`.
 - **Recommended** and **Optional** work happens only after Phase 8 passes (see Phase 9).
 - Local prerequisites from Phase 1 onward: **Python, PostgreSQL, Redis** running; two processes (Django dev server, Celery worker).
 
@@ -26,7 +26,7 @@
 | 0 | Requirements and architecture approval | Yes | NOT_STARTED |
 | 1 | Django project setup + PostgreSQL configuration | Yes | COMPLETE |
 | 2 | Database models + migrations | Yes | COMPLETE |
-| 3 | Serializers, validation, error handling | Yes | NOT_STARTED |
+| 3 | Serializers, validation, error handling | Yes | COMPLETE |
 | 4 | Certificate template asset + ReportLab PDF generator | Yes | NOT_STARTED |
 | 5 | Service layer + job processing logic | Yes | NOT_STARTED |
 | 6 | Celery + Redis integration | Yes | NOT_STARTED |
@@ -102,7 +102,7 @@
 - **Dependencies:** Phase 2.
 - **Relevant requirements:** FR-002, FR-003, FR-011, DEC-005, DEC-013.
 - **Completion criteria:** All validation rules in `prd.md` FR-002/FR-003 have tests.
-- **Status:** `NOT_STARTED`
+- **Status:** `COMPLETE` — 24 Phase 3 tests pass on PostgreSQL; request/recipient validation, output serializers, and the DRF error envelope are in place. Certificate-row creation remains Phase 5 service work.
 
 ---
 
