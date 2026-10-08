@@ -190,7 +190,8 @@
 - **Dependencies:** Phase 7.
 - **Relevant requirements:** FR-010, FR-011, FR-013, FR-021, AC-008…AC-010, AC-014.
 - **Completion criteria:** Real end-to-end manual run: create job → poll → download PDF and open it (check the certificate number and dynamic text on the template).
-- **Status:** `NOT_STARTED`
+- **Status:** `COMPLETE` — `GET /api/certificates/{id}/` (metadata including `certificate_number`, `job_id`, `generated_at`, and `download_url`) and `GET /api/certificates/{id}/download/` (returning `FileResponse` attachment with filename `CERT-<year>-<hex>.pdf` and `application/pdf`) implemented in `certificates/views.py` and routed in `certificates/urls.py` via `CertificateDetailView`, `CertificateDownloadView`, and `MalformedCertificateView`; returns 409 Conflict with standard error envelope when not `GENERATED`; returns 404 Not Found on unknown ID, malformed ID, or missing file on disk (logged without path leak); 10 new retrieval tests added in `certificates/tests/test_retrieval.py` and full 103-test suite passes on PostgreSQL; real end-to-end run verified create → poll → metadata → download with valid PDF output.
+
 
 > **Required scope is functionally complete after Phase 8.**
 

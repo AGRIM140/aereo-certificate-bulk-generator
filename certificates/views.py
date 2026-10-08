@@ -1,14 +1,31 @@
-"""API views for certificate generation jobs and status retrieval."""
+"""API views for certificate generation jobs, status, and certificate retrieval."""
 
-from django.http import Http404, JsonResponse
+import logging
+
+from django.http import FileResponse, Http404, JsonResponse
 from rest_framework import status
+from rest_framework.exceptions import APIException
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from certificates.models import GenerationJob
-from certificates.serializers import GenerationJobSerializer, JobRequestSerializer
+from certificates.models import Certificate, GenerationJob
+from certificates.serializers import (
+    CertificateDetailSerializer,
+    GenerationJobSerializer,
+    JobRequestSerializer,
+)
 from certificates.services import create_job
+
+logger = logging.getLogger(__name__)
+
+
+class CertificateNotAvailableError(APIException):
+    """Raised when a client requests download of a non-GENERATED certificate."""
+
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = "Certificate is not available."
+    default_code = "certificate_not_available"
 
 
 class JobCreateView(APIView):
@@ -39,6 +56,55 @@ class MalformedJobDetailView(APIView):
 
     def get(self, request, job_id=None):
         raise Http404("Job not found.")
+
+
+class CertificateDetailView(APIView):
+    """Retrieve metadata for one certificate."""
+
+    def get(self, request, certificate_id):
+        certificate = get_object_or_404(Certificate, pk=certificate_id)
+        serializer = CertificateDetailSerializer(certificate, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CertificateDownloadView(APIView):
+    """Download the generated PDF file for a certificate."""
+
+    def get(self, request, certificate_id):
+        certificate = get_object_or_404(Certificate, pk=certificate_id)
+        if certificate.status != Certificate.Status.GENERATED:
+            raise CertificateNotAvailableError()
+
+        if not certificate.pdf_file:
+            logger.error("Certificate %s is GENERATED but has no pdf_file reference", certificate.id)
+            raise Http404("Certificate file not found.")
+
+        storage = certificate.pdf_file.storage
+        name = certificate.pdf_file.name
+        if not storage.exists(name):
+            logger.error("Stored PDF file %s for certificate %s is missing on storage", name, certificate.id)
+            raise Http404("Certificate file not found.")
+
+        try:
+            file_handle = storage.open(name, "rb")
+        except OSError:
+            logger.exception("Could not open PDF file %s for certificate %s", name, certificate.id)
+            raise Http404("Certificate file not found.")
+
+        filename = f"{certificate.certificate_number}.pdf"
+        return FileResponse(
+            file_handle,
+            as_attachment=True,
+            filename=filename,
+            content_type="application/pdf",
+        )
+
+
+class MalformedCertificateView(APIView):
+    """Return documented 404 error envelope when a certificate ID is not a valid UUID."""
+
+    def get(self, request, certificate_id=None):
+        raise Http404("Certificate not found.")
 
 
 def custom_404_view(request, exception=None):

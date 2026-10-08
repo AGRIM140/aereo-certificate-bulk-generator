@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 7 COMPLETE
-Current Task: Awaiting explicit instruction before Phase 8
-Overall Progress: Phases 1–7 verified; later phases not started
+Current Phase: Phase 8 COMPLETE
+Current Task: Ready for Phase 9 / Recommended features
+Overall Progress: Phases 1–8 verified; later phases not started
 Last Updated: 2026-10-08
 ```
 
@@ -45,6 +45,7 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 - Phase 5: `services.py` creates a job and one numbered certificate row per recipient in one atomic transaction, using the existing recipient serializer and certificate-number helper. Invalid rows become `FAILED/VALIDATION`. Synchronous `process_job` claims a pending job under a short PostgreSQL row lock, generates and stores PDFs for pending rows, records isolated generation failures, removes partial files, and finalizes job status from certificate rows. Sixteen new service tests pass; the full 64-test suite passes on PostgreSQL. `manage.py check` reports no issues and `makemigrations --check --dry-run` reports no changes. No schema changes were needed.
 - Phase 6: `config/celery.py` and `certificates/tasks.py` configured with `process_job_task(job_id)` passing only the job UUID string. `services.dispatch_job(job_id)` registers dispatch via `transaction.on_commit(queue_job)`; broker errors are caught and logged, leaving the job `PENDING` in PostgreSQL for later recovery. Multiple/duplicate calls to `process_job` are idempotent no-ops. Added `CeleryEagerTestCase` test helper providing in-process Celery execution and isolated temporary media storage. Eight new Celery tests pass; full 72-test suite passes on PostgreSQL; `manage.py check` and `makemigrations --check --dry-run` are clean. Real end-to-end background execution verified against a local Redis server and live Celery worker (`--pool=solo`).
 - Phase 7: REST API endpoints `POST /api/jobs/` (accepting bulk requests, validating via `JobRequestSerializer`, delegating to `services.create_job`, returning HTTP 202 with job details and `status_url`) and `GET /api/jobs/{job_id}/` (retrieving job, progress counts, and per-recipient certificates in 3 constant queries) implemented in `certificates/views.py` and routed in `certificates/urls.py`. All error responses preserve the documented JSON error envelope (400 validation, 404 unknown/malformed UUID via `MalformedJobDetailView` and `handler404`, 405 method not allowed, 415 unsupported media type). 21 new API tests added; full 93-test suite passes on PostgreSQL. Live end-to-end API lifecycle verified with local Redis and running Celery worker.
+- Phase 8: Certificate metadata endpoint `GET /api/certificates/{id}/` and download endpoint `GET /api/certificates/{id}/download/` implemented in `certificates/views.py` and routed in `certificates/urls.py`. Metadata endpoint returns HTTP 200 with `CertificateDetailSerializer` output. Download endpoint streams PDF as an attachment using `FileResponse`, headers `Content-Disposition: attachment; filename="CERT-<year>-<hex>.pdf"` and `Content-Type: application/pdf`. Incomplete/failed certificates return HTTP 409 (`certificate_not_available`), unknown or non-UUID IDs return HTTP 404 in standard error envelope, and missing disk files log errors without leaking filesystem paths. Added 10 tests in `certificates/tests/test_retrieval.py`; full 103-test suite passes on PostgreSQL. Live end-to-end download verified.
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -52,13 +53,14 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 7 was completed and verified; Phase 8 requires the developer's explicit instruction.
+- No coding phase is currently in progress. Phase 8 was completed, verified, and committed. Phase 9 requires the developer's explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 8 — Certificate metadata and download (`GET /api/certificates/{id}/` and `GET /api/certificates/{id}/download/`).
+- Phase 9 — Recommended Features (Bulk ZIP download, status filtering, stuck-job recovery command).
+  *Note: The core required assignment pipeline (submission, validation, Celery/Redis generation, failure isolation, job status tracking, metadata retrieval, and PDF download) is now 100% functionally complete and verified.*
 
 
 
@@ -127,6 +129,7 @@ SUPERSEDED (history only)
 | 2026-10-08 | **Phase 5 completed:** added `services.py` with atomic `create_job` (saving job and certificate rows with validation status) and `process_job` claiming pending jobs under PostgreSQL row locks (`select_for_update`), generating PDFs, isolating failures, removing partial files, and computing final status. 16 tests added; full 64-test suite passed on PostgreSQL. |
 | 2026-10-08 | **Phase 6 completed:** configured Celery with Redis broker and `process_job_task(job_id)` entry point passing only the UUID string. Registered `services.dispatch_job` via `transaction.on_commit(queue_job)` to prevent race conditions before database commits; caught and logged broker exceptions leaving jobs in `PENDING` state. Added idempotent handling for duplicate and already-processing tasks. Created `CeleryEagerTestCase` test helper with temporary media root and eager execution. Added 8 Celery processing tests; full 72-test suite passed on PostgreSQL. Verified real end-to-end background execution with local Redis and Celery worker (`--pool=solo`). |
 | 2026-10-08 | **Phase 7 completed:** implemented REST API views `JobCreateView` (`POST /api/jobs/`) and `JobDetailView` (`GET /api/jobs/{job_id}/`) with URL routing, returning 202 Accepted on creation and 200 OK on status retrieval. Preserved standardized error envelopes (400, 404, 405, 415). Added 21 API tests; full 93-test suite passed on PostgreSQL; live manual verification passed against running Celery worker and Redis. |
+| 2026-10-08 | **Phase 8 completed:** implemented certificate metadata endpoint `GET /api/certificates/{id}/` and download endpoint `GET /api/certificates/{id}/download/`. Download endpoint returns binary PDF attachment (`Content-Disposition: attachment; filename="CERT-<year>-<hex>.pdf"` and `Content-Type: application/pdf`). Added HTTP 409 handling for certificates not yet generated or failed (`certificate_not_available`), HTTP 404 error envelope for invalid/unknown UUIDs, and safe 404 handling if physical PDF file is missing without path leaks. Added 10 tests in `certificates/tests/test_retrieval.py`; full 103-test suite passed on PostgreSQL. Live end-to-end PDF download verified with real background worker. |
 
 *(Add rows for: phase completions, deviations from the documents, new dependencies with justification.)*
 
