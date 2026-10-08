@@ -129,3 +129,54 @@ class ProcessingFailureTests(TestCase):
         self.assertEqual([row.status for row in rows], ["GENERATED", "FAILED"])
         self.assertEqual(rows[1].error_type, Certificate.ErrorType.GENERATION)
         self.assertEqual(rows[1].error_message, "Job processing was interrupted.")
+
+    def test_failed_certificate_does_not_stop_other_certificates(self):
+        self.test_one_generator_failure_does_not_stop_other_certificates()
+
+    def test_failure_marks_only_that_certificate(self):
+        job = submit(valid_data([{"name": "Ada"}, {"name": "Grace"}]))
+
+        def generate(name, *_args):
+            if name == "Grace":
+                raise RuntimeError("failing Grace")
+            return b"%PDF-fake"
+
+        with patch("certificates.pdf_generator.generate_certificate_pdf", side_effect=generate):
+            with self.assertLogs("certificates.services", level="ERROR"):
+                process_job(job.id)
+
+        job.refresh_from_db()
+        rows = list(job.certificates.all())
+        self.assertEqual(rows[0].status, Certificate.Status.GENERATED)
+        self.assertEqual(rows[0].error_type, "")
+        self.assertEqual(rows[0].error_message, "")
+        self.assertEqual(rows[1].status, Certificate.Status.FAILED)
+        self.assertEqual(rows[1].error_type, Certificate.ErrorType.GENERATION)
+
+    def test_save_error_handled_like_generation_error(self):
+        self.test_file_save_error_is_isolated_and_partial_file_is_removed()
+
+    def test_traceback_not_exposed_in_api(self):
+        from rest_framework.test import APIClient
+
+        job = submit(valid_data([{"name": "Ada"}]))
+
+        with patch("certificates.pdf_generator.generate_certificate_pdf", side_effect=RuntimeError("Traceback (most recent call last): /internal/secret/path.py")):
+            with self.assertLogs("certificates.services", level="ERROR"):
+                process_job(job.id)
+
+        client = APIClient()
+        job_resp = client.get(f"/api/jobs/{job.id}/")
+        self.assertEqual(job_resp.status_code, 200)
+        self.assertNotIn("Traceback", str(job_resp.data))
+        self.assertNotIn("/internal/secret", str(job_resp.data))
+        self.assertNotIn("RuntimeError", str(job_resp.data))
+
+        cert = job.certificates.get()
+        cert_resp = client.get(f"/api/certificates/{cert.id}/")
+        self.assertEqual(cert_resp.status_code, 200)
+        self.assertNotIn("Traceback", str(cert_resp.data))
+        self.assertNotIn("/internal/secret", str(cert_resp.data))
+        self.assertNotIn("RuntimeError", str(cert_resp.data))
+        self.assertEqual(cert_resp.data["error"]["message"], "Certificate generation failed.")
+

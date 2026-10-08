@@ -271,3 +271,84 @@ class ResponseSerializerTests(TestCase):
         self.assertEqual(str(detail["job_id"]), str(job.id))
         self.assertIsNotNone(detail["generated_at"])
         self.assertNotIn("job_id", CertificateSerializer(generated).data)
+
+
+class PerRecipientValidationPersistenceTests(TestCase):
+    def test_row_count_equals_submitted_recipients(self):
+        from certificates.services import create_job
+
+        data = {
+            "event_name": "Test Event",
+            "organization_name": "Test Org",
+            "recipients": [
+                {"name": "Valid 1"},
+                {"name": " "},
+                {"name": "Valid 2", "email": "valid@example.com"},
+                {"name": "Invalid Email", "email": "bad-email"},
+                "not-an-object",
+            ],
+        }
+        serializer = JobRequestSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        job = create_job(serializer.validated_data)
+        self.assertEqual(job.certificates.count(), len(data["recipients"]))
+
+    def test_blank_name_recorded_as_failed_validation(self):
+        from certificates.services import create_job
+
+        data = {
+            "event_name": "Test Event",
+            "organization_name": "Test Org",
+            "recipients": [{"name": "   "}],
+        }
+        serializer = JobRequestSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        job = create_job(serializer.validated_data)
+        cert = job.certificates.get()
+        self.assertEqual(cert.status, Certificate.Status.FAILED)
+        self.assertEqual(cert.error_type, Certificate.ErrorType.VALIDATION)
+        self.assertIn("name:", cert.error_message)
+
+    def test_invalid_email_recorded(self):
+        from certificates.services import create_job
+
+        data = {
+            "event_name": "Test Event",
+            "organization_name": "Test Org",
+            "recipients": [{"name": "Ada", "email": "bad-email"}],
+        }
+        serializer = JobRequestSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        job = create_job(serializer.validated_data)
+        cert = job.certificates.get()
+        self.assertEqual(cert.status, Certificate.Status.FAILED)
+        self.assertEqual(cert.error_type, Certificate.ErrorType.VALIDATION)
+        self.assertIn("email:", cert.error_message)
+
+    def test_control_characters_in_name_rejected(self):
+        serializer = RecipientSerializer(data={"name": "Ada\nLovelace"})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("name", serializer.errors)
+
+    def test_valid_recipients_still_generated_when_some_invalid(self):
+        from certificates.services import create_job, process_job
+
+        data = {
+            "event_name": "Test Event",
+            "organization_name": "Test Org",
+            "recipients": [
+                {"name": "Ada"},
+                {"name": ""},
+            ],
+        }
+        serializer = JobRequestSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        job = create_job(serializer.validated_data)
+        with patch("certificates.pdf_generator.generate_certificate_pdf", return_value=b"%PDF-fake"):
+            process_job(job.id)
+        job.refresh_from_db()
+        certs = list(job.certificates.all())
+        self.assertEqual(certs[0].status, Certificate.Status.GENERATED)
+        self.assertEqual(certs[1].status, Certificate.Status.FAILED)
+
+

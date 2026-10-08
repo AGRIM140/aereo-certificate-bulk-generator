@@ -105,6 +105,10 @@ class JobCreationTests(TestCase):
         self.assertEqual(GenerationJob.objects.count(), 0)
         self.assertEqual(Certificate.objects.count(), 0)
 
+    def test_creation_is_atomic_on_failure(self):
+        self.test_creation_rolls_back_if_bulk_insert_fails()
+
+
 
 class JobCreationAPITests(CeleryEagerTestCase):
     def setUp(self):

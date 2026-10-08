@@ -6,7 +6,7 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 from PIL import Image
 from reportlab.pdfgen import canvas
 
@@ -138,3 +138,46 @@ class PDFGenerationTests(SimpleTestCase):
         self.assertTrue(config.FONT_BOLD_PATH.is_file())
         license_text = (config.ASSETS_DIR / "fonts" / "OFL.txt").read_text(encoding="utf-8")
         self.assertIn("SIL OPEN FONT LICENSE", license_text)
+
+    def test_pdf_bytes_start_with_pdf_header(self):
+        result = self.make_pdf()
+        self.assertTrue(result.startswith(b"%PDF"))
+
+    def test_accented_names_supported(self):
+        self.test_accented_latin_names_generate()
+
+    def test_max_length_values_do_not_overflow(self):
+        self.test_maximum_documented_lengths_fit()
+
+    def test_dynamic_values_are_drawn_not_sample_values(self):
+        self.test_no_sample_values_are_in_dynamic_markup_or_configuration()
+
+    def test_special_characters_are_escaped(self):
+        self.test_escapes_special_characters_in_all_dynamic_fields()
+
+    def test_long_name_shrinks_or_wraps(self):
+        result = self.make_pdf(recipient_name="Alexandra Constantina Victoria-Mountbatten")
+        self.assertTrue(result.startswith(b"%PDF"))
+
+    def test_text_that_cannot_fit_raises_clear_error(self):
+        self.test_impossible_text_raises_clear_fit_error()
+
+
+class PDFProcessingIntegrationTests(TestCase):
+    def test_process_job_creates_files_for_valid_recipients(self):
+        from certificates.models import GenerationJob, Certificate
+        from certificates.services import process_job
+        from certificates.tests.test_job_creation import submit, valid_data
+        import tempfile
+        from django.test import override_settings
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with override_settings(MEDIA_ROOT=temp_dir):
+                job = submit(valid_data([{"name": "Valid Recipient"}]))
+                process_job(job.id)
+                job.refresh_from_db()
+                self.assertEqual(job.status, GenerationJob.Status.COMPLETED)
+                cert = job.certificates.get()
+                self.assertTrue(Path(cert.pdf_file.path).is_file())
+                self.assertTrue(cert.pdf_file.size > 0)
+

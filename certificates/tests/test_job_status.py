@@ -94,6 +94,58 @@ class JobProcessingTests(TestCase):
         process_job(uuid.uuid4())
         self.assertEqual(GenerationJob.objects.count(), 0)
 
+    def test_all_success_is_completed(self):
+        job = submit(valid_data([{"name": "Ada"}, {"name": "Grace"}]))
+        with patch("certificates.pdf_generator.generate_certificate_pdf", return_value=b"%PDF-fake"):
+            process_job(job.id)
+        job.refresh_from_db()
+        self.assertEqual(job.status, GenerationJob.Status.COMPLETED)
+
+    def test_mixed_is_completed_with_errors(self):
+        job = submit(valid_data([{"name": "Ada"}, {"name": " "}]))
+        with patch("certificates.pdf_generator.generate_certificate_pdf", return_value=b"%PDF-fake"):
+            process_job(job.id)
+        job.refresh_from_db()
+        self.assertEqual(job.status, GenerationJob.Status.COMPLETED_WITH_ERRORS)
+
+    def test_all_failed_is_failed(self):
+        job = submit(valid_data([{"name": " "}, {"name": ""}]))
+        process_job(job.id)
+        job.refresh_from_db()
+        self.assertEqual(job.status, GenerationJob.Status.FAILED)
+
+    def test_timestamps_set(self):
+        job = submit(valid_data([{"name": "Ada"}]))
+        self.assertIsNotNone(job.created_at)
+        self.assertIsNone(job.started_at)
+        self.assertIsNone(job.finished_at)
+        with patch("certificates.pdf_generator.generate_certificate_pdf", return_value=b"%PDF-fake"):
+            process_job(job.id)
+        job.refresh_from_db()
+        self.assertIsNotNone(job.started_at)
+        self.assertIsNotNone(job.finished_at)
+        self.assertLessEqual(job.started_at, job.finished_at)
+        cert = job.certificates.get()
+        self.assertIsNotNone(cert.created_at)
+        self.assertIsNotNone(cert.generated_at)
+
+    def test_certificate_status_and_error_fields(self):
+        job = submit(valid_data([{"name": "Ada"}, {"name": " "}]))
+        with patch("certificates.pdf_generator.generate_certificate_pdf", return_value=b"%PDF-fake"):
+            process_job(job.id)
+        job.refresh_from_db()
+        cert_gen = job.certificates.get(row_number=1)
+        cert_fail = job.certificates.get(row_number=2)
+        self.assertEqual(cert_gen.status, Certificate.Status.GENERATED)
+        self.assertEqual(cert_gen.error_type, "")
+        self.assertEqual(cert_gen.error_message, "")
+        self.assertIsNotNone(cert_gen.generated_at)
+        self.assertEqual(cert_fail.status, Certificate.Status.FAILED)
+        self.assertEqual(cert_fail.error_type, Certificate.ErrorType.VALIDATION)
+        self.assertIn("name:", cert_fail.error_message)
+        self.assertIsNone(cert_fail.generated_at)
+
+
 
 class JobStatusAPITests(CeleryEagerTestCase):
     def setUp(self):

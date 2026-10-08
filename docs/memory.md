@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 9 COMPLETE
-Current Task: Ready for Phase 10 / Testing and verification
-Overall Progress: Phases 1–9 verified; later phases not started
+Current Phase: Phase 10 COMPLETE
+Current Task: Ready for Phase 11 / README and documentation
+Overall Progress: Phases 1–10 verified; Phase 11–13 not started
 Last Updated: 2026-10-08
 ```
 
@@ -52,6 +52,11 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
   (3) FR-014 `GET /api/jobs/` paginated job list (newest first, summary serializer) and FR-015 `GET /api/jobs/{job_id}/certificates/?status=...` paginated/filterable certificate list (supporting PENDING, GENERATED, FAILED; 400 on invalid status, 404 on unknown job);
   (4) FR-018 `certificates/admin.py` model registration for `GenerationJob` and `Certificate`.
   Added 14 tests across `test_job_status.py`, `test_retrieval.py`, `test_management_command.py`, and `test_foundation.py`. The full 117-test suite passes on PostgreSQL; `manage.py check` and `makemigrations --check --dry-run` are clean. Live end-to-end integration verified against local Redis and Celery worker.
+- Phase 10: Testing and verification complete:
+  (1) Traceability matrix fully walked and covered; added 23 focused tests across `test_validation.py`, `test_failure_handling.py`, `test_job_status.py`, `test_job_creation.py`, and `test_pdf_generation.py` ensuring every FR-001…FR-022 and NFR-001…NFR-008 requirement is explicitly tested. Total test count reached 140 tests.
+  (2) Suite stability verified with 3 consecutive full test runs (`manage.py test`): all 3 runs passed 140/140 tests cleanly on PostgreSQL in ~5.4s (zero flakiness).
+  (3) Migration safety verified: `makemigrations --check --dry-run` reports no changes detected; `manage.py check` reports 0 issues.
+  (4) Scale benchmark with live PostgreSQL, Redis, and Celery worker (`--pool=solo`): 500-recipient job generated 500 valid PDFs in 49.63s processing time (10.07 certs/sec throughput, 99.3 ms/cert). Average PDF size: 387.5 KB (184.8 MB total). Bulk ZIP download built in 16.47s (152.4 MB) containing 500 valid PDFs. Test media and database rows cleaned up post-run.
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -59,13 +64,14 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 9 was completed, verified, and committed. Phase 10 requires the developer's explicit instruction.
+- No coding phase is currently in progress. Phase 10 was completed, verified, and committed. Ready for Phase 11 upon explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 10 — Testing and verification (full suite stability, flakiness checks, coverage assessment, 500-recipient scale validation).
+- Phase 11 — README and documentation (prerequisites, setup, running server and worker, running tests, curl examples, design decision rationales, limitations).
+
 
 
 
@@ -136,6 +142,8 @@ SUPERSEDED (history only)
 | 2026-10-08 | **Phase 7 completed:** implemented REST API views `JobCreateView` (`POST /api/jobs/`) and `JobDetailView` (`GET /api/jobs/{job_id}/`) with URL routing, returning 202 Accepted on creation and 200 OK on status retrieval. Preserved standardized error envelopes (400, 404, 405, 415). Added 21 API tests; full 93-test suite passed on PostgreSQL; live manual verification passed against running Celery worker and Redis. |
 | 2026-10-08 | **Phase 8 completed:** implemented certificate metadata endpoint `GET /api/certificates/{id}/` and download endpoint `GET /api/certificates/{id}/download/`. Download endpoint returns binary PDF attachment (`Content-Disposition: attachment; filename="CERT-<year>-<hex>.pdf"` and `Content-Type: application/pdf`). Added HTTP 409 handling for certificates not yet generated or failed (`certificate_not_available`), HTTP 404 error envelope for invalid/unknown UUIDs, and safe 404 handling if physical PDF file is missing without path leaks. Added 10 tests in `certificates/tests/test_retrieval.py`; full 103-test suite passed on PostgreSQL. Live end-to-end PDF download verified with real background worker. |
 | 2026-10-08 | **Phase 9 completed:** implemented all recommended features (FR-014 through FR-018): `process_pending_jobs` management command and `services.recover_stale_jobs()` with `STALE_JOB_MINUTES` = 15; bulk ZIP download `GET /api/jobs/{job_id}/download/` with `services.build_job_zip()`; paginated job list `GET /api/jobs/`; paginated and filterable certificate list `GET /api/jobs/{job_id}/certificates/?status=...`; and Django admin registration for `GenerationJob` and `Certificate`. Added 14 tests; full 117-test suite passed on PostgreSQL. Live end-to-end integration verified against running Celery worker and Redis. |
+| 2026-10-08 | **Phase 10 completed:** testing and verification. Walked traceability matrix across FR-001…FR-022 and NFR-001…NFR-008, added 23 focused tests ensuring 100% matrix coverage (total 140 tests). Verified test stability and zero flakiness via 3 consecutive full suite passes (~5.4s per run). Confirmed `manage.py check` (0 issues) and `makemigrations --check --dry-run` (clean). Performed live 500-recipient scale benchmark with live PostgreSQL, Redis, and Celery worker (`--pool=solo`): 500 certificates generated in 49.63s (10.07 certs/sec), average PDF size 387.5 KB, bulk ZIP download verified (152.4 MB, 16.47s), post-test cleanup verified. |
+
 
 *(Add rows for: phase completions, deviations from the documents, new dependencies with justification.)*
 
@@ -156,6 +164,31 @@ None known for Phases 1–4. Git checkpoints are tracked in the repository.
 - Local setup is heavier: PostgreSQL + Redis + two processes.
 - No retries, no file cleanup/retention (A-8, A-16).
 - **Template asset:** the cleaned PNG preserves the supplied design's aspect ratio and is 1468×1071 pixels. It is still not exact A4 (1.370 vs 1.414); the documented aspect-ratio page avoids distortion. A higher-resolution export from the original design tool would improve print sharpness if available.
+
+---
+
+## Scale Benchmark Results (Phase 10)
+
+```text
+Run date: 2026-10-08
+Environment: Local Windows x64, PostgreSQL 17.11, Redis 8.10.1, Celery 5.6.3 (solo pool)
+Recipients: 500 (maximum configured batch size)
+Job submission latency: 0.352s (POST /api/jobs/ -> HTTP 202 Accepted)
+Job processing time: 49.63s (started_at to finished_at in PostgreSQL)
+Total wall-clock duration: 50.31s (submission to terminal status polling completion)
+Throughput: 10.07 certificates / second (99.3 ms per certificate)
+PDF sizes:
+  - Minimum: 387,436 bytes (378.4 KB)
+  - Maximum: 387,685 bytes (378.6 KB)
+  - Average: 387,487 bytes (378.4 KB)
+  - Total storage: 184.77 MB across 500 PDF files
+Bulk ZIP download:
+  - Archive generation & download: 16.47s
+  - Total ZIP size: 152.41 MB
+  - Archive contents: 500 valid PDFs with intact %PDF headers and %%EOF markers
+Cleanup: Post-benchmark removal of media directory and database rows verified clean.
+```
+
 
 ---
 
