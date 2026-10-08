@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 6 COMPLETE
-Current Task: Awaiting explicit instruction before Phase 7
-Overall Progress: Phases 1–6 verified; later phases not started
+Current Phase: Phase 7 COMPLETE
+Current Task: Awaiting explicit instruction before Phase 8
+Overall Progress: Phases 1–7 verified; later phases not started
 Last Updated: 2026-10-08
 ```
 
@@ -44,6 +44,7 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 - Phase 4: cleaned the supplied Recursion template's dynamic-text areas into a fixed RGB asset; bundled Cormorant Garamond regular/bold TTFs and their SIL OFL licence; added fixed layout configuration and a ReportLab generator that returns bytes without database, API, Celery, or file writes. Ten PDF tests pass. The full 48-test suite passes on PostgreSQL. Short, typical, and maximum-length PDFs were rendered and visually inspected. A typical PDF is about 388 KB after template compression.
 - Phase 5: `services.py` creates a job and one numbered certificate row per recipient in one atomic transaction, using the existing recipient serializer and certificate-number helper. Invalid rows become `FAILED/VALIDATION`. Synchronous `process_job` claims a pending job under a short PostgreSQL row lock, generates and stores PDFs for pending rows, records isolated generation failures, removes partial files, and finalizes job status from certificate rows. Sixteen new service tests pass; the full 64-test suite passes on PostgreSQL. `manage.py check` reports no issues and `makemigrations --check --dry-run` reports no changes. No schema changes were needed.
 - Phase 6: `config/celery.py` and `certificates/tasks.py` configured with `process_job_task(job_id)` passing only the job UUID string. `services.dispatch_job(job_id)` registers dispatch via `transaction.on_commit(queue_job)`; broker errors are caught and logged, leaving the job `PENDING` in PostgreSQL for later recovery. Multiple/duplicate calls to `process_job` are idempotent no-ops. Added `CeleryEagerTestCase` test helper providing in-process Celery execution and isolated temporary media storage. Eight new Celery tests pass; full 72-test suite passes on PostgreSQL; `manage.py check` and `makemigrations --check --dry-run` are clean. Real end-to-end background execution verified against a local Redis server and live Celery worker (`--pool=solo`).
+- Phase 7: REST API endpoints `POST /api/jobs/` (accepting bulk requests, validating via `JobRequestSerializer`, delegating to `services.create_job`, returning HTTP 202 with job details and `status_url`) and `GET /api/jobs/{job_id}/` (retrieving job, progress counts, and per-recipient certificates in 3 constant queries) implemented in `certificates/views.py` and routed in `certificates/urls.py`. All error responses preserve the documented JSON error envelope (400 validation, 404 unknown/malformed UUID via `MalformedJobDetailView` and `handler404`, 405 method not allowed, 415 unsupported media type). 21 new API tests added; full 93-test suite passes on PostgreSQL. Live end-to-end API lifecycle verified with local Redis and running Celery worker.
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -51,13 +52,14 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 6 was completed and verified; Phase 7 requires the developer's explicit instruction.
+- No coding phase is currently in progress. Phase 7 was completed and verified; Phase 8 requires the developer's explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 7 — REST API: create job (`POST /api/jobs/`) returning 202 Accepted, and job status endpoint (`GET /api/jobs/{job_id}/`).
+- Phase 8 — Certificate metadata and download (`GET /api/certificates/{id}/` and `GET /api/certificates/{id}/download/`).
+
 
 
 ---
@@ -124,6 +126,7 @@ SUPERSEDED (history only)
 | 2026-10-08 | **Phase 4 completed:** cleaned the supplied image's sample text with the static Recursion layout retained, then reduced the RGB PNG to 256 colours for size. Bundled [Cormorant Garamond regular and bold](https://github.com/google-fonts-bower/cormorantgaramond-bower) with its SIL OFL licence. The generator uses the image's 1.370 aspect ratio at 842 pt width, draws escaped dynamic text in measured boxes, and returns bytes only. Ten Phase 4 tests and the full 48-test PostgreSQL suite passed; short, typical and maximum-length output was visually checked with a temporary PDF renderer. `manage.py check` passed; `makemigrations --check --dry-run` found no changes. No Phase 5 code was started. |
 | 2026-10-08 | **Phase 5 completed:** added `services.py` with atomic `create_job` (saving job and certificate rows with validation status) and `process_job` claiming pending jobs under PostgreSQL row locks (`select_for_update`), generating PDFs, isolating failures, removing partial files, and computing final status. 16 tests added; full 64-test suite passed on PostgreSQL. |
 | 2026-10-08 | **Phase 6 completed:** configured Celery with Redis broker and `process_job_task(job_id)` entry point passing only the UUID string. Registered `services.dispatch_job` via `transaction.on_commit(queue_job)` to prevent race conditions before database commits; caught and logged broker exceptions leaving jobs in `PENDING` state. Added idempotent handling for duplicate and already-processing tasks. Created `CeleryEagerTestCase` test helper with temporary media root and eager execution. Added 8 Celery processing tests; full 72-test suite passed on PostgreSQL. Verified real end-to-end background execution with local Redis and Celery worker (`--pool=solo`). |
+| 2026-10-08 | **Phase 7 completed:** implemented REST API views `JobCreateView` (`POST /api/jobs/`) and `JobDetailView` (`GET /api/jobs/{job_id}/`) with URL routing, returning 202 Accepted on creation and 200 OK on status retrieval. Preserved standardized error envelopes (400, 404, 405, 415). Added 21 API tests; full 93-test suite passed on PostgreSQL; live manual verification passed against running Celery worker and Redis. |
 
 *(Add rows for: phase completions, deviations from the documents, new dependencies with justification.)*
 

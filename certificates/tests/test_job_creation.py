@@ -3,12 +3,16 @@
 from datetime import date
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
+from rest_framework import status
+from rest_framework.test import APIClient
 
 from certificates.models import Certificate, GenerationJob, build_certificate_number
 from certificates.serializers import JobRequestSerializer
 from certificates.services import create_job
+from certificates.tasks import process_job_task
+from certificates.tests.helpers import CeleryEagerTestCase
 
 
 def valid_data(recipients=None, **changes):
@@ -100,3 +104,128 @@ class JobCreationTests(TestCase):
                 submit(valid_data([{"name": "Ada"}, {"name": "Grace"}]))
         self.assertEqual(GenerationJob.objects.count(), 0)
         self.assertEqual(Certificate.objects.count(), 0)
+
+
+class JobCreationAPITests(CeleryEagerTestCase):
+    def setUp(self):
+        super().setUp()
+        self.client = APIClient()
+
+    def test_valid_request_returns_202_with_job_id(self):
+        payload = valid_data([{"name": "Ada Lovelace", "email": "ada@example.com"}])
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertIn("id", response.data)
+        self.assertEqual(response.data["status"], GenerationJob.Status.PENDING)
+        self.assertEqual(response.data["event_name"], "Python Workshop")
+        self.assertEqual(response.data["organization_name"], "Example Club")
+        self.assertEqual(response.data["issue_date"], "2026-10-08")
+        self.assertEqual(response.data["progress"]["total"], 1)
+        self.assertEqual(response.data["progress"]["pending"], 1)
+        self.assertEqual(len(response.data["certificates"]), 1)
+        self.assertEqual(
+            response.data["status_url"],
+            f"http://testserver/api/jobs/{response.data['id']}/",
+        )
+
+    def test_job_and_certificate_rows_created(self):
+        payload = valid_data([{"name": "Ada"}, {"name": "Grace"}])
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        job = GenerationJob.objects.get(pk=response.data["id"])
+        self.assertEqual(job.certificates.count(), 2)
+
+    def test_response_does_not_wait_for_generation(self):
+        payload = valid_data([{"name": "Ada"}])
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(response.data["status"], GenerationJob.Status.PENDING)
+        self.assertEqual(response.data["certificates"][0]["status"], Certificate.Status.PENDING)
+        self.assertIsNone(response.data["started_at"])
+        self.assertIsNone(response.data["finished_at"])
+
+    def test_response_contains_status_url(self):
+        payload = valid_data()
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        job_id = response.data["id"]
+        self.assertEqual(response.data["status_url"], f"http://testserver/api/jobs/{job_id}/")
+
+    def test_missing_event_name_returns_400_and_creates_no_job(self):
+        payload = valid_data(event_name="")
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"]["code"], "validation_error")
+        self.assertIn("event_name", response.data["error"]["details"])
+        self.assertEqual(GenerationJob.objects.count(), 0)
+        self.assertEqual(Certificate.objects.count(), 0)
+
+    def test_empty_recipients_rejected(self):
+        payload = valid_data(recipients=[])
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"]["code"], "validation_error")
+        self.assertIn("recipients", response.data["error"]["details"])
+        self.assertEqual(GenerationJob.objects.count(), 0)
+
+    def test_invalid_issue_date_rejected(self):
+        payload = valid_data(issue_date="not-a-date")
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"]["code"], "validation_error")
+        self.assertIn("issue_date", response.data["error"]["details"])
+        self.assertEqual(GenerationJob.objects.count(), 0)
+
+    @override_settings(MAX_RECIPIENTS_PER_JOB=2)
+    def test_too_many_recipients_rejected(self):
+        payload = valid_data(recipients=[{"name": "A"}, {"name": "B"}, {"name": "C"}])
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"]["code"], "validation_error")
+        self.assertIn("recipients", response.data["error"]["details"])
+        self.assertEqual(GenerationJob.objects.count(), 0)
+
+    def test_mixed_valid_and_invalid_recipients_are_accepted(self):
+        payload = valid_data([{"name": "Ada"}, {"name": "  "}])
+        response = self.client.post("/api/jobs/", payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        certs = response.data["certificates"]
+        self.assertEqual(len(certs), 2)
+        self.assertEqual(certs[0]["status"], Certificate.Status.PENDING)
+        self.assertEqual(certs[1]["status"], Certificate.Status.FAILED)
+        self.assertEqual(certs[1]["error"]["type"], Certificate.ErrorType.VALIDATION)
+
+    def test_dispatch_called_after_commit(self):
+        payload = valid_data([{"name": "Ada"}])
+        with patch.object(process_job_task, "delay") as delay:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post("/api/jobs/", payload, format="json")
+                self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        job_id = response.data["id"]
+        delay.assert_called_once_with(str(job_id))
+
+    def test_wrong_method_returns_405(self):
+        response = self.client.get("/api/jobs/")
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.data["error"]["code"], "method_not_allowed")
+
+    def test_non_json_body_rejected(self):
+        response = self.client.post("/api/jobs/", "not json", content_type="text/plain")
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        self.assertEqual(response.data["error"]["code"], "unsupported_media_type")
+
+    def test_malformed_json_body_rejected(self):
+        response = self.client.post("/api/jobs/", "{broken json", content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"]["code"], "validation_error")
+

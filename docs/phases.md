@@ -174,7 +174,8 @@
 - **Dependencies:** Phases 3, 6.
 - **Relevant requirements:** FR-001, FR-002, FR-004, FR-009, FR-011, AC-001…AC-003, AC-007.
 - **Completion criteria:** Manual `curl` run with a real worker shows status moving PENDING → PROCESSING → terminal; tests green.
-- **Status:** `NOT_STARTED`
+- **Status:** `COMPLETE` — `POST /api/jobs/` (202 Accepted with job summary, progress, certificates list, and `status_url`) and `GET /api/jobs/{job_id}/` (200 OK with progress counts and per-recipient results in 3 constant queries) implemented in `certificates/views.py` and routed in `certificates/urls.py` via `JobCreateView`, `JobDetailView`, and `MalformedJobDetailView` with `handler404` error envelope support; all documented error envelopes (400 validation, 404 not found on unknown and malformed UUID, 405 method not allowed, 415 unsupported media type) preserved; 21 new API tests added and full 93-test suite passes on PostgreSQL; end-to-end API lifecycle verified against live Redis and Celery worker.
+
 
 ---
 

@@ -6,10 +6,14 @@ from pathlib import Path
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
+from rest_framework import status
+from rest_framework.test import APIClient
 
 from certificates.models import Certificate, GenerationJob
 from certificates.services import process_job
+from certificates.tests.helpers import CeleryEagerTestCase
 from certificates.tests.test_job_creation import submit, valid_data
+
 
 
 class JobProcessingTests(TestCase):
@@ -89,3 +93,103 @@ class JobProcessingTests(TestCase):
     def test_missing_job_is_a_noop(self):
         process_job(uuid.uuid4())
         self.assertEqual(GenerationJob.objects.count(), 0)
+
+
+class JobStatusAPITests(CeleryEagerTestCase):
+    def setUp(self):
+        super().setUp()
+        self.client = APIClient()
+
+    def test_job_detail_shows_progress_counts(self):
+        job = submit(valid_data([{"name": "Ada"}, {"name": "Grace"}]))
+        response = self.client.get(f"/api/jobs/{job.id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["id"], str(job.id))
+        self.assertEqual(response.data["status"], GenerationJob.Status.PENDING)
+        progress = response.data["progress"]
+        self.assertEqual(progress["total"], 2)
+        self.assertEqual(progress["generated"], 0)
+        self.assertEqual(progress["failed"], 0)
+        self.assertEqual(progress["pending"], 2)
+        self.assertEqual(progress["percent_complete"], 0.0)
+
+    def test_job_detail_lists_failures_with_errors(self):
+        job = submit(valid_data([{"name": "Ada"}, {"name": ""}]))
+        response = self.client.get(f"/api/jobs/{job.id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        certs = response.data["certificates"]
+        self.assertEqual(len(certs), 2)
+        self.assertEqual(certs[1]["status"], Certificate.Status.FAILED)
+        self.assertIsNotNone(certs[1]["error"])
+        self.assertEqual(certs[1]["error"]["type"], "VALIDATION")
+        self.assertIn("name:", certs[1]["error"]["message"])
+        self.assertIsNone(certs[1]["download_url"])
+
+    def test_job_detail_shows_generated_certificates_with_download_urls(self):
+        job = submit(valid_data([{"name": "Ada"}]))
+        process_job(job.id)
+        response = self.client.get(f"/api/jobs/{job.id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], GenerationJob.Status.COMPLETED)
+        cert = response.data["certificates"][0]
+        self.assertEqual(cert["status"], Certificate.Status.GENERATED)
+        self.assertEqual(
+            cert["download_url"],
+            f"http://testserver/api/certificates/{cert['id']}/download/",
+        )
+        self.assertIsNone(cert["error"])
+
+    def test_unknown_job_returns_404(self):
+        unknown_id = uuid.uuid4()
+        response = self.client.get(f"/api/jobs/{unknown_id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["error"]["code"], "not_found")
+        self.assertEqual(response.data["error"]["message"], "The requested resource was not found.")
+
+    def test_malformed_job_id_returns_404(self):
+        for bad_id in ("not-a-uuid", "123", "4d32a9ac-bad", "undefined"):
+            with self.subTest(bad_id=bad_id):
+                response = self.client.get(f"/api/jobs/{bad_id}/")
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+                self.assertEqual(response.data["error"]["code"], "not_found")
+
+    def test_job_detail_query_count_is_small(self):
+        job = submit(valid_data([{"name": f"User {i}"} for i in range(15)]))
+        with self.assertNumQueries(3):
+            response = self.client.get(f"/api/jobs/{job.id}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["certificates"]), 15)
+
+    def test_api_reports_job_status_not_celery_state(self):
+        for expected_status in (
+            GenerationJob.Status.PENDING,
+            GenerationJob.Status.PROCESSING,
+            GenerationJob.Status.COMPLETED,
+            GenerationJob.Status.COMPLETED_WITH_ERRORS,
+            GenerationJob.Status.FAILED,
+        ):
+            with self.subTest(status=expected_status):
+                job = submit(valid_data())
+                job.status = expected_status
+                job.save(update_fields=["status"])
+                response = self.client.get(f"/api/jobs/{job.id}/")
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(response.data["status"], expected_status)
+
+    def test_eager_celery_post_and_get_lifecycle(self):
+        payload = valid_data([{"name": "Ada Lovelace", "email": "ada@example.com"}])
+        with self.captureOnCommitCallbacks(execute=True):
+            post_resp = self.client.post("/api/jobs/", payload, format="json")
+            self.assertEqual(post_resp.status_code, status.HTTP_202_ACCEPTED)
+
+        job_id = post_resp.data["id"]
+        get_resp = self.client.get(f"/api/jobs/{job_id}/")
+        self.assertEqual(get_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(get_resp.data["status"], GenerationJob.Status.COMPLETED)
+        self.assertEqual(get_resp.data["progress"]["percent_complete"], 100.0)
+        self.assertEqual(get_resp.data["certificates"][0]["status"], Certificate.Status.GENERATED)
+
