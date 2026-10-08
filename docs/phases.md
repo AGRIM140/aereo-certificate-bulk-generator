@@ -13,7 +13,7 @@
 - Work **one phase at a time, in order**. Do not start a phase until its dependencies are complete.
 - **Tests are written inside each phase**, not left for the end (Phase 10 is the gap-filling/verification pass).
 - Status values: `NOT_STARTED`, `IN_PROGRESS`, `BLOCKED`, `COMPLETE`.
-- Phases 1–3 are complete. Phase 0's remaining design questions are tracked in `memory.md`.
+- Phases 1–4 are complete. Phase 0's remaining design questions are tracked in `memory.md`.
 - **Recommended** and **Optional** work happens only after Phase 8 passes (see Phase 9).
 - Local prerequisites from Phase 1 onward: **Python, PostgreSQL, Redis** running; two processes (Django dev server, Celery worker).
 
@@ -27,7 +27,7 @@
 | 1 | Django project setup + PostgreSQL configuration | Yes | COMPLETE |
 | 2 | Database models + migrations | Yes | COMPLETE |
 | 3 | Serializers, validation, error handling | Yes | COMPLETE |
-| 4 | Certificate template asset + ReportLab PDF generator | Yes | NOT_STARTED |
+| 4 | Certificate template asset + ReportLab PDF generator | Yes | COMPLETE |
 | 5 | Service layer + job processing logic | Yes | NOT_STARTED |
 | 6 | Celery + Redis integration | Yes | NOT_STARTED |
 | 7 | REST API (create job, job status) | Yes | NOT_STARTED |
@@ -123,7 +123,7 @@
 - **Dependencies:** Phase 1 (independent of models — may be done in parallel with Phases 2–3).
 - **Relevant requirements:** FR-005, FR-022, NFR-004, NFR-013, A-9, A-10, A-12, A-13, DEC-003, DEC-012, DEC-025.
 - **Completion criteria:** Tests pass; sample PDFs visually correct (no overlap/overflow, no sample data); font license included.
-- **Status:** `NOT_STARTED`
+- **Status:** `COMPLETE` — cleaned fixed template, bundled Cormorant Garamond fonts and licence, configuration, pure PDF generator, and 10 tests added. Short, typical, and maximum-length PDFs were rendered and visually checked; the full 48-test PostgreSQL suite passes.
 
 ---
 

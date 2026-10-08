@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 3 COMPLETE
-Current Task: Awaiting explicit instruction before Phase 4
-Overall Progress: Phases 1–3 verified; later phases not started
+Current Phase: Phase 4 COMPLETE
+Current Task: Awaiting explicit instruction before Phase 5
+Overall Progress: Phases 1–4 verified; later phases not started
 Last Updated: 2026-10-08
 ```
 
@@ -41,6 +41,7 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 - Phase 1: Django + DRF project foundation, PostgreSQL configuration, Celery wiring, local setup files, and foundation tests. Verified against PostgreSQL 17.11.
 - Phase 2: `GenerationJob` and `Certificate` PostgreSQL models, schema migration, progress and certificate-number helpers, UUID-only upload path, and 11 model tests. Verified against PostgreSQL 17.11.
 - Phase 3: request and per-recipient DRF serializers, job/certificate output serializers, and a registered JSON error-envelope handler. Added 24 tests for validation, errors, and output. The full 38-test Django suite passes on PostgreSQL; `manage.py check` reports no issues and `makemigrations --check --dry-run` reports no changes.
+- Phase 4: cleaned the supplied Recursion template's dynamic-text areas into a fixed RGB asset; bundled Cormorant Garamond regular/bold TTFs and their SIL OFL licence; added fixed layout configuration and a ReportLab generator that returns bytes without database, API, Celery, or file writes. Ten PDF tests pass. The full 48-test suite passes on PostgreSQL. Short, typical, and maximum-length PDFs were rendered and visually inspected. A typical PDF is about 388 KB after template compression.
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -48,13 +49,13 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 3 was completed and verified; Phase 4 requires the developer's explicit instruction.
+- No coding phase is currently in progress. Phase 4 was completed and verified; Phase 5 requires the developer's explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 4 — cleaned template asset and PDF generator, only when the developer explicitly asks to proceed. Phase 5 will apply `RecipientSerializer` to each submitted item and persist exactly one certificate row per item, including `FAILED/VALIDATION` rows with one-based row numbers.
+- Phase 5 — service-layer job creation and processing, only when the developer explicitly asks to proceed. It will apply `RecipientSerializer` to each submitted item and persist exactly one certificate row per item, including `FAILED/VALIDATION` rows with one-based row numbers.
 
 ---
 
@@ -116,6 +117,7 @@ SUPERSEDED (history only)
 | 2026-10-08 | **Phase 1 started:** copied the five source documents into `docs/`; created the virtual environment, Django `config` project, `certificates` app, PostgreSQL-only settings, DRF JSON settings, Celery broker wiring, pinned requirements, environment example, README stub, and three foundation tests. `manage.py check` passed; two configuration tests passed. The full suite failed before tests ran because no PostgreSQL server is reachable at `127.0.0.1:5432`. Winget's PostgreSQL installer download returned HTTP 403; Chocolatey installation failed without Windows administrator rights. No SQLite fallback was used. |
 | 2026-10-08 | **Phase 1 completed:** with the developer's installer authorization, PostgreSQL 17.11 was installed as a local Windows service. A dedicated `bulk_certificates` database and `bulk_certificates_user` role with `CREATEDB` were created; generated local credentials are stored only in ignored `.env`. `manage.py check` passed, `migrate --noinput` applied all initial Django migrations, `makemigrations --check --dry-run` reported "No changes detected", `manage.py test --verbosity 2` created a PostgreSQL test database and passed all 3 tests, and `runserver` listened on loopback and served a local request. Temporary setup clusters were stopped and removed. No Redis or Celery worker was needed for Phase 1. |
 | 2026-10-08 | **Phase 2 completed:** added both documented models with UUID primary keys, status/error choices, timestamps, PDF file reference, `(job, row_number)` and certificate-number uniqueness, and `(job, status)` and job-status indexes. Added `get_progress()` (one aggregate query), UUID-only upload path, and the UUID-derived certificate-number helper. Generated and applied `certificates.0001_initial` on PostgreSQL. `manage.py check` passed; `makemigrations --check --dry-run` reported "No changes detected"; 11 new model tests and the full 14-test suite passed. No Phase 3 code was started. |
+| 2026-10-08 | **Phase 4 completed:** cleaned the supplied image's sample text with the static Recursion layout retained, then reduced the RGB PNG to 256 colours for size. Bundled [Cormorant Garamond regular and bold](https://github.com/google-fonts-bower/cormorantgaramond-bower) with its SIL OFL licence. The generator uses the image's 1.370 aspect ratio at 842 pt width, draws escaped dynamic text in measured boxes, and returns bytes only. Ten Phase 4 tests and the full 48-test PostgreSQL suite passed; short, typical and maximum-length output was visually checked with a temporary PDF renderer. `manage.py check` passed; `makemigrations --check --dry-run` found no changes. No Phase 5 code was started. |
 
 *(Add rows for: phase completions, deviations from the documents, new dependencies with justification.)*
 
@@ -124,7 +126,7 @@ SUPERSEDED (history only)
 ## Known Issues
 
 ```text
-None known for Phases 1–2. The source directory is not yet a Git repository; `.gitignore` is present for when version control is initialized.
+None known for Phases 1–4. Git checkpoints are tracked in the repository.
 ```
 
 **Known limitations (by design, to be stated in README):**
@@ -135,7 +137,7 @@ None known for Phases 1–2. The source directory is not yet a Git repository; `
 - Worker and Django server must share the same local `MEDIA_ROOT` (no S3).
 - Local setup is heavier: PostgreSQL + Redis + two processes.
 - No retries, no file cleanup/retention (A-8, A-16).
-- **Template asset:** the supplied PNG still contains baked-in sample text; the committed asset must be a cleaned copy (A-12). Its low resolution (≈100 DPI at A4), different aspect ratio (1.370 vs A4 1.414) and ≈1.4 MB size per embedded copy are open items (OQ-8, OQ-13).
+- **Template asset:** the cleaned PNG preserves the supplied design's aspect ratio and is 1468×1071 pixels. It is still not exact A4 (1.370 vs 1.414); the documented aspect-ratio page avoids distortion. A higher-resolution export from the original design tool would improve print sharpness if available.
 
 ---
 
@@ -146,8 +148,7 @@ None known for Phases 1–2. The source directory is not yet a Git repository; `
 - Frontend itself (Phase 13) deferred until the backend is complete.
 - Celery retries/acks_late, multi-worker scaling strategy, S3/object storage, PgBouncer: future/scaling only.
 - Authentication/authorization approach deferred.
-- Exact serif font (DejaVu Serif vs an OFL serif such as Noto Serif) decided in Phase 4 after viewing the template.
-- Template field coordinates, A4 orientation, date display format: decided in Phase 4.
+- Font and layout were fixed in Phase 4: Cormorant Garamond; image-aspect page at 842 pt width; date display `%d %B %Y`. Coordinates are in `template_config.py`.
 - Whether to implement each Recommended feature (FR-014 … FR-018) decided in Phase 9.
 ```
 
@@ -166,12 +167,12 @@ Defaults are already in the documents. Only update if the developer wants someth
 | OQ-5 | Python / Django / PostgreSQL / Redis versions on the developer's machine? | Python 3.11+, Django current LTS, any maintained PostgreSQL/Redis; record exact versions in Phase 1 |
 | OQ-6 | Use `dj-database-url` to parse `DATABASE_URL`, or hand-parse with `urllib.parse`? | `dj-database-url` (one tiny extra dependency) |
 | OQ-7 | ~~Where does `organization_name` appear on the template?~~ **RESOLVED:** the green line under "PROUDLY PRESENTED BY" (currently "RECURSION") | Dynamic line (A-13) |
-| OQ-8 | Template file format/size: it is an RGBA PNG ≈1.4 MB embedded in every PDF — flatten to RGB and compress/convert (e.g. JPEG), or keep as is? | Flatten/compress if PDFs are large; keep file name `certificate_template.png` unless converted |
+| OQ-8 | **RESOLVED:** the cleaned template was flattened to RGB and reduced to 256 colours (≈420 KB). A typical generated PDF is ≈388 KB. | Kept `certificate_template.png` as documented. |
 | OQ-9 | Certificate number format `CERT-<year>-<12 hex>` OK, or prefer a sequential `CERT-2026-000001` (needs a PostgreSQL sequence/counter)? | UUID-derived (DEC-026) |
 | OQ-10 | Provide a `docker-compose.yml` just for PostgreSQL + Redis? | No (out of scope; rules forbid Docker files unless requested) |
 | OQ-11 | Body wording: is *"This certifies that {name} with Registration Number {cert no} has successfully completed {event}."* acceptable? (The sample's "1st Place … outstanding performance and dedication" sentence is dropped because we have no award/place field.) | As written (A-17) |
 | OQ-12 | Bottom-left block: recipient name + issue date (default), or something else (e.g. event coordinator)? | Recipient name + issue date (A-18) |
-| OQ-13 | Page size/resolution: image-aspect page (default) or re-export the cleaned design at exact A4 (e.g. 1754×1240) / higher DPI? | Re-export recommended; default is aspect-ratio page (DEC-030) |
+| OQ-13 | **Default applied:** the PDF page uses the cleaned image's aspect ratio at 842 pt width. An exact-A4 export from the original design tool remains an optional future improvement. | Image-aspect page (DEC-030) |
 | OQ-14 | Are the static "CERTIFICATE OF ACHIEVEMENT" heading, "WINNER" medal and "Dr. Vikash Kumar Singh – Head of Department" signature acceptable on every certificate? | Yes, as supplied (A-19) |
 | OQ-15 | Cosmetic: keep or clean the faint mark near the bottom-right corner and the white box behind the SMIT logo? | Clean if easy; otherwise keep |
 
