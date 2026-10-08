@@ -139,7 +139,7 @@
 - **Dependencies:** Phases 2, 3 (recipient serializer), 4.
 - **Relevant requirements:** FR-003…FR-008, FR-013, FR-020, FR-021, NFR-001, NFR-002, NFR-004, NFR-007, NFR-012, DEC-005, DEC-010, DEC-015, DEC-023.
 - **Completion criteria:** Failure-isolation test passes; counts always consistent; duplicate-processing tests pass.
-- **Status:** `NOT_STARTED`
+- **Status:** `COMPLETE` — `create_job`, `process_job`, failure isolation, PDF storage, and finalization are implemented. Sixteen Phase 5 tests and the full 64-test suite pass on PostgreSQL; `manage.py check` and `makemigrations --check --dry-run` are clean. Celery dispatch remains Phase 6.
 
 ---
 

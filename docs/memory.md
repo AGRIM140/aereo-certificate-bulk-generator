@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 4 COMPLETE
-Current Task: Awaiting explicit instruction before Phase 5
-Overall Progress: Phases 1–4 verified; later phases not started
+Current Phase: Phase 5 COMPLETE
+Current Task: Awaiting explicit instruction before Phase 6
+Overall Progress: Phases 1–5 verified; later phases not started
 Last Updated: 2026-10-08
 ```
 
@@ -42,6 +42,7 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 - Phase 2: `GenerationJob` and `Certificate` PostgreSQL models, schema migration, progress and certificate-number helpers, UUID-only upload path, and 11 model tests. Verified against PostgreSQL 17.11.
 - Phase 3: request and per-recipient DRF serializers, job/certificate output serializers, and a registered JSON error-envelope handler. Added 24 tests for validation, errors, and output. The full 38-test Django suite passes on PostgreSQL; `manage.py check` reports no issues and `makemigrations --check --dry-run` reports no changes.
 - Phase 4: cleaned the supplied Recursion template's dynamic-text areas into a fixed RGB asset; bundled Cormorant Garamond regular/bold TTFs and their SIL OFL licence; added fixed layout configuration and a ReportLab generator that returns bytes without database, API, Celery, or file writes. Ten PDF tests pass. The full 48-test suite passes on PostgreSQL. Short, typical, and maximum-length PDFs were rendered and visually inspected. A typical PDF is about 388 KB after template compression.
+- Phase 5: `services.py` creates a job and one numbered certificate row per recipient in one atomic transaction, using the existing recipient serializer and certificate-number helper. Invalid rows become `FAILED/VALIDATION`. Synchronous `process_job` claims a pending job under a short PostgreSQL row lock, generates and stores PDFs for pending rows, records isolated generation failures, removes partial files, and finalizes job status from certificate rows. Sixteen new service tests pass; the full 64-test suite passes on PostgreSQL. `manage.py check` reports no issues and `makemigrations --check --dry-run` reports no changes. No schema changes were needed.
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -49,13 +50,13 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 4 was completed and verified; Phase 5 requires the developer's explicit instruction.
+- No coding phase is currently in progress. Phase 5 was completed and verified; Phase 6 requires the developer's explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 5 — service-layer job creation and processing, only when the developer explicitly asks to proceed. It will apply `RecipientSerializer` to each submitted item and persist exactly one certificate row per item, including `FAILED/VALIDATION` rows with one-based row numbers.
+- Phase 6 — add the thin Celery task and register dispatch after job creation commits; leave the synchronous service logic in `services.py`.
 
 ---
 
