@@ -89,6 +89,7 @@ MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", "media"))
 if not MEDIA_ROOT.is_absolute():
     MEDIA_ROOT = BASE_DIR / MEDIA_ROOT
 MAX_RECIPIENTS_PER_JOB = int(os.getenv("MAX_RECIPIENTS_PER_JOB", "500"))
+STALE_JOB_MINUTES = int(os.getenv("STALE_JOB_MINUTES", "15"))
 
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "certificates.api_errors.exception_handler",

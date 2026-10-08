@@ -1,7 +1,8 @@
-"""Create certificate jobs and process them without HTTP or Celery dependencies."""
-
+from datetime import timedelta
+import io
 import logging
 import uuid
+import zipfile
 
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -194,3 +195,102 @@ def process_job(job_id: uuid.UUID | str) -> None:
     except Exception:
         logger.exception("Certificate job %s crashed", job.id)
         _fail_interrupted_job(job)
+
+
+def build_job_zip(job: GenerationJob) -> bytes | None:
+    """Build an in-memory ZIP archive of all GENERATED certificate PDFs for a job.
+
+    Returns bytes of the ZIP archive, or None if no generated certificate files
+    are present on storage.
+    """
+    certificates = Certificate.objects.filter(
+        job=job, status=Certificate.Status.GENERATED
+    ).order_by("row_number")
+
+    buffer = io.BytesIO()
+    added_count = 0
+    with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for cert in certificates:
+            if not cert.pdf_file:
+                continue
+            storage = cert.pdf_file.storage
+            name = cert.pdf_file.name
+            if not storage.exists(name):
+                logger.warning(
+                    "Stored PDF file %s for certificate %s is missing during ZIP build",
+                    name,
+                    cert.id,
+                )
+                continue
+            try:
+                with storage.open(name, "rb") as pdf_stream:
+                    content = pdf_stream.read()
+            except OSError:
+                logger.exception(
+                    "Could not read PDF file %s for certificate %s during ZIP build",
+                    name,
+                    cert.id,
+                )
+                continue
+            filename = f"{cert.row_number:04d}_{cert.certificate_number}.pdf"
+            archive.writestr(filename, content)
+            added_count += 1
+
+    if added_count == 0:
+        return None
+    return buffer.getvalue()
+
+
+def recover_stale_jobs(older_than_minutes: int = 15) -> tuple[int, int]:
+    """Find stale PENDING or PROCESSING jobs and re-dispatch them.
+
+    (a) Stale PENDING: jobs created at or before threshold (task unqueued/lost).
+    (b) Stale PROCESSING: jobs whose started_at is at or before threshold
+        (worker died). Resets status to PENDING under select_for_update() and re-dispatches.
+
+    Returns:
+        tuple[int, int]: (re_dispatched_pending_count, reset_processing_count)
+    """
+    threshold = timezone.now() - timedelta(minutes=older_than_minutes)
+
+    redispatched_pending = 0
+    stale_pending_ids = list(
+        GenerationJob.objects.filter(
+            status=GenerationJob.Status.PENDING,
+            created_at__lte=threshold,
+        ).values_list("id", flat=True)
+    )
+    for job_id in stale_pending_ids:
+        with transaction.atomic():
+            job = (
+                GenerationJob.objects.select_for_update()
+                .filter(pk=job_id, status=GenerationJob.Status.PENDING)
+                .first()
+            )
+            if job:
+                dispatch_job(job.id)
+                redispatched_pending += 1
+                logger.info("Re-dispatched stale PENDING job %s", job.id)
+
+    reset_processing = 0
+    stale_processing_ids = list(
+        GenerationJob.objects.filter(
+            status=GenerationJob.Status.PROCESSING,
+            started_at__lte=threshold,
+        ).values_list("id", flat=True)
+    )
+    for job_id in stale_processing_ids:
+        with transaction.atomic():
+            job = (
+                GenerationJob.objects.select_for_update()
+                .filter(pk=job_id, status=GenerationJob.Status.PROCESSING)
+                .first()
+            )
+            if job:
+                job.status = GenerationJob.Status.PENDING
+                job.save(update_fields=["status"])
+                dispatch_job(job.id)
+                reset_processing += 1
+                logger.info("Reset and re-dispatched stale PROCESSING job %s", job.id)
+
+    return (redispatched_pending, reset_processing)

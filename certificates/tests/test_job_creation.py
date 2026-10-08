@@ -215,9 +215,11 @@ class JobCreationAPITests(CeleryEagerTestCase):
         delay.assert_called_once_with(str(job_id))
 
     def test_wrong_method_returns_405(self):
-        response = self.client.get("/api/jobs/")
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        self.assertEqual(response.data["error"]["code"], "method_not_allowed")
+        for method in ("put", "delete", "patch"):
+            with self.subTest(method=method):
+                response = getattr(self.client, method)("/api/jobs/")
+                self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+                self.assertEqual(response.data["error"]["code"], "method_not_allowed")
 
     def test_non_json_body_rejected(self):
         response = self.client.post("/api/jobs/", "not json", content_type="text/plain")

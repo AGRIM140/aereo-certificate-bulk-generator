@@ -193,3 +193,32 @@ class JobStatusAPITests(CeleryEagerTestCase):
         self.assertEqual(get_resp.data["progress"]["percent_complete"], 100.0)
         self.assertEqual(get_resp.data["certificates"][0]["status"], Certificate.Status.GENERATED)
 
+    def test_job_list_paginated_newest_first(self):
+        job1 = submit(valid_data([{"name": "Alice"}]))
+        job2 = submit(valid_data([{"name": "Bob"}]))
+        job3 = submit(valid_data([{"name": "Charlie"}]))
+
+        response = self.client.get("/api/jobs/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("count", response.data)
+        self.assertIn("results", response.data)
+        self.assertGreaterEqual(response.data["count"], 3)
+
+        results = response.data["results"]
+        result_ids = [r["id"] for r in results]
+        self.assertIn(str(job3.id), result_ids)
+        self.assertIn(str(job2.id), result_ids)
+        self.assertIn(str(job1.id), result_ids)
+        self.assertLess(result_ids.index(str(job3.id)), result_ids.index(str(job2.id)))
+        self.assertLess(result_ids.index(str(job2.id)), result_ids.index(str(job1.id)))
+
+        sample = results[0]
+        self.assertIn("id", sample)
+        self.assertIn("status", sample)
+        self.assertIn("event_name", sample)
+        self.assertIn("organization_name", sample)
+        self.assertIn("issue_date", sample)
+        self.assertIn("progress", sample)
+        self.assertIn("status_url", sample)
+        self.assertNotIn("certificates", sample)
+

@@ -209,8 +209,12 @@
 - **Expected output:** Selected extras with tests; none break required behavior.
 - **Dependencies:** Phase 8.
 - **Relevant requirements:** FR-014…FR-018.
-- **Completion criteria:** Required test suite still fully green; each extra documented in README.
-- **Status:** `NOT_STARTED`
+- **Status:** `COMPLETE` — All recommended features implemented and verified:
+  1. FR-017 `process_pending_jobs` management command implemented in `certificates/management/commands/process_pending_jobs.py` and backed by `services.recover_stale_jobs()` (`--older-than-minutes` threshold defaulting to `STALE_JOB_MINUTES`; re-dispatches stale PENDING and resets/re-dispatches stale PROCESSING under `select_for_update()`).
+  2. FR-016 ZIP download endpoint `GET /api/jobs/{job_id}/download/` implemented via `JobZipDownloadView` and `services.build_job_zip()` returning `application/zip` attachment containing all GENERATED certificates (`{row_number:04d}_{cert_number}.pdf`); returns 409 Conflict if no certificates are generated, 404 on unknown or malformed job ID.
+  3. FR-014 paginated job list `GET /api/jobs/` (newest first, summary serializer omitting heavy recipient list) and FR-015 paginated/filterable certificate list `GET /api/jobs/{job_id}/certificates/?status=...` (supporting PENDING, GENERATED, FAILED; returns 400 on invalid status, 404 on unknown/malformed job ID).
+  4. FR-018 Django admin registration in `certificates/admin.py` for `GenerationJob` and `Certificate` with read-friendly list displays, filters, search fields, and readonly timestamps.
+  14 new tests added across test modules; full 117-test suite passes on PostgreSQL; live end-to-end integration verified against running Celery worker and Redis.
 
 ---
 

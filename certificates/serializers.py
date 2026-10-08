@@ -116,3 +116,34 @@ class GenerationJobSerializer(serializers.ModelSerializer):
         path = f"/api/jobs/{job.id}/"
         request = self.context.get("request")
         return request.build_absolute_uri(path) if request else path
+
+
+class JobSummarySerializer(serializers.ModelSerializer):
+    """Paginated job list summary omitting the full per-recipient certificate list."""
+
+    progress = serializers.SerializerMethodField()
+    status_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GenerationJob
+        fields = (
+            "id",
+            "status",
+            "event_name",
+            "organization_name",
+            "issue_date",
+            "progress",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "error_message",
+            "status_url",
+        )
+
+    def get_progress(self, job):
+        return job.get_progress()
+
+    def get_status_url(self, job):
+        path = f"/api/jobs/{job.id}/"
+        request = self.context.get("request")
+        return request.build_absolute_uri(path) if request else path

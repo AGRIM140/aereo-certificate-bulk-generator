@@ -2,20 +2,23 @@
 
 import logging
 
-from django.http import FileResponse, Http404, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from rest_framework import status
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from certificates.models import Certificate, GenerationJob
 from certificates.serializers import (
     CertificateDetailSerializer,
+    CertificateSerializer,
     GenerationJobSerializer,
     JobRequestSerializer,
+    JobSummarySerializer,
 )
-from certificates.services import create_job
+from certificates.services import build_job_zip, create_job
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +32,7 @@ class CertificateNotAvailableError(APIException):
 
 
 class JobCreateView(APIView):
-    """Accept and validate a bulk job request and return 202 Accepted."""
+    """Accept and validate a bulk job request (POST) or list jobs paginated (GET)."""
 
     def post(self, request):
         serializer = JobRequestSerializer(data=request.data)
@@ -37,6 +40,13 @@ class JobCreateView(APIView):
         job = create_job(serializer.validated_data)
         response_serializer = GenerationJobSerializer(job, context={"request": request})
         return Response(response_serializer.data, status=status.HTTP_202_ACCEPTED)
+
+    def get(self, request):
+        queryset = GenerationJob.objects.all().order_by("-created_at")
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(queryset, request, view=self)
+        serializer = JobSummarySerializer(page, many=True, context={"request": request})
+        return paginator.get_paginated_response(serializer.data)
 
 
 class JobDetailView(APIView):
@@ -49,6 +59,42 @@ class JobDetailView(APIView):
         )
         serializer = GenerationJobSerializer(job, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class JobCertificateListView(APIView):
+    """Retrieve a paginated, optionally filtered list of certificates for a job."""
+
+    def get(self, request, job_id):
+        job = get_object_or_404(GenerationJob, pk=job_id)
+        status_filter = request.query_params.get("status")
+        queryset = Certificate.objects.filter(job=job).order_by("row_number")
+        if status_filter is not None:
+            status_upper = status_filter.upper()
+            if status_upper not in Certificate.Status.values:
+                raise ValidationError(
+                    {"status": [f"Invalid status filter '{status_filter}'. Allowed values: PENDING, GENERATED, FAILED."]}
+                )
+            queryset = queryset.filter(status=status_upper)
+
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(queryset, request, view=self)
+        serializer = CertificateSerializer(page, many=True, context={"request": request})
+        return paginator.get_paginated_response(serializer.data)
+
+
+class JobZipDownloadView(APIView):
+    """Download a ZIP archive containing all GENERATED certificates for a job."""
+
+    def get(self, request, job_id):
+        job = get_object_or_404(GenerationJob, pk=job_id)
+        zip_bytes = build_job_zip(job)
+        if zip_bytes is None:
+            raise CertificateNotAvailableError("No generated certificates available for this job.")
+
+        response = HttpResponse(zip_bytes, content_type="application/zip")
+        response["Content-Disposition"] = f'attachment; filename="job_{job.id}_certificates.zip"'
+        response["Content-Length"] = len(zip_bytes)
+        return response
 
 
 class MalformedJobDetailView(APIView):

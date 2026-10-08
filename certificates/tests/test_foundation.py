@@ -25,6 +25,13 @@ class ConfigurationTests(SimpleTestCase):
         self.assertEqual(celery_app.conf.broker_url, settings.CELERY_BROKER_URL)
         self.assertIsNone(celery_app.conf.result_backend)
 
+    def test_models_are_registered_in_admin(self):
+        from django.contrib import admin
+        from certificates.models import Certificate, GenerationJob
+
+        self.assertTrue(admin.site.is_registered(GenerationJob))
+        self.assertTrue(admin.site.is_registered(Certificate))
+
 
 class PostgreSQLConnectionTests(TestCase):
     def test_test_database_is_postgresql(self):

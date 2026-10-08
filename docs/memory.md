@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 8 COMPLETE
-Current Task: Ready for Phase 9 / Recommended features
-Overall Progress: Phases 1–8 verified; later phases not started
+Current Phase: Phase 9 COMPLETE
+Current Task: Ready for Phase 10 / Testing and verification
+Overall Progress: Phases 1–9 verified; later phases not started
 Last Updated: 2026-10-08
 ```
 
@@ -31,7 +31,7 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 ```
 
 - Django + DRF, **PostgreSQL**, **Celery**, **Redis (broker only)**, ReportLab, local media storage.
-- API contract unchanged (`POST /api/jobs/`, `GET /api/jobs/{id}/`, `GET /api/certificates/{id}/`, `GET /api/certificates/{id}/download/`; recommended endpoints unchanged). Only addition: `certificate_number` on certificate objects.
+- API contract unchanged (`POST /api/jobs/`, `GET /api/jobs/{id}/`, `GET /api/certificates/{id}/`, `GET /api/certificates/{id}/download/`; recommended endpoints added: `GET /api/jobs/`, `GET /api/jobs/{id}/certificates/`, `GET /api/jobs/{id}/download/`). Only addition: `certificate_number` on certificate objects.
 - Job status (`GenerationJob.status` in PostgreSQL) is authoritative; Celery task state is not the business status.
 
 ---
@@ -46,6 +46,12 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 - Phase 6: `config/celery.py` and `certificates/tasks.py` configured with `process_job_task(job_id)` passing only the job UUID string. `services.dispatch_job(job_id)` registers dispatch via `transaction.on_commit(queue_job)`; broker errors are caught and logged, leaving the job `PENDING` in PostgreSQL for later recovery. Multiple/duplicate calls to `process_job` are idempotent no-ops. Added `CeleryEagerTestCase` test helper providing in-process Celery execution and isolated temporary media storage. Eight new Celery tests pass; full 72-test suite passes on PostgreSQL; `manage.py check` and `makemigrations --check --dry-run` are clean. Real end-to-end background execution verified against a local Redis server and live Celery worker (`--pool=solo`).
 - Phase 7: REST API endpoints `POST /api/jobs/` (accepting bulk requests, validating via `JobRequestSerializer`, delegating to `services.create_job`, returning HTTP 202 with job details and `status_url`) and `GET /api/jobs/{job_id}/` (retrieving job, progress counts, and per-recipient certificates in 3 constant queries) implemented in `certificates/views.py` and routed in `certificates/urls.py`. All error responses preserve the documented JSON error envelope (400 validation, 404 unknown/malformed UUID via `MalformedJobDetailView` and `handler404`, 405 method not allowed, 415 unsupported media type). 21 new API tests added; full 93-test suite passes on PostgreSQL. Live end-to-end API lifecycle verified with local Redis and running Celery worker.
 - Phase 8: Certificate metadata endpoint `GET /api/certificates/{id}/` and download endpoint `GET /api/certificates/{id}/download/` implemented in `certificates/views.py` and routed in `certificates/urls.py`. Metadata endpoint returns HTTP 200 with `CertificateDetailSerializer` output. Download endpoint streams PDF as an attachment using `FileResponse`, headers `Content-Disposition: attachment; filename="CERT-<year>-<hex>.pdf"` and `Content-Type: application/pdf`. Incomplete/failed certificates return HTTP 409 (`certificate_not_available`), unknown or non-UUID IDs return HTTP 404 in standard error envelope, and missing disk files log errors without leaking filesystem paths. Added 10 tests in `certificates/tests/test_retrieval.py`; full 103-test suite passes on PostgreSQL. Live end-to-end download verified.
+- Phase 9: All recommended features implemented and verified:
+  (1) FR-017 `process_pending_jobs` management command and `services.recover_stale_jobs()` with `--older-than-minutes` threshold (default from `STALE_JOB_MINUTES` = 15) to re-dispatch stale PENDING jobs and reset/re-dispatch stale PROCESSING jobs under row locks;
+  (2) FR-016 `GET /api/jobs/{job_id}/download/` bulk ZIP download of all GENERATED certificates (`application/zip`, attachment header `job_{id}_certificates.zip`, entries named `{row_number:04d}_{cert_number}.pdf`), returning 409 Conflict if no certificates are generated;
+  (3) FR-014 `GET /api/jobs/` paginated job list (newest first, summary serializer) and FR-015 `GET /api/jobs/{job_id}/certificates/?status=...` paginated/filterable certificate list (supporting PENDING, GENERATED, FAILED; 400 on invalid status, 404 on unknown job);
+  (4) FR-018 `certificates/admin.py` model registration for `GenerationJob` and `Certificate`.
+  Added 14 tests across `test_job_status.py`, `test_retrieval.py`, `test_management_command.py`, and `test_foundation.py`. The full 117-test suite passes on PostgreSQL; `manage.py check` and `makemigrations --check --dry-run` are clean. Live end-to-end integration verified against local Redis and Celery worker.
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -53,14 +59,13 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 8 was completed, verified, and committed. Phase 9 requires the developer's explicit instruction.
+- No coding phase is currently in progress. Phase 9 was completed, verified, and committed. Phase 10 requires the developer's explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 9 — Recommended Features (Bulk ZIP download, status filtering, stuck-job recovery command).
-  *Note: The core required assignment pipeline (submission, validation, Celery/Redis generation, failure isolation, job status tracking, metadata retrieval, and PDF download) is now 100% functionally complete and verified.*
+- Phase 10 — Testing and verification (full suite stability, flakiness checks, coverage assessment, 500-recipient scale validation).
 
 
 
@@ -130,6 +135,7 @@ SUPERSEDED (history only)
 | 2026-10-08 | **Phase 6 completed:** configured Celery with Redis broker and `process_job_task(job_id)` entry point passing only the UUID string. Registered `services.dispatch_job` via `transaction.on_commit(queue_job)` to prevent race conditions before database commits; caught and logged broker exceptions leaving jobs in `PENDING` state. Added idempotent handling for duplicate and already-processing tasks. Created `CeleryEagerTestCase` test helper with temporary media root and eager execution. Added 8 Celery processing tests; full 72-test suite passed on PostgreSQL. Verified real end-to-end background execution with local Redis and Celery worker (`--pool=solo`). |
 | 2026-10-08 | **Phase 7 completed:** implemented REST API views `JobCreateView` (`POST /api/jobs/`) and `JobDetailView` (`GET /api/jobs/{job_id}/`) with URL routing, returning 202 Accepted on creation and 200 OK on status retrieval. Preserved standardized error envelopes (400, 404, 405, 415). Added 21 API tests; full 93-test suite passed on PostgreSQL; live manual verification passed against running Celery worker and Redis. |
 | 2026-10-08 | **Phase 8 completed:** implemented certificate metadata endpoint `GET /api/certificates/{id}/` and download endpoint `GET /api/certificates/{id}/download/`. Download endpoint returns binary PDF attachment (`Content-Disposition: attachment; filename="CERT-<year>-<hex>.pdf"` and `Content-Type: application/pdf`). Added HTTP 409 handling for certificates not yet generated or failed (`certificate_not_available`), HTTP 404 error envelope for invalid/unknown UUIDs, and safe 404 handling if physical PDF file is missing without path leaks. Added 10 tests in `certificates/tests/test_retrieval.py`; full 103-test suite passed on PostgreSQL. Live end-to-end PDF download verified with real background worker. |
+| 2026-10-08 | **Phase 9 completed:** implemented all recommended features (FR-014 through FR-018): `process_pending_jobs` management command and `services.recover_stale_jobs()` with `STALE_JOB_MINUTES` = 15; bulk ZIP download `GET /api/jobs/{job_id}/download/` with `services.build_job_zip()`; paginated job list `GET /api/jobs/`; paginated and filterable certificate list `GET /api/jobs/{job_id}/certificates/?status=...`; and Django admin registration for `GenerationJob` and `Certificate`. Added 14 tests; full 117-test suite passed on PostgreSQL. Live end-to-end integration verified against running Celery worker and Redis. |
 
 *(Add rows for: phase completions, deviations from the documents, new dependencies with justification.)*
 

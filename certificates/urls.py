@@ -5,8 +5,10 @@ from django.urls import path
 from certificates.views import (
     CertificateDetailView,
     CertificateDownloadView,
+    JobCertificateListView,
     JobCreateView,
     JobDetailView,
+    JobZipDownloadView,
     MalformedCertificateView,
     MalformedJobDetailView,
 )
@@ -14,6 +16,10 @@ from certificates.views import (
 urlpatterns = [
     path("jobs/", JobCreateView.as_view(), name="job-create"),
     path("jobs/<uuid:job_id>/", JobDetailView.as_view(), name="job-detail"),
+    path("jobs/<uuid:job_id>/certificates/", JobCertificateListView.as_view(), name="job-certificate-list"),
+    path("jobs/<uuid:job_id>/download/", JobZipDownloadView.as_view(), name="job-zip-download"),
+    path("jobs/<str:job_id>/certificates/", MalformedJobDetailView.as_view(), name="job-certificate-list-malformed"),
+    path("jobs/<str:job_id>/download/", MalformedJobDetailView.as_view(), name="job-zip-download-malformed"),
     path("jobs/<str:job_id>/", MalformedJobDetailView.as_view(), name="job-detail-malformed"),
     path("certificates/<uuid:certificate_id>/", CertificateDetailView.as_view(), name="certificate-detail"),
     path("certificates/<uuid:certificate_id>/download/", CertificateDownloadView.as_view(), name="certificate-download"),
