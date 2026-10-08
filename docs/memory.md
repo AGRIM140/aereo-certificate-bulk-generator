@@ -10,9 +10,9 @@
 
 ```text
 Project Status: IMPLEMENTATION
-Current Phase: Phase 10 COMPLETE
-Current Task: Ready for Phase 11 / README and documentation
-Overall Progress: Phases 1–10 verified; Phase 11–13 not started
+Current Phase: Phase 11 COMPLETE
+Current Task: Ready for Phase 12 / Final review
+Overall Progress: Phases 1–11 verified; Phase 12–13 not started
 Last Updated: 2026-10-08
 ```
 
@@ -57,6 +57,12 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
   (2) Suite stability verified with 3 consecutive full test runs (`manage.py test`): all 3 runs passed 140/140 tests cleanly on PostgreSQL in ~5.4s (zero flakiness).
   (3) Migration safety verified: `makemigrations --check --dry-run` reports no changes detected; `manage.py check` reports 0 issues.
   (4) Scale benchmark with live PostgreSQL, Redis, and Celery worker (`--pool=solo`): 500-recipient job generated 500 valid PDFs in 49.63s processing time (10.07 certs/sec throughput, 99.3 ms/cert). Average PDF size: 387.5 KB (184.8 MB total). Bulk ZIP download built in 16.47s (152.4 MB) containing 500 valid PDFs. Test media and database rows cleaned up post-run.
+- Phase 11: Comprehensive README and documentation completed:
+  (1) Authored complete, professional `README.md` containing architectural component and flow diagrams, local setup instructions (Python 3.11+, PostgreSQL 14+, Redis 7+), step-by-step installation commands, environment variable configuration, and migration execution.
+  (2) Fully documented application runtime procedures: web server command, Celery worker process execution (including Windows `--pool=solo` note), test execution procedures, and verified suite results (140 tests passing).
+  (3) Provided comprehensive API documentation for all 7 endpoints with copy-pasteable `curl` examples, request payloads, response schemas, and standardized JSON error envelopes.
+  (4) Documented technical design decisions with interview-ready rationales: Django + DRF, PostgreSQL authoritative state, Celery + Redis vs synchronous/threads, `transaction.on_commit()`, `select_for_update()` row claiming, failure isolation, Recursion template overlay with Cormorant Garamond typography, certificate number format, and future scaling architecture (S3, PgBouncer, chunking, `acks_late`).
+  (5) Documented stale-job recovery management command (`process_pending_jobs`), known limitations/assumptions, verified Phase 10 scale benchmark metrics, and accurate repository directory tree.
 
 *(The developer explicitly requested Phase 1 implementation while Phase 0's design questions remain open. Those questions are still relevant before their dependent later phases.)*
 
@@ -64,13 +70,14 @@ Client -> Django + DRF -> PostgreSQL (source of truth: GenerationJob, Certificat
 
 ## Currently Working On
 
-- No coding phase is currently in progress. Phase 10 was completed, verified, and committed. Ready for Phase 11 upon explicit instruction.
+- No coding phase is currently in progress. Phase 11 was completed, verified, and committed. Ready for Phase 12 upon explicit instruction.
 
 ---
 
 ## Next
 
-- Phase 11 — README and documentation (prerequisites, setup, running server and worker, running tests, curl examples, design decision rationales, limitations).
+- Phase 12 — Final review (checklist pass against prd.md §1.8 and §1.15, security check against rules.md §3.7, fresh-clone verification, interview preparation drills).
+
 
 
 
@@ -143,6 +150,8 @@ SUPERSEDED (history only)
 | 2026-10-08 | **Phase 8 completed:** implemented certificate metadata endpoint `GET /api/certificates/{id}/` and download endpoint `GET /api/certificates/{id}/download/`. Download endpoint returns binary PDF attachment (`Content-Disposition: attachment; filename="CERT-<year>-<hex>.pdf"` and `Content-Type: application/pdf`). Added HTTP 409 handling for certificates not yet generated or failed (`certificate_not_available`), HTTP 404 error envelope for invalid/unknown UUIDs, and safe 404 handling if physical PDF file is missing without path leaks. Added 10 tests in `certificates/tests/test_retrieval.py`; full 103-test suite passed on PostgreSQL. Live end-to-end PDF download verified with real background worker. |
 | 2026-10-08 | **Phase 9 completed:** implemented all recommended features (FR-014 through FR-018): `process_pending_jobs` management command and `services.recover_stale_jobs()` with `STALE_JOB_MINUTES` = 15; bulk ZIP download `GET /api/jobs/{job_id}/download/` with `services.build_job_zip()`; paginated job list `GET /api/jobs/`; paginated and filterable certificate list `GET /api/jobs/{job_id}/certificates/?status=...`; and Django admin registration for `GenerationJob` and `Certificate`. Added 14 tests; full 117-test suite passed on PostgreSQL. Live end-to-end integration verified against running Celery worker and Redis. |
 | 2026-10-08 | **Phase 10 completed:** testing and verification. Walked traceability matrix across FR-001…FR-022 and NFR-001…NFR-008, added 23 focused tests ensuring 100% matrix coverage (total 140 tests). Verified test stability and zero flakiness via 3 consecutive full suite passes (~5.4s per run). Confirmed `manage.py check` (0 issues) and `makemigrations --check --dry-run` (clean). Performed live 500-recipient scale benchmark with live PostgreSQL, Redis, and Celery worker (`--pool=solo`): 500 certificates generated in 49.63s (10.07 certs/sec), average PDF size 387.5 KB, bulk ZIP download verified (152.4 MB, 16.47s), post-test cleanup verified. |
+| 2026-10-08 | **Phase 11 completed:** README and documentation. Authored complete, production-ready `README.md` covering architecture, prerequisites, local setup, run commands (with Windows Celery solo pool notes), test execution, full API documentation with curl examples, design decisions (Celery vs threads/sync, transaction.on_commit, select_for_update, failure isolation, template overlay with Cormorant Garamond typography), stale-job recovery, verified 500-recipient benchmark metrics, and repository structure. Reconciled docs with current implementation. |
+
 
 
 *(Add rows for: phase completions, deviations from the documents, new dependencies with justification.)*

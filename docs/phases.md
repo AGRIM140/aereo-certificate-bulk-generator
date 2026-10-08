@@ -262,7 +262,12 @@
 - **Dependencies:** Phase 10.
 - **Relevant requirements:** D-003, D-004.
 - **Completion criteria:** Following the README on a clean machine works end-to-end.
-- **Status:** `NOT_STARTED`
+- **Status:** `COMPLETE` — Comprehensive project documentation written and verified:
+  1. `README.md` authored covering all assignment-required and implementation topics: project overview, ASCII architecture diagrams, prerequisites (Python 3.11+, PostgreSQL 14+, Redis 7+), step-by-step setup commands, `.env` variables, database migrations, process execution commands (Django `runserver` and Celery worker with Windows `--pool=solo` note), and automated test runner details.
+  2. Complete API documentation provided for all 7 implemented endpoints (`POST /api/jobs/`, `GET /api/jobs/{id}/`, `GET /api/jobs/{id}/download/`, `GET /api/jobs/`, `GET /api/jobs/{id}/certificates/`, `GET /api/certificates/{id}/`, `GET /api/certificates/{id}/download/`) with copy-pasteable `curl` commands, request bodies, success responses, and the standardized error envelope.
+  3. In-depth design decisions articulated with interview-ready rationales: why Celery + Redis was chosen over synchronous generation and Python threading; `transaction.on_commit()` dispatch safety; `select_for_update()` row-level claim concurrency; per-certificate failure isolation; separation of Celery task state from authoritative PostgreSQL job status; Recursion certificate template overlay strategy and Cormorant Garamond typography; certificate number vs internal UUID; and future production scaling roadmap (S3, PgBouncer, chunking, `acks_late`).
+  4. Stale-job recovery command (`process_pending_jobs`), known limitations/assumptions, verified Phase 10 scale benchmark results (500 recipients in 49.63s at 10.07 certs/sec), and an accurate repository file tree documented.
+
 
 ---
 
