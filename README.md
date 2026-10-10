@@ -4,6 +4,9 @@ A full-stack certificate generator with a React/TypeScript frontend and a **Djan
 
 ## GitHub release and Railway deployment
 
+- [Public demo](https://frontend-production-94636.up.railway.app)
+- [Public repository](https://github.com/AGRIM140/aereo-certificate-bulk-generator)
+
 See [the deployment guide](docs/deployment.md) for the backend, worker and Nginx
 service configuration, private persistent bucket storage, runtime variables,
 health checks, deployment procedure and live acceptance checks. Local development
@@ -12,6 +15,8 @@ retains filesystem storage. `.env.example` contains placeholders only.
 The public assignment demo has no authentication: use synthetic recipient data.
 Private bucket storage does not restrict access through the application's API.
 Archive/Vault state is stored in the browser and does not delete backend records.
+Hosting uses Railway trial credit only and is temporary; no paid upgrade or
+payment method was enabled. See the verification report for the actual checks.
 
 Clients submit a single JSON request containing event details and a list of participants. The API validates the payload, durably records the job and individual certificate records in PostgreSQL, and dispatches background generation tasks via Celery. A background worker generates high-quality PDF certificates using ReportLab by overlaying dynamic text onto a static template image. The API provides real-time progress tracking, failure isolation, individual PDF downloads, bulk ZIP archive downloads, and stale-job recovery.
 

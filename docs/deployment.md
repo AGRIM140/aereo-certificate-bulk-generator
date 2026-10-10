@@ -7,6 +7,25 @@ needed. The frontend uses relative `/api/` URLs through Nginx.
 
 ## Cost and access
 
+### Verified assignment deployment — 2026-10-11
+
+- Repository: `AGRIM140/aereo-certificate-bulk-generator`, branch `master`.
+- Railway project: `aereo-certificate-bulk-generator`; environment `production`.
+- Services: `Postgres`, `Redis`, `backend`, `worker`, `frontend` in Virginia (`iad`).
+- Private bucket: `certificates` in Singapore (`sin`), shared by backend/worker.
+- Public HTTPS app: https://frontend-production-94636.up.railway.app
+- Backend has no public domain. Railway's PostgreSQL readiness probe returned
+  HTTP 200; worker connected to Redis and processed the synthetic live batch.
+- Live batch `6c94b99d-24f8-4372-829b-7c1e68bff43d`: 3 rows, 2 PDFs, 1 validation
+  failure, terminal `COMPLETED_WITH_ERRORS`; PDF/ZIP downloads verified.
+- Chrome checks verified routes, archive/reload/restore, CSV/JSON import, and
+  the PDF.js/Three.js inspector. Direct anonymous bucket-object access was denied.
+- No payment method configured; trial credit remained approximately $4.998 at
+  the post-deployment check. This is a snapshot, not a recurring-cost guarantee.
+
+The full evidence and persistence check are recorded in
+`qa_evidence/release_verification_report.md`.
+
 Deployment is authorized only within available free trial credit. Do not upgrade
 to a paid plan or add a payment method automatically. Railway currently offers a
 one-time $5 trial credit for up to 30 days, then $1/month on Free. This is not a
@@ -17,7 +36,7 @@ account requires paid access; never silently switch architecture/providers.
 Official references: [trial](https://docs.railway.com/pricing/free-trial),
 [buckets](https://docs.railway.com/storage-buckets),
 [bucket credential environment names](https://docs.railway.com/cli/bucket),
-[configuration files](https://docs.railway.com/config-as-code/reference),
+[current configuration support](https://docs.railway.com/infrastructure-as-code),
 [pre-deploy commands](https://docs.railway.com/deployments/pre-deploy-command).
 
 Sign in using GitHub/Railway's official interfaces. Never put tokens in commits,
@@ -50,17 +69,22 @@ npm run dev
 Use the intended public GitHub repository and its `master` branch. Keep all
 services in the same Railway project/environment and choose compatible regions.
 Create PostgreSQL, Redis, and one private bucket only after checking free credit
-and account limits. Service display names below are configuration names, not
-claims that resources already exist.
+and account limits.
 
-| Service | Repository root | Config file path (from repository root) | Start command | Public domain |
+| Service | Repository root | Dockerfile path | Start command | Public domain |
 | --- | --- | --- | --- | --- |
-| backend | `/` | `/railway.backend.json` | Docker CMD: `sh /app/start-backend.sh` | None |
-| worker | `/` | `/railway.worker.json` | `celery -A config worker --loglevel=info --concurrency=1` | None |
-| frontend | `/frontend` | `/frontend/railway.json` | Docker CMD (Nginx entrypoint) | Generate HTTPS domain |
+| backend | `/` | `Dockerfile` | Docker CMD: `sh /app/start-backend.sh` | None |
+| worker | `/` | `Dockerfile` | `celery -A config worker --loglevel=info --concurrency=1` | None |
+| frontend | `/frontend` | `Dockerfile` | Docker CMD (Nginx entrypoint) | Generate HTTPS domain |
 
-In each service's Settings, select the root directory and config path above.
-Dockerfiles are selected explicitly in the configuration files. Leave frontend
+In each service's Settings, select the root directory and Dockerfile path above.
+Railway now rejects Config as Code (`railway.json`/`railway.toml`) for new services;
+these settings are applied directly through its supported API/dashboard. No
+legacy config file path is set. Set restart policy `ON_FAILURE`, maximum retries
+`3`, and one replica on each application service. Backend and frontend use
+health-check path `/health/` with timeout `120` seconds; the worker has no HTTP
+health check. Set backend pre-deploy command `python manage.py migrate --noinput`;
+leave worker/frontend pre-deploy commands empty. Leave frontend
 start-command override empty so Nginx's official entrypoint substitutes runtime
 variables. Do not use a Vite development server for production.
 
@@ -82,13 +106,15 @@ If names differ, adapt the service reference, not its exported variable name.
 | `AWS_ACCESS_KEY_ID` | Bucket credential `ACCESS_KEY_ID` |
 | `AWS_SECRET_ACCESS_KEY` | Bucket credential `SECRET_ACCESS_KEY` |
 | `AWS_DEFAULT_REGION` | Bucket credential `REGION` |
-| `AWS_S3_URL_STYLE` | Exact `virtual` or `path` URL style shown for this bucket |
+| `AWS_S3_URL_STYLE` | boto3 `virtual` for Railway credential style `virtual-host`; `path` for path-style |
 | `MAX_RECIPIENTS_PER_JOB` | `500` |
 | `STALE_JOB_MINUTES` | `15` |
 
 For example, with a service actually named `Certificates`, the endpoint reference
 is `${{Certificates.ENDPOINT}}`. Copy actual credentials/reference values, never
 invent an endpoint. New and older buckets can use different addressing styles.
+Railway's `virtual-host` label must be translated to boto3's `virtual` value;
+passing `virtual-host` into the application's setting is rejected at startup.
 Do not enable public access, public ACLs, or add bucket credentials to frontend.
 
 Backend-only variables:
@@ -128,7 +154,7 @@ dual-stack Linux socket. This supports Railway environments with IPv6 private DN
 
 1. Review the target Postgres service and migration state. There is no new
    application migration in this release and no destructive seeding/reset.
-2. Backend config runs `python manage.py migrate --noinput` in Railway's
+2. Backend pre-deploy setting runs `python manage.py migrate --noinput` in Railway's
    pre-deploy step. Do not attach that command to the worker or frontend.
 3. Backend startup runs `collectstatic --noinput` and Gunicorn. WhiteNoise serves
    Django static files from the image runtime. PDFs are never served as static

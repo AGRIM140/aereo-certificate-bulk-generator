@@ -70,17 +70,73 @@ Scratch scripts are local verification tooling and are intentionally excluded
 from the release. Standard backend/frontend commands are reproducible from the
 repository; deployment and synthetic acceptance steps are in the deployment guide.
 
-## External deployment status at release preparation
+## Verified GitHub and Railway release
 
-- GitHub cached credential identity verified as `AGRIM140`; intended repository
-  `aereo-certificate-bulk-generator` did not exist at the initial check.
+- GitHub identity verified as `AGRIM140`; created public repository
+  https://github.com/AGRIM140/aereo-certificate-bulk-generator and pushed `master`.
+  Initial release commits `b5140e0` and `1dd17f4` were verified against the remote.
+  The final documentation commit is available through Git history.
+- Final pre-commit security scan: 312 historical blobs plus current publishable
+  files, zero credential/sensitive-path findings. `git diff --check` passed.
 - Railway official login completed. Workspace had no projects, $5 remaining
   credit and 30 trial days. No paid upgrade was authorized.
 - Railway rejected $3 alert / $4 hard caps (minimums $5/$10); a higher cap was
   not configured. Do not treat a failed limit update as budget enforcement.
-- Actual Railway services, public HTTPS URL, live bucket access and persistence
-  still require deployment verification. Local shared-volume restart success
-  does not verify Railway bucket persistence.
+- Created Railway project `aereo-certificate-bulk-generator`, environment
+  `production`, services `Postgres`, `Redis`, `backend`, `worker`, `frontend`,
+  and private bucket `certificates`. Application sources point to GitHub `master`.
+  Backend/worker use private PostgreSQL/Redis reference variables and the same
+  bucket credentials. Frontend has no database/broker/storage credentials.
+- Public app https://frontend-production-94636.up.railway.app returned HTTP 200
+  for `/`, `/dashboard`, `/jobs`, `/jobs/new`, and `/health/` over HTTPS.
+- Backend pre-deploy applied all existing migrations successfully. Gunicorn
+  started on `[::]:8000`; Railway's DB health probe returned HTTP 200. The worker
+  connected to Redis with concurrency 1 and its result backend disabled.
+- Live synthetic job `6c94b99d-24f8-4372-829b-7c1e68bff43d` was accepted with 202
+  and reached `COMPLETED_WITH_ERRORS`: 3 rows, 2 generated, 1 validation failure.
+  Both PDFs had `%PDF` content; ZIP contained exactly 2 valid PDFs; history
+  contained the job. This used the deployed API, PostgreSQL and real Celery worker.
+- Direct authenticated bucket checks found both expected UUID-path objects,
+  matching API download SHA-256 hashes. Anonymous direct object GET returned
+  access denied. Backend/worker were safely restarted; the same two PDFs and
+  matching bucket objects remained retrievable afterward.
+- Real Chrome against the public URL verified routes, archive/reload/restore,
+  gallery and PDF.js/Three.js inspector canvas with no page/console errors.
+  Separate CSV and JSON import checks passed with no failed HTTP/network
+  requests. Checked browser responses did not contain bucket access credentials.
+- Deployment exposed and resolved two real provider issues: new Railway services
+  reject legacy `railway.json` configuration, so equivalent settings were applied
+  directly via API; bucket `virtual-host` style requires boto3 `virtual`.
+  Frontend was redeployed after backend private-domain references resolved.
+- Post-deployment trial check: 30 trial days, approximately $4.998 remaining,
+  no payment method. No paid upgrade was enabled. Trial hosting is temporary.
 - The application has no authentication. Buckets remain private, but application
   endpoints intentionally allow public job listing and downloads. Only synthetic
   assignment data is suitable for the public demo.
+
+### Live commands
+
+Commands used the official Railway CLI (installed through `npx @railway/cli`).
+Secret-bearing CLI results were captured privately and excluded from Git/transcripts.
+Provider mutations applied only the named project's production services.
+
+```powershell
+railway service source connect --repo AGRIM140/aereo-certificate-bulk-generator --branch master --service backend --json
+railway service source connect --repo AGRIM140/aereo-certificate-bulk-generator --branch master --service worker --json
+railway service source connect --repo AGRIM140/aereo-certificate-bulk-generator --branch master --service frontend --json
+railway redeploy --service frontend --yes --json
+$env:QA_BASE_URL='https://frontend-production-94636.up.railway.app'
+$env:QA_JOB_FILE='scratch/live-smoke-job.json'
+.\.venv\Scripts\python.exe scratch/release_container_smoke.py
+.\.venv\Scripts\python.exe scratch/live_storage_check.py
+node scratch/release_browser_check.cjs
+node scratch/live_import_check.cjs
+railway restart --service backend --yes --json
+railway restart --service worker --yes --json
+.\.venv\Scripts\python.exe scratch/live_storage_check.py
+.\.venv\Scripts\python.exe scratch/railway_budget_check.py
+```
+
+The storage check reads actual bucket credentials from ignored local tooling,
+not from committed source. Logs were inspected with secret redaction. Local
+scratch tools and credential captures are excluded from the repository.

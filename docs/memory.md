@@ -8,7 +8,7 @@
 
 ## Current Status
 
-### GitHub/Railway release preparation — 2026-10-11
+### GitHub/Railway release — 2026-10-11
 
 The final release task supersedes the completed implementation phase boundaries.
 Existing frontend design and browser Archive/Vault work are preserved. Added
@@ -24,10 +24,19 @@ absolute pagination query loss, date-test clock mocking, blocked localStorage
 handling and the production PDF.js worker MIME type. See
 `qa_evidence/release_verification_report.md` and `docs/deployment.md`.
 
-External release/deployment remains in progress. Railway login and $5 trial credit
-were verified; no paid upgrade is authorized. Live bucket/persistence and public
-URL acceptance are not established by local tests. API access remains public;
-use synthetic assignment data only.
+Published `AGRIM140/aereo-certificate-bulk-generator` on `master`. Railway project
+`aereo-certificate-bulk-generator` / `production` contains Postgres, Redis,
+backend, worker and frontend plus the private certificates bucket. Public URL:
+https://frontend-production-94636.up.railway.app . Live synthetic batch produced
+exactly 3 rows: 2 PDFs and 1 validation failure; PDF/ZIP/history checks passed.
+Chrome verified archive/reload/restore, CSV/JSON import and inspector rendering.
+Actual bucket objects matched API downloads and rejected anonymous direct GET.
+The same PDFs remained retrievable with matching hashes after backend/worker
+restart, confirming bucket persistence separately from local container tests.
+Railway rejects legacy Config as Code for new services: applied explicit service
+settings through its API instead. Mapped provider `virtual-host` to boto3 `virtual`.
+No paid upgrade or payment method; approximately $4.998 trial credit remained
+at the post-deployment check. API access remains public; use synthetic data only.
 
 ```text
 Project Status: COMPLETE & READY FOR SUBMISSION
