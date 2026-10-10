@@ -547,19 +547,79 @@ A live end-to-end benchmark was executed with 500 recipients against PostgreSQL 
 
 ---
 
+## Frontend Application & 3D Certificate Inspector
+
+The project includes an interactive, high-performance web frontend located in [`frontend/`](file:///c:/Users/Dell/OneDrive/Desktop/aereo%20assignment/frontend).
+
+### Features
+- **Cinematic Landing Narrative:** Visual showcase of archival telemetry and high-throughput generation.
+- **Batch Creation Workflow:** Create jobs with event details, organization name, issue date, and dynamic recipient rows with live validation and CSV/JSON batch import.
+- **Real-Time Polling Telemetry:** Polls backend job state safely, reflecting lifecycle progress (`PENDING` → `PROCESSING` → `COMPLETED` / `COMPLETED_WITH_ERRORS`).
+- **Interactive 3D Certificate Inspector:** Powered by **Three.js** and **PDF.js**, allowing users to inspect the rendered PDF in an interactive 3D spatial canvas with drag, rotation, zoom, lighting shaders, and 2D canvas fallback.
+- **Direct PDF & Bulk ZIP Downloads:** One-click downloads with automatic filename resolution from `Content-Disposition` headers.
+- **Job Ledger / History:** Complete paginated ledger of historical generation jobs.
+
+### Running the Frontend Locally
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will start at `http://localhost:5173/` and automatically proxy `/api` requests to the Django backend at `http://127.0.0.1:8000`.
+
+---
+
+## Production Deployment with Docker Compose
+
+A complete production deployment stack is orchestrated via [`docker-compose.yml`](file:///c:/Users/Dell/OneDrive/Desktop/aereo%20assignment/docker-compose.yml), managing:
+- **`postgres`:** Managed PostgreSQL 16 database with persistent storage.
+- **`redis`:** Redis 7 message broker.
+- **`backend`:** Django + DRF application served via Gunicorn WSGI with automated migrations.
+- **`celery_worker`:** Dedicated Celery worker sharing the persistent `media_data` volume.
+- **`frontend`:** Multi-stage Nginx container serving the optimized React SPA and reverse proxying `/api` traffic.
+
+### Launching the Full Stack
+
+```bash
+# Start all services with automated build and volume creation
+docker compose up --build -d
+
+# Check service logs
+docker compose logs -f
+
+# Stop all services
+docker compose down
+```
+
+Once running:
+- **Web Application:** `http://localhost:5173/`
+- **Backend API:** `http://localhost:8000/api/`
+- **Django Admin:** `http://localhost:8000/admin/`
+
+---
+
 ## Repository Structure
 
 ```text
 bulk-certificate-generator/
 ├── manage.py                               # Django CLI entrypoint
-├── README.md                               # Comprehensive project documentation
-├── requirements.txt                        # Pinned dependencies
+├── Dockerfile                              # Production backend Dockerfile
+├── docker-compose.yml                      # Production full-stack orchestration
+├── requirements.txt                        # Pinned dependencies (including CORS & Gunicorn)
 ├── .env.example                            # Template environment configuration
 ├── .gitignore                              # Git exclusion rules (.env, media/, etc.)
+├── frontend/                               # Interactive React 19 + Vite frontend
+│   ├── Dockerfile                          # Multi-stage production Nginx Dockerfile
+│   ├── nginx.conf                          # Production Nginx reverse proxy configuration
+│   ├── package.json                        # Frontend dependencies & scripts
+│   ├── vite.config.ts                      # Vite configuration & dev proxy
+│   └── src/                                # React components, pages, 3D scenes, API client
 ├── config/                                 # Django project configuration
 │   ├── __init__.py                         # Imports Celery app on startup
 │   ├── celery.py                           # Celery app initialization
-│   ├── settings.py                         # Application settings (PostgreSQL, DRF, Celery)
+│   ├── settings.py                         # Application settings (PostgreSQL, DRF, Celery, CORS)
 │   ├── urls.py                             # Root URL routing & custom 404 handler
 │   ├── wsgi.py                             # WSGI entrypoint
 │   └── asgi.py                             # ASGI entrypoint
@@ -583,17 +643,7 @@ bulk-certificate-generator/
 │   ├── migrations/
 │   │   └── 0001_initial.py                 # Initial PostgreSQL schema migration
 │   └── tests/                              # Comprehensive test suite (140 tests)
-│       ├── helpers.py                      # Celery eager test case base & test fixtures
-│       ├── test_celery_processing.py       # Async task dispatch & idempotency tests
-│       ├── test_failure_handling.py        # Failure isolation & error envelope tests
-│       ├── test_foundation.py              # Configuration & admin registration tests
-│       ├── test_job_creation.py            # Job creation & request atomicity tests
-│       ├── test_job_status.py              # Status progress & lifecycle tests
-│       ├── test_management_command.py      # Stale-job recovery command tests
-│       ├── test_models.py                  # Model constraints, indexes & progress tests
-│       ├── test_pdf_generation.py          # ReportLab rendering & typography tests
-│       ├── test_retrieval.py               # Metadata, PDF download & ZIP download tests
-│       └── test_validation.py              # Request & recipient validation tests
+├── qa_evidence/                            # End-to-end verification traces & scripts
 └── docs/                                   # Project specification documents
     ├── prd.md                              # Product Requirements Document
     ├── architecture.md                     # System Architecture & Technical Specifications
@@ -601,3 +651,4 @@ bulk-certificate-generator/
     ├── phases.md                           # Phased Implementation Plan & Traceability Matrix
     └── memory.md                           # Living Project Memory & Status Checkpoint
 ```
+

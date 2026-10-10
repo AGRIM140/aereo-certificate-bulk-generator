@@ -19,10 +19,14 @@ class ISODateField(serializers.DateField):
         return super().to_internal_value(value)
 
 
+def default_issue_date():
+    return timezone.localdate()
+
+
 class JobRequestSerializer(serializers.Serializer):
     event_name = serializers.CharField(max_length=150, trim_whitespace=True)
     organization_name = serializers.CharField(max_length=100, trim_whitespace=True)
-    issue_date = ISODateField(default=timezone.localdate)
+    issue_date = ISODateField(default=default_issue_date)
     # Item shape is intentionally checked later, one recipient at a time.
     recipients = serializers.ListField(
         child=serializers.JSONField(allow_null=True), allow_empty=False

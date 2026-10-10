@@ -6,3 +6,10 @@ __pycache__/
 media/
 .coverage
 *.rdb
+scratch/
+frontend/dist/
+frontend/node_modules/
+.agents/
+design-systems/
+skills-lock.json
+

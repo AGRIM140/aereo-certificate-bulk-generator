@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Notebook / Archival Paper System Tokens */
+    --paper-canvas: #f6f3eb;
+    --paper-surface: #ffffff;
+    --paper-surface-muted: #fbf9f4;
+    --paper-surface-inset: #ede6d6;
+    --paper-surface-card: #fdfcf9;
+
+    --border-paper: #e3dac8;
+    --border-paper-subtle: #ece5d6;
+    --border-paper-hover: #d2c5b0;
+    --border-paper-focus: #1f304d;
+
+    --margin-rust: #b83a34;
+    --margin-rust-subtle: rgba(184, 58, 52, 0.15);
+
+    --ink-primary: #151922;
+    --ink-secondary: #354153;
+    --ink-muted: #647287;
+    --ink-faint: #96a2b4;
+
+    --navy-primary: #1f304d;
+    --navy-surface: #edf3fa;
+    --navy-border: #ccdbeb;
+
+    --forest-primary: #166534;
+    --forest-surface: #f0fdf4;
+    --forest-border: #bbf7d0;
+
+    --amber-primary: #92400e;
+    --amber-surface: #fffbeb;
+    --amber-border: #fde68a;
+
+    --crimson-primary: #991b1b;
+    --crimson-surface: #fef2f2;
+    --crimson-border: #fecaca;
+
+    /* Legacy Compatibility Variables */
+    --bg-canvas: #f6f3eb;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #fdfcf9;
+    --bg-surface-subtle: #fbf9f4;
+    --border-subtle: #e3dac8;
+    --border-hover: #d2c5b0;
+    --border-active: #1f304d;
+
+    --text-primary: #151922;
+    --text-secondary: #354153;
+    --text-muted: #647287;
+
+    --telemetry-green: #15803d;
+    --telemetry-green-glow: rgba(22, 101, 52, 0.12);
+    --telemetry-navy: #1e3a5f;
+    --telemetry-navy-glow: rgba(30, 58, 95, 0.12);
+    --telemetry-amber: #b45309;
+    --telemetry-amber-glow: rgba(180, 83, 9, 0.12);
+    --telemetry-crimson: #b83a34;
+    --telemetry-crimson-glow: rgba(184, 58, 52, 0.12);
+  }
+
+  body {
+    background-color: var(--paper-canvas);
+    color: var(--ink-primary);
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Editorial serif headline typography */
+  .font-serif-editorial,
+  .font-serif {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-feature-settings: "liga" 1, "dlig" 1;
+  }
+
+  /* Clean modern sans-serif body & operational typography */
+  .font-sans-product,
+  .font-sans {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* Monospace typography for tabular technical telemetry */
+  .font-mono-telemetry,
+  .font-mono {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+}
+
+
+/* Ambient Paper Lighting Movement */
+@keyframes ambientPaperDrift {
+  0% {
+    transform: translate(0%, 0%) scale(1);
+    opacity: 0.35;
+  }
+  33% {
+    transform: translate(3%, -2%) scale(1.08);
+    opacity: 0.45;
+  }
+  66% {
+    transform: translate(-2%, 3%) scale(0.96);
+    opacity: 0.38;
+  }
+  100% {
+    transform: translate(0%, 0%) scale(1);
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ambient-paper {
+    animation: none !important;
+  }
+}
+
+.animate-ambient-paper {
+  animation: ambientPaperDrift 28s ease-in-out infinite;
+}
+
+/* Custom warm scrollbar for notebook tables and panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0eae0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d8cebc;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b8a892;
+}
