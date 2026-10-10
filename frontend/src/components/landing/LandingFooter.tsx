@@ -1,66 +1,91 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Terminal, ArrowUpRight } from 'lucide-react';
+import { Terminal, Home, Search, ShoppingCart, HelpCircle } from 'lucide-react';
 
 export const LandingFooter: React.FC = () => {
   return (
-    <footer className="border-t border-[#e2dac9] bg-[#ffffff]/92 backdrop-blur-sm py-12 text-[#647287] select-none shadow-[0_-1px_3px_rgba(35,25,15,0.02)]">
-      <div className="max-w-7xl mx-auto px-6 space-y-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-[#f0fdf4] border border-[#bbf7d0] flex items-center justify-center text-[#15803d]">
-                <Terminal className="w-3 h-3" />
-              </div>
-              <span className="font-mono-telemetry text-xs font-bold text-[#161a22]">
-                ARCHIVAL TELEMETRY // BULK CERTIFICATE GENERATOR
-              </span>
+    <footer className="border-t-2 border-black bg-white py-8 px-4 sm:px-6 text-black select-none">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Brand Bar */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-black">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[#e91d2a] border border-black flex items-center justify-center text-white">
+              <Terminal className="w-3.5 h-3.5" />
             </div>
-            <p className="text-xs text-[#647287] font-mono-telemetry">
-              High-volume document generation, asynchronous queuing, and zero-divergence 3D inspection.
-            </p>
+            <span className="font-ui text-xs font-bold uppercase tracking-wider text-black">
+              ARCHIVAL TELEMETRY // BULK CERTIFICATE GENERATOR
+            </span>
           </div>
+          <p className="text-xs font-serif text-black">
+            High-volume document generation, asynchronous queuing, and zero-divergence 3D inspection.
+          </p>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-xs font-mono-telemetry">
+        {/* Authentic Dell 1996 4-Icon Catalog Navigation linked by Green Rule */}
+        <div className="pt-2">
+          <div className="border-t-2 border-[#8e8a25] pt-4 flex flex-wrap items-center justify-center sm:justify-start gap-6 sm:gap-10 text-xs font-ui">
+            <Link
+              to="/"
+              className="flex items-center gap-1.5 text-black hover:opacity-80 font-bold uppercase tracking-wide group"
+            >
+              <div className="w-7 h-7 bg-neutral-100 border border-black flex items-center justify-center text-black group-hover:bg-[#fcc20f]">
+                <Home className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[#0000ee] underline font-serif text-sm">HOME</span>
+            </Link>
+
             <Link
               to="/dashboard"
-              className="text-[#4b586c] hover:text-[#161a22] flex items-center gap-1 transition-colors font-medium"
+              className="flex items-center gap-1.5 text-black hover:opacity-80 font-bold uppercase tracking-wide group"
             >
-              <span>Operational Console</span>
-              <ArrowUpRight className="w-3 h-3 text-[#7d8b9e]" />
+              <div className="w-7 h-7 bg-neutral-100 border border-black flex items-center justify-center text-black group-hover:bg-[#fcc20f]">
+                <HelpCircle className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[#0000ee] underline font-serif text-sm">Operational Console</span>
             </Link>
 
             <Link
               to="/jobs"
-              className="text-[#4b586c] hover:text-[#161a22] flex items-center gap-1 transition-colors font-medium"
+              className="flex items-center gap-1.5 text-black hover:opacity-80 font-bold uppercase tracking-wide group"
             >
-              <span>Job Ledger & Archive</span>
-              <ArrowUpRight className="w-3 h-3 text-[#7d8b9e]" />
+              <div className="w-7 h-7 bg-neutral-100 border border-black flex items-center justify-center text-black group-hover:bg-[#fcc20f]">
+                <Search className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[#0000ee] underline font-serif text-sm">Job Ledger & Archive</span>
             </Link>
 
             <Link
               to="/jobs/new"
-              className="text-[#4b586c] hover:text-[#161a22] flex items-center gap-1 transition-colors font-medium"
+              className="flex items-center gap-1.5 text-black hover:opacity-80 font-bold uppercase tracking-wide group"
             >
-              <span>Initialize Batch</span>
-              <ArrowUpRight className="w-3 h-3 text-[#7d8b9e]" />
+              <div className="w-7 h-7 bg-[#e91d2a] border border-black flex items-center justify-center text-white group-hover:bg-[#c81924]">
+                <ShoppingCart className="w-3.5 h-3.5 text-white" />
+              </div>
+              <span className="text-[#0000ee] underline font-serif text-sm">Initialize Batch</span>
             </Link>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-[#ece5d6] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-[11px] font-mono-telemetry text-[#7d8b9e]">
+        {/* Telemetry Authority & Infrastructure Strip */}
+        <div className="pt-4 border-t border-black flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs font-mono text-black">
           <div>
-            <span>SOURCE COMMIT: </span>
-            <span className="text-[#15803d] font-bold">cf5bb3d (FROZEN BACKEND)</span>
+            <span>PRODUCTION ENGINE: </span>
+            <span className="bg-[#c0d4a7] text-black px-1.5 py-0.2 font-bold border border-black">RELEASE v1.0.0 (STABLE)</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
             <span>PIPELINE: REPORTLAB + CELERY</span>
-            <span className="text-[#dcd3c1]">|</span>
+            <span>|</span>
             <span>STORAGE: POSTGRESQL + LOCAL MEDIA</span>
-            <span className="text-[#dcd3c1]">|</span>
-            <span className="text-[#15803d] font-bold">ZERO DIVERGENCE</span>
+            <span>|</span>
+            <span className="bg-black text-white px-1.5 py-0.2 font-ui font-bold uppercase text-[10px]">ZERO DIVERGENCE</span>
           </div>
+        </div>
+
+        {/* Classic Dell 1996 Copyright Small Print */}
+        <div className="pt-2 text-[11px] font-serif text-black border-t border-neutral-300 flex flex-col sm:flex-row justify-between gap-2">
+          <span>This site is best viewed with browser versions 3.0 and higher at 800x600 resolution.</span>
+          <span>© 1996-2026 BULK CERTIFICATE CORPORATION. All rights reserved.</span>
         </div>
       </div>
     </footer>

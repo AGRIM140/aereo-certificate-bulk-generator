@@ -1,6 +1,5 @@
 import React from 'react';
 import { Calendar, Building2, Users, Award, Link as LinkIcon } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { formatDateOnly } from '../../lib/formatters';
 import type { GenerationJob } from '../../types/api';
 
@@ -10,65 +9,69 @@ interface JobBatchInfoProps {
 
 export const JobBatchInfo: React.FC<JobBatchInfoProps> = ({ job }) => {
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3 border-b border-[#ece5d6]">
+    <div className="dell-ribbon-card h-full">
+      {/* Catalog Ribbon Header */}
+      <div className="dell-ribbon-bar bg-[#e8e4c9]">
         <div className="flex items-center gap-2">
-          <Award className="w-4 h-4 text-[#15803d]" />
-          <CardTitle className="text-sm font-mono-telemetry uppercase tracking-wider text-[#161a22]">
-            Batch Parameters
-          </CardTitle>
+          <Award className="w-4 h-4 text-black" />
+          <span className="font-ui font-bold text-xs uppercase tracking-wider text-black">
+            BATCH PARAMETERS & SPECIFICATIONS
+          </span>
         </div>
-      </CardHeader>
-      <CardContent className="pt-4 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono-telemetry">
-          <div className="space-y-1">
-            <span className="text-[11px] text-[#7d8b9e] flex items-center gap-1.5 uppercase font-semibold">
-              <Award className="w-3.5 h-3.5 text-[#7d8b9e]" /> Event Name
+        <span className="font-mono text-[10px] text-black">REF: {job.id.slice(0, 8)}</span>
+      </div>
+
+      <div className="p-4 space-y-4 bg-white">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="border border-black p-2.5 bg-[#fbf9f4]">
+            <span className="font-ui text-[10px] text-black uppercase font-bold flex items-center gap-1.5">
+              <Award className="w-3.5 h-3.5 text-black" /> Event Name
             </span>
-            <p className="text-sm font-semibold text-[#161a22] truncate" title={job.event_name}>
+            <p className="font-body-dell text-base font-bold text-black mt-1 truncate" title={job.event_name}>
               {job.event_name}
             </p>
           </div>
 
-          <div className="space-y-1">
-            <span className="text-[11px] text-[#7d8b9e] flex items-center gap-1.5 uppercase font-semibold">
-              <Building2 className="w-3.5 h-3.5 text-[#7d8b9e]" /> Issuing Organization
+          <div className="border border-black p-2.5 bg-[#fbf9f4]">
+            <span className="font-ui text-[10px] text-black uppercase font-bold flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-black" /> Issuing Organization
             </span>
-            <p className="text-sm font-semibold text-[#161a22] truncate" title={job.organization_name}>
+            <p className="font-body-dell text-base font-bold text-black mt-1 truncate" title={job.organization_name}>
               {job.organization_name}
             </p>
           </div>
 
-          <div className="space-y-1">
-            <span className="text-[11px] text-[#7d8b9e] flex items-center gap-1.5 uppercase font-semibold">
-              <Calendar className="w-3.5 h-3.5 text-[#7d8b9e]" /> Issue Date
+          <div className="border border-black p-2.5 bg-[#fbf9f4]">
+            <span className="font-ui text-[10px] text-black uppercase font-bold flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-black" /> Issue Date
             </span>
-            <p className="text-sm font-semibold text-[#2d3748]">
+            <p className="font-body-dell text-base text-black mt-1">
               {formatDateOnly(job.issue_date)}
             </p>
           </div>
 
-          <div className="space-y-1">
-            <span className="text-[11px] text-[#7d8b9e] flex items-center gap-1.5 uppercase font-semibold">
-              <Users className="w-3.5 h-3.5 text-[#7d8b9e]" /> Target Recipients
+          <div className="border border-black p-2.5 bg-[#fbf9f4]">
+            <span className="font-ui text-[10px] text-black uppercase font-bold flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-black" /> Target Recipients
             </span>
-            <p className="text-sm font-bold text-[#1f304d] font-mono-telemetry">
-              {job.progress?.total ?? job.certificates?.length ?? 0}
+            <p className="font-mono text-base font-bold text-black mt-1">
+              {job.progress?.total ?? job.certificates?.length ?? 0} RECORDS
             </p>
           </div>
         </div>
 
         {job.status_url && (
-          <div className="pt-3 border-t border-[#ece5d6] flex items-center justify-between text-[11px] font-mono-telemetry text-[#7d8b9e]">
-            <span className="flex items-center gap-1">
-              <LinkIcon className="w-3 h-3 text-[#7d8b9e]" /> Canonical Endpoint
+          <div className="pt-3 border-t border-black flex items-center justify-between text-xs font-mono text-black">
+            <span className="flex items-center gap-1 font-bold">
+              <LinkIcon className="w-3 h-3 text-black" /> CANONICAL URL:
             </span>
-            <span className="text-[#2d3748] truncate max-w-[280px]" title={job.status_url}>
+            <span className="truncate max-w-[280px]" title={job.status_url}>
               {job.status_url}
             </span>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
+

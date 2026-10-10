@@ -1,11 +1,11 @@
 /**
  * Centralized API Client Layer for Bulk Certificate Generator.
- * Adapts to Django backend at commit cf5bb3d.
+ * Adapts to Django backend release v1.0.0.
  *
  * Rules:
  * - All routes MUST have trailing slashes.
  * - Absolute backend URLs (e.g., http://localhost:8000/api/...) MUST be normalized
- *   to relative /api/... paths so they route cleanly through the Vite proxy.
+ *   to relative /api/... paths through the development or production proxy.
  * - Standardized error envelopes are parsed into ApiClientError.
  */
 
@@ -45,7 +45,7 @@ export function normalizeApiPath(urlOrPath: string): string {
   try {
     if (urlOrPath.startsWith('http://') || urlOrPath.startsWith('https://')) {
       const parsed = new URL(urlOrPath);
-      path = parsed.pathname;
+      path = parsed.pathname + parsed.search;
     } else {
       path = urlOrPath;
     }

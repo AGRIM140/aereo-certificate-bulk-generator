@@ -4,7 +4,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { LandingPage } from '../pages/LandingPage';
 import * as threeLandingLib from '../lib/three/createLandingScene';
 
-describe('Interactive 3D Landing Page (Phase F7)', () => {
+describe('Interactive 3D Landing Page', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
 
@@ -106,17 +106,17 @@ describe('Interactive 3D Landing Page (Phase F7)', () => {
     expect(screen.getByText(/POSTGRESQL \+ CELERY \(FR-019\)/i)).toBeInTheDocument();
     expect(screen.getByText(/DETERMINISTIC IDS \(FR-021\)/i)).toBeInTheDocument();
     expect(screen.getByText(/BULK ZIP EXPORT \(FR-016\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/ZERO DIVERGENCE \(PHASE F6\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/ZERO DIVERGENCE \(PRODUCTION\)/i)).toBeInTheDocument();
   });
 
-  it('6. Renders the telemetry footer with backend commit and infrastructure details', () => {
+  it('6. Renders the telemetry footer with production release and infrastructure details', () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <LandingPage />
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/cf5bb3d \(FROZEN BACKEND\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/RELEASE v1\.0\.0 \(STABLE\)/i)).toBeInTheDocument();
     expect(screen.getByText(/PIPELINE: REPORTLAB \+ CELERY/i)).toBeInTheDocument();
     expect(screen.getByText(/STORAGE: POSTGRESQL \+ LOCAL MEDIA/i)).toBeInTheDocument();
   });

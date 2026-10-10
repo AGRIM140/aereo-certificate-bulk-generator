@@ -2,142 +2,299 @@
 
 @layer base {
   :root {
-    /* Notebook / Archival Paper System Tokens */
-    --paper-canvas: #f6f3eb;
+    /* ─── Dell 1996 Inspired Design System Canonical Tokens ─── */
+    --dell-red: #e91d2a;
+    --dell-yellow: #fcc20f;
+    --dell-purple: #6a26a4;
+    --dell-black: #000000;
+    --dell-white: #ffffff;
+    --dell-link: #0000ee;
+
+    /* Ribbon-Card Catalog Tint Family (1996 Web-Safe Quantized Palette) */
+    --dell-olive: #8e8a25;
+    --dell-sage: #b3bd95;
+    --dell-salmon: #d77a7a;
+    --dell-peach: #e6915d;
+    --dell-lime: #c0d4a7;
+    --dell-sky: #9ab6c8;
+    --dell-steel: #a5b8c0;
+    --dell-periwinkle: #8c9ae0;
+
+    /* Semantic Status Mapping */
+    --forest-primary: #8e8a25;
+    --forest-surface: #c0d4a7;
+    --forest-border: #000000;
+
+    --amber-primary: #000000;
+    --amber-surface: #fcc20f;
+    --amber-border: #000000;
+
+    --navy-primary: #000000;
+    --navy-surface: #9ab6c8;
+    --navy-border: #000000;
+
+    --crimson-primary: #ffffff;
+    --crimson-surface: #d77a7a;
+    --crimson-border: #000000;
+
+    /* Application Surfaces & Chrome */
+    --paper-canvas: #ffffff;
     --paper-surface: #ffffff;
-    --paper-surface-muted: #fbf9f4;
-    --paper-surface-inset: #ede6d6;
-    --paper-surface-card: #fdfcf9;
+    --paper-surface-muted: #f4f6f8;
+    --paper-surface-inset: #a5b8c0;
+    --paper-surface-card: #ffffff;
 
-    --border-paper: #e3dac8;
-    --border-paper-subtle: #ece5d6;
-    --border-paper-hover: #d2c5b0;
-    --border-paper-focus: #1f304d;
+    --border-paper: #000000;
+    --border-paper-subtle: #000000;
+    --border-paper-hover: #000000;
+    --border-paper-focus: #e91d2a;
 
-    --margin-rust: #b83a34;
-    --margin-rust-subtle: rgba(184, 58, 52, 0.15);
+    --margin-rust: #e91d2a;
+    --margin-rust-subtle: rgba(233, 29, 42, 0.2);
 
-    --ink-primary: #151922;
-    --ink-secondary: #354153;
-    --ink-muted: #647287;
-    --ink-faint: #96a2b4;
-
-    --navy-primary: #1f304d;
-    --navy-surface: #edf3fa;
-    --navy-border: #ccdbeb;
-
-    --forest-primary: #166534;
-    --forest-surface: #f0fdf4;
-    --forest-border: #bbf7d0;
-
-    --amber-primary: #92400e;
-    --amber-surface: #fffbeb;
-    --amber-border: #fde68a;
-
-    --crimson-primary: #991b1b;
-    --crimson-surface: #fef2f2;
-    --crimson-border: #fecaca;
+    --ink-primary: #000000;
+    --ink-secondary: #000000;
+    --ink-muted: #444444;
+    --ink-faint: #666666;
 
     /* Legacy Compatibility Variables */
-    --bg-canvas: #f6f3eb;
+    --bg-canvas: #ffffff;
     --bg-surface: #ffffff;
-    --bg-surface-elevated: #fdfcf9;
-    --bg-surface-subtle: #fbf9f4;
-    --border-subtle: #e3dac8;
-    --border-hover: #d2c5b0;
-    --border-active: #1f304d;
+    --bg-surface-elevated: #ffffff;
+    --bg-surface-subtle: #f4f6f8;
+    --border-subtle: #000000;
+    --border-hover: #000000;
+    --border-active: #000000;
 
-    --text-primary: #151922;
-    --text-secondary: #354153;
-    --text-muted: #647287;
+    --text-primary: #000000;
+    --text-secondary: #222222;
+    --text-muted: #555555;
 
-    --telemetry-green: #15803d;
-    --telemetry-green-glow: rgba(22, 101, 52, 0.12);
-    --telemetry-navy: #1e3a5f;
-    --telemetry-navy-glow: rgba(30, 58, 95, 0.12);
-    --telemetry-amber: #b45309;
-    --telemetry-amber-glow: rgba(180, 83, 9, 0.12);
-    --telemetry-crimson: #b83a34;
-    --telemetry-crimson-glow: rgba(184, 58, 52, 0.12);
+    --telemetry-green: #8e8a25;
+    --telemetry-green-glow: transparent;
+    --telemetry-navy: #000000;
+    --telemetry-navy-glow: transparent;
+    --telemetry-amber: #000000;
+    --telemetry-amber-glow: transparent;
+    --telemetry-crimson: #e91d2a;
+    --telemetry-crimson-glow: transparent;
   }
 
   body {
-    background-color: var(--paper-canvas);
-    color: var(--ink-primary);
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #000000;
+    color: #000000;
+    font-family: 'Times New Roman', Times, 'Nimbus Roman No9 L', serif;
     min-height: 100vh;
     overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
   }
 
-  /* Editorial serif headline typography */
-  .font-serif-editorial,
-  .font-serif {
-    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
-    font-feature-settings: "liga" 1, "dlig" 1;
+  /* 1996 Typography Triad:
+     1. Arial Black for Display & Section Eyebrow Banners
+     2. Helvetica Bold for Product Titles, UI Labels & Buttons
+     3. Times New Roman for Body, Paragraphs, Ledgers, Tables & Forms
+  */
+  .font-display-dell,
+  .font-serif-editorial {
+    font-family: 'Arial Black', 'Arial-BoldMT', Gadget, Impact, sans-serif;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
   }
 
-  /* Clean modern sans-serif body & operational typography */
+  .font-ui-dell,
   .font-sans-product,
   .font-sans {
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: Helvetica, Arial, 'Nimbus Sans L', sans-serif;
   }
 
-  /* Monospace typography for tabular technical telemetry */
+  .font-body-dell,
+  .font-serif {
+    font-family: 'Times New Roman', Times, 'Nimbus Roman No9 L', serif;
+  }
+
   .font-mono-telemetry,
   .font-mono {
-    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-    font-feature-settings: "tnum" 1, "zero" 1;
+    font-family: 'Courier New', Courier, Monaco, monospace;
   }
 }
 
+/* ─── Dell 1996 Signature Architectural Primitives ─── */
 
-/* Ambient Paper Lighting Movement */
-@keyframes ambientPaperDrift {
-  0% {
-    transform: translate(0%, 0%) scale(1);
-    opacity: 0.35;
-  }
-  33% {
-    transform: translate(3%, -2%) scale(1.08);
-    opacity: 0.45;
-  }
-  66% {
-    transform: translate(-2%, 3%) scale(0.96);
-    opacity: 0.38;
-  }
-  100% {
-    transform: translate(0%, 0%) scale(1);
-    opacity: 0.35;
+/* 1. Literal Black Page Frame around viewport */
+.dell-page-frame {
+  box-sizing: border-box;
+  border: 8px solid #000000;
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  .dell-page-frame {
+    border-width: 4px;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-ambient-paper {
-    animation: none !important;
+@media (max-width: 640px) {
+  .dell-page-frame {
+    border-width: 2px;
   }
 }
 
-.animate-ambient-paper {
-  animation: ambientPaperDrift 28s ease-in-out infinite;
+/* 2. Top Banner Strip */
+.dell-top-banner {
+  background-color: #000000;
+  color: #ffffff;
+  border-radius: 0px;
 }
 
-/* Custom warm scrollbar for notebook tables and panels */
+/* 3. Section Eyebrow Banners */
+.dell-eyebrow-olive {
+  background-color: var(--dell-olive);
+  color: #000000;
+  font-family: 'Arial Black', Gadget, sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dell-eyebrow-salmon {
+  background-color: var(--dell-salmon);
+  color: #000000;
+  font-family: 'Arial Black', Gadget, sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dell-eyebrow-steel {
+  background-color: var(--dell-steel);
+  color: #000000;
+  font-family: 'Arial Black', Gadget, sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+/* 4. Signature Ribbon Card Construction */
+.dell-ribbon-card {
+  border: 1px solid #000000;
+  border-radius: 0px;
+  background-color: #ffffff;
+}
+
+.dell-ribbon-header {
+  background-color: #ffffff;
+  color: #000000;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 1px solid #000000;
+  padding: 6px 12px;
+  border-radius: 0px;
+}
+
+/* Ribbon Body Color-Block Tints */
+.dell-body-sage { background-color: var(--dell-sage); color: #000000; }
+.dell-body-salmon { background-color: var(--dell-salmon); color: #000000; }
+.dell-body-peach { background-color: var(--dell-peach); color: #000000; }
+.dell-body-lime { background-color: var(--dell-lime); color: #000000; }
+.dell-body-sky { background-color: var(--dell-sky); color: #000000; }
+.dell-body-steel { background-color: var(--dell-steel); color: #000000; }
+.dell-body-periwinkle { background-color: var(--dell-periwinkle); color: #000000; }
+.dell-body-olive { background-color: var(--dell-olive); color: #000000; }
+
+/* 5. Vivid Dell Red CTA Panel */
+.dell-cta-red {
+  background-color: var(--dell-red);
+  color: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 0px;
+}
+
+/* 6. Hand-Cut GIF Stickers & Badges */
+.dell-sticker-yellow {
+  background-color: var(--dell-yellow);
+  color: #000000;
+  border: 1px solid #000000;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  border-radius: 0px;
+}
+
+.dell-burst-new {
+  background-color: var(--dell-yellow);
+  color: #000000;
+  border: 1px solid #000000;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-12deg);
+  border-radius: 0px;
+}
+
+.dell-award-seal {
+  background-color: var(--dell-red);
+  color: #ffffff;
+  border-radius: 9999px;
+  border: 3px double #ffffff;
+  box-shadow: 0 0 0 1px #000000;
+}
+
+/* 7. Classic Netscape 3.x Links */
+.dell-link {
+  color: #0000ee;
+  text-decoration: underline;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.dell-link:visited {
+  color: #551a8b;
+}
+
+/* 8. Retro Catalog Table & Input Grid */
+.dell-table {
+  border: 1px solid #000000;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.dell-table th {
+  background-color: var(--dell-steel);
+  color: #000000;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid #000000;
+  padding: 6px 10px;
+}
+
+.dell-table td {
+  border: 1px solid #000000;
+  padding: 6px 10px;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* Custom crisp retro scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 14px;
+  height: 14px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f0eae0;
+  background: #dfdfdf;
+  border-left: 1px solid #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d8cebc;
-  border-radius: 3px;
+  background: #bfbfbf;
+  border: 2px solid #ffffff;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #b8a892;
+  background: #a8a8a8;
 }

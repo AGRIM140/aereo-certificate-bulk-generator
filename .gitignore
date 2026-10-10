@@ -1,4 +1,13 @@
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.sql
+*.dump
+*.log
+*.sqlite3
+staticfiles/
 .venv/
 venv/
 __pycache__/
@@ -12,4 +21,3 @@ frontend/node_modules/
 .agents/
 design-systems/
 skills-lock.json
-

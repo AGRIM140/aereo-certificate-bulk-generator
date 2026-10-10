@@ -19,8 +19,14 @@ from certificates.serializers import (
     JobSummarySerializer,
 )
 from certificates.services import build_job_zip, create_job
+from certificates.storage import CertificateStorageUnavailable
 
 logger = logging.getLogger(__name__)
+
+
+class StorageUnavailableError(APIException):
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    default_detail = "Certificate storage is temporarily unavailable."
 
 
 class CertificateNotAvailableError(APIException):
@@ -87,7 +93,10 @@ class JobZipDownloadView(APIView):
 
     def get(self, request, job_id):
         job = get_object_or_404(GenerationJob, pk=job_id)
-        zip_bytes = build_job_zip(job)
+        try:
+            zip_bytes = build_job_zip(job)
+        except CertificateStorageUnavailable:
+            raise StorageUnavailableError() from None
         if zip_bytes is None:
             raise CertificateNotAvailableError("No generated certificates available for this job.")
 
@@ -127,12 +136,13 @@ class CertificateDownloadView(APIView):
 
         storage = certificate.pdf_file.storage
         name = certificate.pdf_file.name
-        if not storage.exists(name):
-            logger.error("Stored PDF file %s for certificate %s is missing on storage", name, certificate.id)
-            raise Http404("Certificate file not found.")
-
         try:
+            if not storage.exists(name):
+                logger.error("Stored PDF file %s for certificate %s is missing on storage", name, certificate.id)
+                raise Http404("Certificate file not found.")
             file_handle = storage.open(name, "rb")
+        except CertificateStorageUnavailable:
+            raise StorageUnavailableError() from None
         except OSError:
             logger.exception("Could not open PDF file %s for certificate %s", name, certificate.id)
             raise Http404("Certificate file not found.")

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as THREE from 'three';
 import { isWebGLAvailable } from '../lib/three/createLandingScene';
 
-describe('Landing 3D Scene Engine (Phase F7)', () => {
+describe('Landing 3D Scene Engine', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });

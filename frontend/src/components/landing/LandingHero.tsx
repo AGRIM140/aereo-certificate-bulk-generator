@@ -75,7 +75,7 @@ export const LandingHero: React.FC = () => {
           </div>
 
           <div className="hidden sm:flex items-center gap-4 text-[#7d8b9e]">
-            <span>ENGINE: cf5bb3d (CELERY + REDIS)</span>
+            <span>ENGINE: RELEASE v1.0.0 (CELERY + REDIS)</span>
             <span className="text-[#dcd3c1]">|</span>
             <span>PDF: REPORTLAB 1200 DPI</span>
             <span className="text-[#dcd3c1]">|</span>
@@ -279,7 +279,7 @@ export const LandingHero: React.FC = () => {
               </div>
             </div>
 
-            {/* Technical Telemetry Metadata Cards (FR-005, FR-006, Phase F6) */}
+            {/* Technical Telemetry Metadata Cards (FR-005, FR-006, Production) */}
             <div className="space-y-2.5">
               <div className="p-3.5 rounded-lg bg-[#ffffff] border border-[#e2dac9] shadow-sm hover:border-[#b8a892] transition-colors flex items-center justify-between">
                 <div>

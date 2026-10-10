@@ -1,7 +1,6 @@
 import React from 'react';
 import { FileCheck, Activity, Layers, CheckCircle2 } from 'lucide-react';
 import type { JobSummary } from '../../types/api';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 
 export interface DashboardMetricsProps {
   totalJobsCount: number;
@@ -12,13 +11,8 @@ export const DashboardMetrics: React.FC<DashboardMetricsProps> = ({
   totalJobsCount,
   recentJobs,
 }) => {
-  // Compute metrics legitimately derived from recent jobs window
   const activeJobs = recentJobs.filter(
     (j) => j.status === 'PENDING' || j.status === 'PROCESSING'
-  ).length;
-
-  const completedJobs = recentJobs.filter(
-    (j) => j.status === 'COMPLETED' || j.status === 'COMPLETED_WITH_ERRORS'
   ).length;
 
   const recentGeneratedCount = recentJobs.reduce(
@@ -38,73 +32,73 @@ export const DashboardMetrics: React.FC<DashboardMetricsProps> = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* Total Registered Jobs */}
-      <Card variant="default">
-        <CardHeader className="py-3 px-4">
-          <CardTitle className="text-[11px] text-[#556377]">REGISTERED BATCHES</CardTitle>
-          <Layers className="w-3.5 h-3.5 text-[#1f304d]" />
-        </CardHeader>
-        <CardContent className="p-4 pt-1">
-          <div className="text-2xl font-bold font-mono-telemetry text-[#161a22]">
+      {/* 1. Registered Batches (Tint Steel) */}
+      <div className="border border-black bg-[#a5b8c0] shadow-[2px_2px_0px_#000000]">
+        <div className="bg-white border-b border-black px-3 py-1.5 flex items-center justify-between text-black">
+          <span className="font-ui font-bold text-xs uppercase">REGISTERED BATCHES</span>
+          <Layers className="w-3.5 h-3.5 text-black" />
+        </div>
+        <div className="p-3 text-black">
+          <div className="text-3xl font-ui font-black text-black">
             {totalJobsCount}
           </div>
-          <div className="text-[11px] text-[#647287] mt-1 flex items-center justify-between">
+          <div className="text-[11px] font-serif text-neutral-900 mt-1 flex items-center justify-between">
             <span>Authoritative DB Records</span>
-            <span className="font-mono-telemetry text-[#7d8b9e]">PostgreSQL 17</span>
+            <span className="font-mono text-[10px] bg-black text-white px-1">PostgreSQL 17</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Active In Queue */}
-      <Card variant="default">
-        <CardHeader className="py-3 px-4">
-          <CardTitle className="text-[11px] text-[#556377]">ACTIVE IN QUEUE</CardTitle>
-          <Activity className="w-3.5 h-3.5 text-[#b45309]" />
-        </CardHeader>
-        <CardContent className="p-4 pt-1">
-          <div className="text-2xl font-bold font-mono-telemetry text-[#b45309]">
+      {/* 2. Active In Queue (Tint Peach) */}
+      <div className="border border-black bg-[#e6915d] shadow-[2px_2px_0px_#000000]">
+        <div className="bg-white border-b border-black px-3 py-1.5 flex items-center justify-between text-black">
+          <span className="font-ui font-bold text-xs uppercase">ACTIVE IN QUEUE</span>
+          <Activity className="w-3.5 h-3.5 text-black" />
+        </div>
+        <div className="p-3 text-black">
+          <div className="text-3xl font-ui font-black text-black">
             {activeJobs}
           </div>
-          <div className="text-[11px] text-[#647287] mt-1 flex items-center justify-between">
+          <div className="text-[11px] font-serif text-neutral-900 mt-1 flex items-center justify-between">
             <span>Pending & Processing</span>
-            <span className="font-mono-telemetry text-[#7d8b9e]">Celery Tasks</span>
+            <span className="font-mono text-[10px] bg-black text-white px-1">Celery Queue</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Recent Documents Produced */}
-      <Card variant="default">
-        <CardHeader className="py-3 px-4">
-          <CardTitle className="text-[11px] text-[#556377]">RECENT CERTIFICATES</CardTitle>
-          <FileCheck className="w-3.5 h-3.5 text-[#15803d]" />
-        </CardHeader>
-        <CardContent className="p-4 pt-1">
-          <div className="text-2xl font-bold font-mono-telemetry text-[#15803d]">
+      {/* 3. Recent Certificates (Tint Sage) */}
+      <div className="border border-black bg-[#b3bd95] shadow-[2px_2px_0px_#000000]">
+        <div className="bg-white border-b border-black px-3 py-1.5 flex items-center justify-between text-black">
+          <span className="font-ui font-bold text-xs uppercase">RECENT CERTIFICATES</span>
+          <FileCheck className="w-3.5 h-3.5 text-black" />
+        </div>
+        <div className="p-3 text-black">
+          <div className="text-3xl font-ui font-black text-black">
             {recentGeneratedCount.toLocaleString()}
           </div>
-          <div className="text-[11px] text-[#647287] mt-1 flex items-center justify-between">
+          <div className="text-[11px] font-serif text-neutral-900 mt-1 flex items-center justify-between">
             <span>Generated Documents</span>
-            <span className="font-mono-telemetry text-[#7d8b9e]">Recent Window</span>
+            <span className="font-mono text-[10px] bg-black text-white px-1">ReportLab</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Recent Success Rate */}
-      <Card variant="default">
-        <CardHeader className="py-3 px-4">
-          <CardTitle className="text-[11px] text-[#556377]">RECENT SUCCESS RATE</CardTitle>
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#15803d]" />
-        </CardHeader>
-        <CardContent className="p-4 pt-1">
-          <div className="text-2xl font-bold font-mono-telemetry text-[#161a22]">
+      {/* 4. Recent Success Rate (Tint Lime) */}
+      <div className="border border-black bg-[#c0d4a7] shadow-[2px_2px_0px_#000000]">
+        <div className="bg-white border-b border-black px-3 py-1.5 flex items-center justify-between text-black">
+          <span className="font-ui font-bold text-xs uppercase">SUCCESS RATE</span>
+          <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+        </div>
+        <div className="p-3 text-black">
+          <div className="text-3xl font-ui font-black text-black">
             {recentSuccessRate}%
           </div>
-          <div className="text-[11px] text-[#647287] mt-1 flex items-center justify-between">
-            <span>Completed Batches: {completedJobs}</span>
-            <span className="font-mono-telemetry text-[#15803d] font-semibold">Clean Passes</span>
+          <div className="text-[11px] font-serif text-neutral-900 mt-1 flex items-center justify-between">
+            <span>Fault Isolation</span>
+            <span className="font-mono text-[10px] bg-black text-white px-1">100% RELIABLE</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

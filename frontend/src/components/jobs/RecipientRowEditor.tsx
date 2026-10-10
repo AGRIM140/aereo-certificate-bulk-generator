@@ -33,17 +33,17 @@ export const RecipientRowEditor: React.FC<RecipientRowEditorProps> = ({
   return (
     <div className="space-y-3">
       {/* Recipient Header Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 px-3 rounded bg-[#ffffff] border border-[#e2dac9] shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 px-3 bg-white border border-black shadow-[2px_2px_0px_#000000]">
         <div className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-[#15803d]" />
-          <span className="font-mono-telemetry text-xs font-bold uppercase tracking-wider text-[#161a22]">
+          <Users className="w-4 h-4 text-black" />
+          <span className="font-ui text-xs font-bold uppercase tracking-wider text-black">
             RECIPIENT ROSTER
           </span>
           <span
-            className={`font-mono-telemetry text-xs px-2 py-0.5 rounded border ${
+            className={`font-ui text-[11px] font-bold px-2 py-0.5 border border-black ${
               isMaxReached
-                ? 'bg-[#fef2f2] border-[#fecaca] text-[#b83a34] font-semibold'
-                : 'bg-[#f5efe4] border-[#dcd3c1] text-[#334155]'
+                ? 'bg-[#d77a7a] text-black'
+                : 'bg-[#a5b8c0] text-black'
             }`}
           >
             {count} / 500 RECIPIENTS
@@ -57,7 +57,7 @@ export const RecipientRowEditor: React.FC<RecipientRowEditorProps> = ({
               size="sm"
               onClick={onClearAll}
               disabled={disabled}
-              className="text-[11px] text-[#647287] hover:text-[#b83a34]"
+              className="text-xs text-neutral-700 hover:text-[#e91d2a]"
             >
               Clear All
             </Button>
@@ -76,96 +76,90 @@ export const RecipientRowEditor: React.FC<RecipientRowEditorProps> = ({
       </div>
 
       {/* Recipient Table: Data Preparation Ledger */}
-      <div className="border border-[#e2dac9] rounded-md overflow-hidden bg-[#ffffff] shadow-sm">
+      <div className="border border-black bg-white shadow-[2px_2px_0px_#000000]">
         <div className="max-h-[480px] overflow-y-auto">
           <table className="w-full text-left border-collapse text-xs">
-            <thead className="sticky top-0 bg-[#fbf9f4] border-b border-[#e2dac9] z-10 select-none">
-              <tr className="font-mono-telemetry uppercase text-[11px] text-[#556377]">
-                <th scope="col" className="py-2.5 px-3 w-14 text-center">
+            <thead className="sticky top-0 bg-[#a5b8c0] border-b border-black z-10 select-none">
+              <tr className="font-ui uppercase font-bold text-xs text-black">
+                <th scope="col" className="py-2 px-2.5 w-12 text-center border-r border-black">
                   #
                 </th>
-                <th scope="col" className="py-2.5 px-3">
-                  Recipient Name <span className="text-[#b83a34]">*</span>
+                <th scope="col" className="py-2 px-3 border-r border-black">
+                  Recipient Name <span className="text-[#e91d2a]">*</span>
                 </th>
-                <th scope="col" className="py-2.5 px-3">
-                  Email Address <span className="text-[#7d8b9e] font-normal">(Optional)</span>
+                <th scope="col" className="py-2 px-3 border-r border-black">
+                  Email Address <span className="text-neutral-700 font-normal font-serif">(Optional)</span>
                 </th>
-                <th scope="col" className="py-2.5 px-3 w-16 text-right">
+                <th scope="col" className="py-2 px-3 w-16 text-right">
                   Action
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#ece5d6]">
+            <tbody className="divide-y divide-black bg-white">
               {recipients.map((r, index) => {
                 const rowNum = String(index + 1).padStart(2, '0');
-                const nameError = errors[`recipient-${r.id}-name`];
-                const emailError = errors[`recipient-${r.id}-email`];
+                const nameErr = errors[`recipient-${r.id}-name`];
+                const emailErr = errors[`recipient-${r.id}-email`];
 
                 return (
                   <tr
                     key={r.id}
-                    className="hover:bg-[#fbf7ee] transition-colors focus-within:bg-[#f8f4ea]"
+                    className="hover:bg-[#b3bd95]/20 transition-none"
                   >
-                    {/* Row Index */}
-                    <td className="py-2 px-3 text-center font-mono-telemetry text-[#7d8b9e] text-[11px] font-medium">
+                    {/* Index */}
+                    <td className="py-2 px-2.5 text-center font-mono text-[11px] font-bold text-neutral-800 border-r border-black bg-neutral-50">
                       {rowNum}
                     </td>
 
-                    {/* Recipient Name */}
-                    <td className="py-2 px-3">
+                    {/* Name Input */}
+                    <td className="py-1.5 px-3 border-r border-black">
                       <input
                         type="text"
                         value={r.name}
-                        onChange={(e) => onUpdateRecipient(r.id, 'name', e.target.value)}
-                        placeholder="e.g. Ada Lovelace"
                         disabled={disabled}
-                        maxLength={100}
-                        aria-label={`Recipient ${rowNum} Name`}
-                        className={`w-full bg-[#ffffff] border rounded px-2.5 py-1.5 text-xs text-[#161a22] placeholder:text-[#9aa5b6] focus:outline-none focus:ring-1 transition-colors ${
-                          nameError
-                            ? 'border-[#b83a34] focus:border-[#b83a34] focus:ring-[#b83a34]/30'
-                            : 'border-[#dcd3c1] focus:border-[#1f304d] focus:ring-[#1f304d]/30 hover:border-[#b8a892]'
+                        placeholder="e.g. Jane Doe"
+                        onChange={(e) => onUpdateRecipient(r.id, 'name', e.target.value)}
+                        className={`w-full bg-white border border-black rounded-none px-2.5 py-1 text-black font-serif text-sm focus:outline-none focus:ring-1 focus:ring-black placeholder:text-neutral-400 ${
+                          nameErr ? 'border-[#e91d2a] bg-[#d77a7a]/20' : ''
                         }`}
+                        aria-label={`Recipient ${rowNum} Name`}
                       />
-                      {nameError && (
-                        <p className="text-[10px] text-[#b83a34] font-mono-telemetry mt-0.5 font-medium">
-                          {nameError}
+                      {nameErr && (
+                        <p className="text-[10px] text-[#e91d2a] font-ui font-bold mt-0.5">
+                          {nameErr}
                         </p>
                       )}
                     </td>
 
-                    {/* Recipient Email */}
-                    <td className="py-2 px-3">
+                    {/* Email Input */}
+                    <td className="py-1.5 px-3 border-r border-black">
                       <input
                         type="email"
                         value={r.email}
-                        onChange={(e) => onUpdateRecipient(r.id, 'email', e.target.value)}
-                        placeholder="e.g. ada@example.com"
                         disabled={disabled}
-                        maxLength={254}
-                        aria-label={`Recipient ${rowNum} Email`}
-                        className={`w-full bg-[#ffffff] border rounded px-2.5 py-1.5 text-xs text-[#161a22] placeholder:text-[#9aa5b6] focus:outline-none focus:ring-1 transition-colors ${
-                          emailError
-                            ? 'border-[#b83a34] focus:border-[#b83a34] focus:ring-[#b83a34]/30'
-                            : 'border-[#dcd3c1] focus:border-[#1f304d] focus:ring-[#1f304d]/30 hover:border-[#b8a892]'
+                        placeholder="jane.doe@example.com"
+                        onChange={(e) => onUpdateRecipient(r.id, 'email', e.target.value)}
+                        className={`w-full bg-white border border-black rounded-none px-2.5 py-1 text-black font-serif text-sm focus:outline-none focus:ring-1 focus:ring-black placeholder:text-neutral-400 ${
+                          emailErr ? 'border-[#e91d2a] bg-[#d77a7a]/20' : ''
                         }`}
+                        aria-label={`Recipient ${rowNum} Email`}
                       />
-                      {emailError && (
-                        <p className="text-[10px] text-[#b83a34] font-mono-telemetry mt-0.5 font-medium">
-                          {emailError}
+                      {emailErr && (
+                        <p className="text-[10px] text-[#e91d2a] font-ui font-bold mt-0.5">
+                          {emailErr}
                         </p>
                       )}
                     </td>
 
-                    {/* Remove Action */}
-                    <td className="py-2 px-3 text-right">
+                    {/* Delete Action */}
+                    <td className="py-1.5 px-3 text-right">
                       <button
                         type="button"
                         onClick={() => onRemoveRecipient(r.id)}
-                        disabled={disabled || count <= 1}
-                        title={count <= 1 ? 'Batch must contain at least 1 recipient' : 'Remove recipient'}
+                        disabled={disabled || recipients.length <= 1}
+                        className="p-1 text-neutral-600 hover:text-white hover:bg-[#e91d2a] border border-black transition-none disabled:opacity-30 disabled:pointer-events-none"
+                        title="Delete Recipient"
                         aria-label={`Remove recipient ${rowNum}`}
-                        className="p-1 rounded text-[#7d8b9e] hover:text-[#b83a34] hover:bg-[#fef2f2] transition-colors disabled:opacity-30 disabled:hover:text-[#7d8b9e] disabled:hover:bg-transparent"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -177,12 +171,6 @@ export const RecipientRowEditor: React.FC<RecipientRowEditorProps> = ({
           </table>
         </div>
       </div>
-
-      {isMaxReached && (
-        <p className="text-[11px] text-[#b45309] font-mono-telemetry font-medium">
-          ⚠ Maximum limit of 500 recipients per batch reached. Split larger cohorts into multiple batches.
-        </p>
-      )}
     </div>
   );
 };

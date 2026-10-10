@@ -21,18 +21,18 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const roundedPercent = clampedPercent.toFixed(1);
 
   const heightClasses = {
-    sm: 'h-1.5',
-    md: 'h-2.5',
-    lg: 'h-4',
+    sm: 'h-2',
+    md: 'h-3.5',
+    lg: 'h-5',
   }[size];
 
   return (
     <div className={`w-full ${className}`}>
       {(label || showPercentText) && (
-        <div className="flex justify-between items-center mb-1.5 text-xs font-mono-telemetry text-[#2b3545]">
-          {label && <span className="font-medium">{label}</span>}
+        <div className="flex justify-between items-center mb-1 text-xs font-ui uppercase font-bold text-black">
+          {label && <span>{label}</span>}
           {showPercentText && (
-            <span className="font-bold text-[#166534] ml-auto">
+            <span className="font-bold text-black ml-auto">
               {roundedPercent}%
             </span>
           )}
@@ -45,11 +45,11 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={label || `Progress: ${roundedPercent}%`}
-        className={`w-full bg-[#ede5d4] rounded-full overflow-hidden border border-[#dcd3c1] shadow-inner ${heightClasses}`}
+        className={`w-full bg-[#dfdfdf] rounded-none overflow-hidden border border-black ${heightClasses}`}
       >
         <div
-          className={`h-full bg-gradient-to-r from-[#15803d] via-[#16a34a] to-[#22c55e] transition-all duration-300 ease-out rounded-full relative ${
-            isProcessing ? 'after:absolute after:inset-0 after:bg-white/30 after:animate-pulse' : ''
+          className={`h-full bg-black transition-none rounded-none relative ${
+            isProcessing ? 'bg-[#8e8a25]' : 'bg-black'
           }`}
           style={{ width: `${clampedPercent}%` }}
         />

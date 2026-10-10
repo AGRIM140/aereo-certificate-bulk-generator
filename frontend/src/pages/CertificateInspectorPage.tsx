@@ -156,23 +156,23 @@ export const CertificateInspectorPage: React.FC = () => {
   if (metadataError || !certificate) {
     return (
       <div className="space-y-6">
-        <div className="pb-4 border-b border-[#e2dac9]">
-          <h1 className="text-xl font-bold tracking-tight text-[#161a22] font-mono-telemetry uppercase">
+        <div className="border-2 border-black bg-[#d77a7a] p-3 shadow-[2px_2px_0px_#000000]">
+          <h1 className="text-lg sm:text-xl font-black uppercase font-ui tracking-wide text-black">
             CERTIFICATE INSPECTOR — ERROR
           </h1>
-          <p className="text-xs text-[#5a6678] mt-1 font-mono-telemetry">
+          <p className="font-mono text-xs text-black mt-0.5 font-bold">
             IDENTIFIER: {certificateId}
           </p>
         </div>
 
-        <div className="bg-[#ffffff] border border-[#fecaca] rounded-lg p-8 space-y-4 shadow-sm text-[#161a22]">
+        <div className="bg-white border-2 border-black p-8 space-y-4 shadow-[2px_2px_0px_#000000] text-black">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[#b83a34] shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-[#e91d2a] shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <h2 className="text-sm font-bold text-[#991b1b] font-mono-telemetry uppercase">
+              <h2 className="text-sm font-bold text-black uppercase font-ui tracking-wide">
                 RECORD NOT ACCESSIBLE
               </h2>
-              <p className="text-xs text-[#556377]">
+              <p className="text-xs font-serif text-black">
                 {metadataError || `No certificate record found with identifier "${certificateId}".`}
               </p>
             </div>
@@ -182,10 +182,10 @@ export const CertificateInspectorPage: React.FC = () => {
             variant="secondary"
             size="sm"
             onClick={() => navigate('/jobs')}
-            className="text-xs font-mono-telemetry"
+            className="text-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-            Return to Ledger
+            RETURN TO LEDGER
           </Button>
         </div>
       </div>
@@ -203,18 +203,18 @@ export const CertificateInspectorPage: React.FC = () => {
           isDownloading={isDownloading}
         />
 
-        <div className="bg-[#ffffff] border border-[#fde68a] rounded-lg p-8 text-center space-y-4 shadow-sm text-[#161a22]">
+        <div className="bg-white border-2 border-black p-8 text-center space-y-4 shadow-[2px_2px_0px_#000000] text-black">
           <div className="flex justify-center">
-            <Clock className="w-10 h-10 text-[#b45309] animate-pulse" />
+            <Clock className="w-10 h-10 text-black animate-pulse" />
           </div>
           <div className="space-y-1.5 max-w-md mx-auto">
             <div className="inline-flex items-center gap-2 mb-2">
               <Badge status="PENDING" size="md" />
             </div>
-            <h2 className="text-base font-bold text-[#161a22] font-mono-telemetry">
+            <h2 className="text-base font-bold text-black font-ui uppercase tracking-wide">
               CERTIFICATE NOT READY
             </h2>
-            <p className="text-xs text-[#556377] leading-relaxed font-mono-telemetry">
+            <p className="text-xs text-black leading-relaxed font-serif">
               The PDF document has not yet been compiled by the backend worker.
               Inspection will become available as soon as generation completes in the batch queue.
             </p>
@@ -225,10 +225,10 @@ export const CertificateInspectorPage: React.FC = () => {
               variant="secondary"
               size="sm"
               onClick={handleBackToGallery}
-              className="text-xs font-mono-telemetry"
+              className="text-xs"
             >
               <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-              Return to Gallery
+              RETURN TO GALLERY
             </Button>
           </div>
         </div>
@@ -247,18 +247,18 @@ export const CertificateInspectorPage: React.FC = () => {
           isDownloading={isDownloading}
         />
 
-        <div className="bg-[#ffffff] border border-[#fecaca] rounded-lg p-8 text-center space-y-4 shadow-sm text-[#161a22]">
+        <div className="bg-white border-2 border-black p-8 text-center space-y-4 shadow-[2px_2px_0px_#000000] text-black">
           <div className="flex justify-center">
-            <XCircle className="w-10 h-10 text-[#b83a34]" />
+            <XCircle className="w-10 h-10 text-[#e91d2a]" />
           </div>
           <div className="space-y-1.5 max-w-md mx-auto">
             <div className="inline-flex items-center gap-2 mb-2">
               <Badge status="FAILED" size="md" />
             </div>
-            <h2 className="text-base font-bold text-[#161a22] font-mono-telemetry">
+            <h2 className="text-base font-bold text-black font-ui uppercase tracking-wide">
               CERTIFICATE GENERATION FAILED
             </h2>
-            <p className="text-xs text-[#b83a34] leading-relaxed font-mono-telemetry font-medium">
+            <p className="text-xs text-[#e91d2a] leading-relaxed font-mono font-medium">
               {typeof certificate.error === 'string'
                 ? certificate.error
                 : certificate.error?.message ||
@@ -271,10 +271,10 @@ export const CertificateInspectorPage: React.FC = () => {
               variant="secondary"
               size="sm"
               onClick={handleBackToGallery}
-              className="text-xs font-mono-telemetry"
+              className="text-xs"
             >
               <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-              Return to Gallery
+              RETURN TO GALLERY
             </Button>
           </div>
         </div>

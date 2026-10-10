@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, History, Layers, Globe } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, History, Globe, Layers } from 'lucide-react';
 
 interface NavItem {
   name: string;
@@ -17,58 +17,63 @@ const navItems: NavItem[] = [
 
 export const SidebarNav: React.FC = () => {
   return (
-    <aside className="w-56 border-r border-[#e2dac9] bg-[#fcfaf4]/90 backdrop-blur-[2px] p-4 flex flex-col justify-between shrink-0 select-none relative">
-      {/* Notebook margin ruler guide */}
-      <div className="absolute top-0 bottom-0 left-3.5 w-px bg-[#b83a34] opacity-20 pointer-events-none" />
-
-      <div className="space-y-6 relative z-10 pl-2">
-        <div className="px-1 py-1">
-          <div className="text-[10px] font-mono-telemetry uppercase tracking-wider text-[#717e91] font-bold mb-2.5">
+    <aside className="w-60 border-r-2 border-black bg-white p-3 flex flex-col justify-between shrink-0 select-none">
+      <div className="space-y-4">
+        {/* Ribbon Header Eyebrow in Tint Steel */}
+        <div className="bg-[#a5b8c0] border border-black p-2 text-center">
+          <div className="font-ui font-black text-xs uppercase tracking-wider text-black">
             OPERATIONAL CONSOLE
           </div>
-          <nav className="space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.to === '/'}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-all ${
-                      isActive
-                        ? 'bg-[#ffffff] text-[#1f304d] border border-[#cfc4af] shadow-[0_1px_3px_rgba(30,20,10,0.06)] font-semibold'
-                        : 'text-[#4b586c] hover:text-[#161a22] hover:bg-[#f3ece0]/70'
-                    }`
-                  }
-                >
-                  <Icon className="w-4 h-4 shrink-0 text-[#1f304d]" />
-                  <span>{item.name}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
+          <div className="text-[10px] font-serif text-black">
+            System Menu & Navigation
+          </div>
         </div>
 
-        <div className="px-3 py-2.5 bg-[#ffffff] border border-[#e2dac9] rounded-md shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-mono-telemetry text-[#1f304d] font-semibold mb-1">
-            <Layers className="w-3.5 h-3.5 text-[#1f304d]" />
-            <span>SPECIFICATIONS</span>
+        {/* Navigation Item Stack */}
+        <nav className="space-y-1.5" aria-label="Sidebar Navigation">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 px-3 py-2 text-xs font-ui uppercase font-bold tracking-wider transition-none border ${
+                    isActive
+                      ? 'bg-black text-white border-black border-l-4 border-l-[#e91d2a]'
+                      : 'bg-white text-black border-black hover:bg-[#b3bd95]/30'
+                  }`
+                }
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                <span>{item.name}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        {/* Specifications Ribbon Card (Tint Sky) */}
+        <div className="border border-black bg-[#9ab6c8]">
+          <div className="bg-white border-b border-black px-2.5 py-1 text-[11px] font-ui font-bold uppercase text-black flex items-center gap-1.5">
+            <Layers className="w-3 h-3 text-[#e91d2a]" />
+            <span>ATELIER SPECS</span>
           </div>
-          <p className="text-[11px] text-[#556377] leading-relaxed">
-            Fixed template overlay with ReportLab. Maximum 500 recipients per batch.
-          </p>
+          <div className="p-2.5 text-xs font-serif text-black leading-relaxed">
+            ReportLab vector compilation. Max 500 recipients per batch with atomic fault isolation.
+          </div>
         </div>
       </div>
 
-      <div className="p-3 bg-[#f7f3ea] border border-[#ded5c2] rounded text-[10px] font-mono-telemetry text-[#647287] space-y-1 relative z-10">
-        <div className="flex justify-between">
+      {/* Authority Pipeline Ribbon (Tint Lime) */}
+      <div className="border border-black bg-[#c0d4a7] p-2 space-y-1 text-[10px] font-ui uppercase font-bold">
+        <div className="flex justify-between items-center text-black">
           <span>PIPELINE:</span>
-          <span className="text-[#2d3748] font-medium">PDF → CANVAS → 3D</span>
+          <span>REPORTLAB → 3D</span>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center text-black">
           <span>INTEGRITY:</span>
-          <span className="text-[#15803d] font-bold">ZERO DIVERGENCE</span>
+          <span className="bg-black text-white px-1">100% FAULT ISOLATION</span>
         </div>
       </div>
     </aside>

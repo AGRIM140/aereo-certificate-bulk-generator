@@ -36,7 +36,7 @@ export const CertificateStatusFilter: React.FC<CertificateStatusFilterProps> = (
     <div
       role="tablist"
       aria-label="Filter certificates by generation status"
-      className="inline-flex items-center gap-1.5 p-1 rounded-lg bg-[#ffffff] border border-[#e2dac9] shadow-sm text-xs font-mono-telemetry flex-wrap"
+      className="inline-flex items-center gap-1 p-1 bg-white border border-black shadow-[1px_1px_0px_#000000] text-xs flex-wrap"
     >
       {filterOptions.map((opt) => {
         const isActive = activeStatus === opt.value;
@@ -50,19 +50,19 @@ export const CertificateStatusFilter: React.FC<CertificateStatusFilterProps> = (
             aria-selected={isActive}
             disabled={disabled}
             onClick={() => onStatusChange(opt.value)}
-            className={`px-3 py-1.5 rounded transition-all duration-150 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`px-3 py-1 font-ui font-bold uppercase tracking-wider text-xs transition-none flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed border ${
               isActive
-                ? 'bg-[#edf3fa] border border-[#ccdbeb] text-[#1f304d] font-bold shadow-sm'
-                : 'text-[#647287] hover:text-[#161a22] hover:bg-[#f5efe4] border border-transparent'
+                ? 'bg-[#fcc20f] border-black text-black shadow-[1px_1px_0px_#000000]'
+                : 'bg-white hover:bg-[#b3bd95]/20 text-black border-transparent'
             }`}
           >
             <span>{opt.label}</span>
             {typeof count === 'number' && (
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${
+                className={`text-[10px] px-1.5 py-0.2 border border-black font-mono font-bold ${
                   isActive
-                    ? 'bg-[#dbeafe] text-[#1e40af]'
-                    : 'bg-[#f5efe4] text-[#647287]'
+                    ? 'bg-black text-white'
+                    : 'bg-neutral-100 text-black'
                 }`}
               >
                 {count}

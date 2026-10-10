@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FileText, Download, AlertCircle } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { downloadCertificatePdf } from '../../api/certificates';
@@ -43,60 +42,59 @@ export const JobCertificateSummary: React.FC<JobCertificateSummaryProps> = ({
   };
 
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="pb-3 border-b border-[#ece5d6]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-[#15803d]" />
-            <CardTitle className="text-sm font-mono-telemetry uppercase tracking-wider text-[#161a22]">
-              Certificate Roster Manifest ({totalCount})
-            </CardTitle>
-          </div>
-          <span className="text-xs font-mono-telemetry text-[#7d8b9e]">
-            {totalCount > PREVIEW_LIMIT ? `Showing 1–${PREVIEW_LIMIT} of ${totalCount}` : `All ${totalCount} records`}
+    <div className="dell-ribbon-card shadow-none">
+      {/* Catalog Ribbon Header */}
+      <div className="dell-ribbon-bar bg-[#a5b8c0]">
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-black" />
+          <span className="font-ui font-bold text-xs uppercase tracking-wider text-black">
+            CERTIFICATE ROSTER MANIFEST ({totalCount} RECORDS)
           </span>
         </div>
-      </CardHeader>
+        <span className="font-mono text-[10px] text-black">
+          {totalCount > PREVIEW_LIMIT ? `SHOWING 1–${PREVIEW_LIMIT} OF ${totalCount}` : `ALL ${totalCount} RECORDS`}
+        </span>
+      </div>
 
-      <CardContent className="pt-0 p-0">
+      <div className="p-0 bg-white">
         {certificates.length === 0 ? (
-          <div className="p-8 text-center text-xs font-mono-telemetry text-[#7d8b9e]">
-            No recipient certificate records found in this batch manifest.
+          <div className="p-8 text-center text-xs font-mono text-black">
+            NO RECIPIENT CERTIFICATE RECORDS FOUND IN THIS BATCH MANIFEST.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-mono-telemetry">
+            <table className="dell-table w-full text-left">
               <thead>
-                <tr className="border-b border-[#e2dac9] bg-[#fbf9f4] text-[#556377] text-[11px] uppercase">
-                  <th scope="col" className="py-2.5 px-4 w-12 text-[#7d8b9e]">#</th>
-                  <th scope="col" className="py-2.5 px-4">Recipient Name</th>
-                  <th scope="col" className="py-2.5 px-4">Email</th>
-                  <th scope="col" className="py-2.5 px-4">Certificate ID</th>
-                  <th scope="col" className="py-2.5 px-4">Status</th>
-                  <th scope="col" className="py-2.5 px-4 text-right">PDF</th>
+                <tr>
+                  <th scope="col" className="w-12 text-center">#</th>
+                  <th scope="col">RECIPIENT NAME</th>
+                  <th scope="col">EMAIL ADDRESS</th>
+                  <th scope="col">CERTIFICATE ID</th>
+                  <th scope="col">STATUS</th>
+                  <th scope="col" className="text-right">DOCUMENT</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#ece5d6] bg-[#ffffff]">
+              <tbody>
                 {displayList.map((cert) => (
                   <tr key={cert.id} className="hover:bg-[#fbf7ee] transition-colors">
-                    <td className="py-2.5 px-4 text-[#7d8b9e] font-mono-telemetry">
+                    <td className="text-center font-mono text-xs text-black">
                       {String(cert.row_number).padStart(2, '0')}
                     </td>
-                    <td className="py-2.5 px-4 font-semibold text-[#161a22]">
+                    <td className="font-body-dell font-bold text-black text-sm">
                       {cert.recipient_name}
                     </td>
-                    <td className="py-2.5 px-4 text-[#556377]">
+                    <td className="font-body-dell text-black text-xs">
                       {cert.recipient_email}
                     </td>
-                    <td className="py-2.5 px-4 text-[#2d3748] font-mono-telemetry font-medium">
+                    <td className="font-mono text-xs font-bold text-black">
                       {cert.certificate_number || '—'}
                     </td>
-                    <td className="py-2.5 px-4">
+                    <td>
                       <div className="flex flex-col gap-1 items-start">
                         <Badge status={cert.status} size="sm" />
                         {cert.status === 'FAILED' && cert.error && (
                           <span
-                            className="text-[10px] text-[#b83a34] flex items-center gap-1 max-w-[200px] truncate"
+                            className="text-[10px] text-[#e91d2a] font-mono flex items-center gap-1 max-w-[200px] truncate"
                             title={`${cert.error.type}: ${cert.error.message}`}
                           >
                             <AlertCircle className="w-3 h-3 shrink-0" />
@@ -105,23 +103,23 @@ export const JobCertificateSummary: React.FC<JobCertificateSummaryProps> = ({
                         )}
                       </div>
                     </td>
-                    <td className="py-2.5 px-4 text-right">
+                    <td className="text-right">
                       {cert.status === 'GENERATED' ? (
                         <Button
-                          variant="ghost"
+                          variant="secondary"
                           size="sm"
                           onClick={() => handleDownloadSinglePdf(cert)}
                           isLoading={downloadingId === cert.id}
                           disabled={downloadingId === cert.id}
-                          className="text-[11px] h-7 px-2"
+                          className="text-[10px] h-6 px-2"
                           aria-label={`Download PDF for ${cert.recipient_name}`}
                           title="Download individual certificate PDF"
                         >
-                          <Download className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline ml-1">PDF</span>
+                          <Download className="w-3 h-3 mr-1" />
+                          <span>PDF</span>
                         </Button>
                       ) : (
-                        <span className="text-[#9ea8b6] text-[11px]">—</span>
+                        <span className="font-mono text-black text-xs">—</span>
                       )}
                     </td>
                   </tr>
@@ -132,16 +130,16 @@ export const JobCertificateSummary: React.FC<JobCertificateSummaryProps> = ({
         )}
 
         {totalCount > PREVIEW_LIMIT && (
-          <div className="p-3 bg-[#fbf9f4] border-t border-[#e2dac9] flex items-center justify-between text-xs font-mono-telemetry text-[#647287]">
+          <div className="p-3 bg-[#e8e4c9] border-t-2 border-black flex items-center justify-between text-xs font-mono text-black">
             <span>
               Previewing initial {PREVIEW_LIMIT} of {totalCount} certificates.
             </span>
-            <span className="text-[#7d8b9e] text-[11px]">
-              Full certificate gallery for job {jobId.slice(0, 8)} available in Phase F5
+            <span className="font-bold">
+              BATCH ID: {jobId.slice(0, 8)}
             </span>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

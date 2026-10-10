@@ -1,7 +1,7 @@
 /**
  * TypeScript types matching the backend models and serializers.
  * Source of truth: certificates/models.py and certificates/serializers.py
- * Commit: cf5bb3d
+ * Production Release: v1.0.0
  */
 
 export type JobStatus =

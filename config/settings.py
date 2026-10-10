@@ -39,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -96,11 +97,61 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", "media"))
 if not MEDIA_ROOT.is_absolute():
     MEDIA_ROOT = BASE_DIR / MEDIA_ROOT
+
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+CERTIFICATE_STORAGE = os.getenv("CERTIFICATE_STORAGE", "filesystem")
+if CERTIFICATE_STORAGE == "s3":
+    # These are the standard environment names supplied by Railway bucket CLI.
+    required = (
+        "AWS_ENDPOINT_URL", "AWS_S3_BUCKET_NAME", "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY", "AWS_DEFAULT_REGION", "AWS_S3_URL_STYLE",
+    )
+    if any(not os.getenv(name) for name in required):
+        raise ImproperlyConfigured("S3 certificate storage requires all bucket environment variables.")
+    if not os.environ["AWS_ENDPOINT_URL"].startswith("https://"):
+        raise ImproperlyConfigured("The certificate bucket endpoint must use HTTPS.")
+    if os.environ["AWS_S3_URL_STYLE"] not in ("virtual", "path"):
+        raise ImproperlyConfigured("AWS_S3_URL_STYLE must be virtual or path.")
+    STORAGES["default"] = {
+        "BACKEND": "certificates.storage.PrivateCertificateStorage",
+        "OPTIONS": {
+            "endpoint_url": os.environ["AWS_ENDPOINT_URL"],
+            "bucket_name": os.environ["AWS_S3_BUCKET_NAME"],
+            "access_key": os.environ["AWS_ACCESS_KEY_ID"],
+            "secret_key": os.environ["AWS_SECRET_ACCESS_KEY"],
+            "region_name": os.environ["AWS_DEFAULT_REGION"],
+            "addressing_style": os.environ["AWS_S3_URL_STYLE"],
+            "signature_version": "s3v4",
+            "default_acl": None,
+            "querystring_auth": True,
+            "file_overwrite": True,
+            "object_parameters": {"CacheControl": "private, no-store"},
+        },
+    }
+elif CERTIFICATE_STORAGE != "filesystem":
+    raise ImproperlyConfigured("CERTIFICATE_STORAGE must be filesystem or s3.")
+
+# Enable only behind a trusted proxy that replaces X-Forwarded-Proto.
+if os.getenv("DJANGO_TRUST_PROXY", "false").lower() == "true":
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_HSTS_SECONDS", "0"))
 MAX_RECIPIENTS_PER_JOB = int(os.getenv("MAX_RECIPIENTS_PER_JOB", "500"))
 STALE_JOB_MINUTES = int(os.getenv("STALE_JOB_MINUTES", "15"))
 

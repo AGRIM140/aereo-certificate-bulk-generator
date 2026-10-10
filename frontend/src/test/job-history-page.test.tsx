@@ -103,4 +103,61 @@ describe('JobHistoryPage', () => {
       expect(screen.getByText(/PostgreSQL connection timeout/i)).toBeInTheDocument();
     });
   });
+
+  it('allows archiving a batch and restoring it via the Archived tab', async () => {
+    window.localStorage.clear();
+    vi.spyOn(jobsApi, 'getJobs').mockResolvedValue(mockLedgerResponse);
+
+    render(
+      <MemoryRouter initialEntries={['/jobs']}>
+        <Routes>
+          <Route path="/jobs" element={<JobHistoryPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    // Initial load: job is visible in active list
+    await waitFor(() => {
+      expect(screen.getByText('DevOps Summit 2026')).toBeInTheDocument();
+    });
+
+    // Find and click the Archive button on the row
+    const archiveBtn = screen.getByRole('button', { name: /archive job/i });
+    expect(archiveBtn).toBeInTheDocument();
+    fireEvent.click(archiveBtn);
+
+    // Now it should be hidden from Active view
+    await waitFor(() => {
+      expect(screen.queryByText('DevOps Summit 2026')).not.toBeInTheDocument();
+      expect(screen.getByText('No Batches in Ledger')).toBeInTheDocument();
+    });
+
+    // Switch to Archived tab
+    const archivedTab = screen.getByRole('button', { name: /archived/i });
+    fireEvent.click(archivedTab);
+
+    // Job should be visible in Archived view
+    await waitFor(() => {
+      expect(screen.getByText('DevOps Summit 2026')).toBeInTheDocument();
+      expect(screen.getAllByText(/ARCHIVED/).length).toBeGreaterThan(0);
+    });
+
+    // Click Restore button
+    const restoreBtn = screen.getByRole('button', { name: /restore job/i });
+    fireEvent.click(restoreBtn);
+
+    // Archived view is now empty
+    await waitFor(() => {
+      expect(screen.getByText('No Archived Batches')).toBeInTheDocument();
+    });
+
+    // Switch back to Active tab
+    const activeTab = screen.getByRole('button', { name: /active/i });
+    fireEvent.click(activeTab);
+
+    // Job is restored and visible in Active tab
+    await waitFor(() => {
+      expect(screen.getByText('DevOps Summit 2026')).toBeInTheDocument();
+    });
+  });
 });

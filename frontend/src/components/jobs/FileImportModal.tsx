@@ -55,31 +55,31 @@ export const FileImportModal: React.FC<FileImportModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="import-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 select-none"
     >
-      <div className="bg-[#ffffff] border border-[#dcd3c1] rounded-lg shadow-2xl max-w-lg w-full overflow-hidden text-xs text-[#161a22]">
+      <div className="bg-white border-2 border-black rounded-none shadow-[6px_6px_0px_#000000] max-w-lg w-full overflow-hidden text-xs text-black">
         {/* Modal Header */}
-        <div className="px-5 py-4 border-b border-[#e2dac9] flex items-center justify-between bg-[#fcfaf4]">
+        <div className="px-4 py-2.5 border-b-2 border-black flex items-center justify-between bg-white">
           <div className="flex items-center gap-2">
-            <Upload className="w-4 h-4 text-[#15803d]" />
-            <h3 id="import-modal-title" className="font-bold text-[#161a22] font-mono-telemetry uppercase tracking-wider">
-              Import Recipients (CSV / JSON)
+            <Upload className="w-4 h-4 text-black" />
+            <h3 id="import-modal-title" className="font-ui font-bold uppercase tracking-wider text-xs text-black">
+              IMPORT RECIPIENTS (CSV / JSON)
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close import dialog"
-            className="text-[#7d8b9e] hover:text-[#161a22] p-1 transition-colors"
+            className="text-black hover:bg-black hover:text-white p-1 border border-black"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Content */}
-        <div className="p-5 space-y-4">
-          <p className="text-[#556377] leading-relaxed text-[11px]">
-            Parse recipient rosters directly in your browser. Supported formats: <code className="text-[#161a22] bg-[#f5efe4] px-1 py-0.5 rounded font-mono-telemetry">.csv</code> (headers: name, email) or <code className="text-[#161a22] bg-[#f5efe4] px-1 py-0.5 rounded font-mono-telemetry">.json</code> (array of objects).
+        <div className="p-4 space-y-4">
+          <p className="text-neutral-800 font-serif leading-relaxed text-xs">
+            Parse recipient rosters directly in your browser. Supported formats: <code className="text-black bg-neutral-200 px-1 py-0.5 border border-black font-mono">.csv</code> (headers: name, email) or <code className="text-black bg-neutral-200 px-1 py-0.5 border border-black font-mono">.json</code> (array of objects).
           </p>
 
           {/* Drag & Drop Area */}
@@ -91,86 +91,74 @@ export const FileImportModal: React.FC<FileImportModalProps> = ({
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-              isDragging
-                ? 'border-[#15803d] bg-[#f0fdf4]'
-                : 'border-[#dcd3c1] hover:border-[#b8a892] bg-[#fcfaf4]'
+            className={`border-2 border-dashed border-black p-6 text-center cursor-pointer ${
+              isDragging ? 'bg-[#c0d4a7]' : 'bg-[#dfdfdf]/40 hover:bg-[#dfdfdf]/80'
             }`}
           >
             <input
               ref={fileInputRef}
               type="file"
               accept=".csv,.json,text/csv,application/json"
+              className="hidden"
               onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) {
+                if (e.target.files && e.target.files[0]) {
                   handleFileProcess(e.target.files[0]);
                 }
               }}
-              className="hidden"
             />
-            <FileText className="w-8 h-8 text-[#7d8b9e] mx-auto mb-2" />
-            <p className="font-semibold text-[#161a22]">
-              {fileName || 'Drop CSV or JSON file here, or click to browse'}
-            </p>
-            <p className="text-[10px] text-[#7d8b9e] mt-1">
-              Parsed locally in browser memory. Max 500 recipients.
-            </p>
+            <FileText className="w-8 h-8 text-black mx-auto mb-2" />
+            <div className="font-ui font-bold uppercase text-xs text-black">
+              {fileName ? fileName : 'SELECT FILE OR DRAG & DROP'}
+            </div>
+            <div className="text-[11px] font-serif text-neutral-600 mt-0.5">
+              Click to browse your local file system
+            </div>
           </div>
 
-          {/* Parse Results Preview */}
-          {parsedRecipients.length > 0 && (
-            <div className="p-3 rounded bg-[#f0fdf4] border border-[#bbf7d0] space-y-2">
-              <div className="flex items-center gap-1.5 text-[#15803d] font-mono-telemetry font-bold">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Parsed {parsedRecipients.length} recipients successfully</span>
+          {/* Parse Errors */}
+          {parseErrors.length > 0 && (
+            <div className="p-3 bg-[#d77a7a] border border-black text-black space-y-1">
+              <div className="flex items-center gap-1.5 font-ui font-bold uppercase text-[11px]">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Parse Warnings / Validation Errors ({parseErrors.length})</span>
               </div>
-              <div className="max-h-28 overflow-y-auto font-mono-telemetry text-[11px] text-[#556377] divide-y divide-[#dcfce7]">
-                {parsedRecipients.slice(0, 5).map((r, i) => (
-                  <div key={i} className="py-1 flex justify-between">
-                    <span className="text-[#161a22] font-medium">{r.name}</span>
-                    <span className="text-[#7d8b9e]">{r.email || '—'}</span>
-                  </div>
+              <ul className="list-disc list-inside text-[11px] font-serif space-y-0.5 max-h-24 overflow-y-auto">
+                {parseErrors.map((err, i) => (
+                  <li key={i}>{err}</li>
                 ))}
-                {parsedRecipients.length > 5 && (
-                  <div className="py-1 text-[#7d8b9e] italic">
-                    ...and {parsedRecipients.length - 5} more
-                  </div>
-                )}
-              </div>
+              </ul>
             </div>
           )}
 
-          {/* Parse Warnings / Errors */}
-          {parseErrors.length > 0 && (
-            <div className="p-3 rounded bg-[#fffbeb] border border-[#fde68a] space-y-1 text-[#92400e] text-[11px] font-mono-telemetry max-h-24 overflow-y-auto">
-              <div className="flex items-center gap-1 font-semibold text-[#b45309]">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Import Notices:</span>
+          {/* Parse Success Telemetry */}
+          {parsedRecipients.length > 0 && (
+            <div className="p-3 bg-[#c0d4a7] border border-black text-black flex items-center justify-between">
+              <div className="flex items-center gap-2 font-ui font-bold text-xs uppercase">
+                <CheckCircle2 className="w-4 h-4 text-black" />
+                <span>Found {parsedRecipients.length} Valid Records</span>
               </div>
-              {parseErrors.map((err, i) => (
-                <p key={i}>• {err}</p>
-              ))}
+              <span className="font-mono text-[11px] bg-black text-white px-1">
+                Batch Capacity: {currentCount + parsedRecipients.length}/500
+              </span>
             </div>
           )}
         </div>
 
-        {/* Modal Footer */}
-        <div className="px-5 py-3 border-t border-[#e2dac9] bg-[#fbf9f4] flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={onClose}>
+        {/* Modal Actions */}
+        <div className="px-4 py-3 border-t-2 border-black bg-neutral-100 flex items-center justify-between gap-2">
+          <Button variant="secondary" size="sm" onClick={onClose}>
             Cancel
           </Button>
 
           <div className="flex items-center gap-2">
-            {currentCount > 0 && (
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={parsedRecipients.length === 0}
-                onClick={() => handleApply('append')}
-              >
-                Append to Roster
-              </Button>
-            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={parsedRecipients.length === 0}
+              onClick={() => handleApply('append')}
+            >
+              Append to Roster
+            </Button>
 
             <Button
               variant="primary"
@@ -178,7 +166,7 @@ export const FileImportModal: React.FC<FileImportModalProps> = ({
               disabled={parsedRecipients.length === 0}
               onClick={() => handleApply('replace')}
             >
-              Replace Roster ({parsedRecipients.length})
+              Replace Existing ({parsedRecipients.length})
             </Button>
           </div>
         </div>

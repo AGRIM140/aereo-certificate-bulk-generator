@@ -14,7 +14,7 @@ export interface CreateLandingSceneOptions {
 }
 
 /**
- * Creates a soft radial contact shadow texture to physically ground 3D machinery.
+ * Creates a soft radial contact shadow texture to physically ground 3D machinery on a clean white surface.
  */
 function createContactShadowCanvas(): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
@@ -24,10 +24,10 @@ function createContactShadowCanvas(): HTMLCanvasElement {
   if (!ctx) return canvas;
 
   const grad = ctx.createRadialGradient(256, 256, 30, 256, 256, 248);
-  grad.addColorStop(0, 'rgba(4, 6, 10, 0.78)');
-  grad.addColorStop(0.35, 'rgba(4, 6, 10, 0.46)');
-  grad.addColorStop(0.70, 'rgba(4, 6, 10, 0.16)');
-  grad.addColorStop(1, 'rgba(4, 6, 10, 0.00)');
+  grad.addColorStop(0, 'rgba(15, 23, 42, 0.42)');
+  grad.addColorStop(0.35, 'rgba(15, 23, 42, 0.22)');
+  grad.addColorStop(0.70, 'rgba(15, 23, 42, 0.07)');
+  grad.addColorStop(1, 'rgba(15, 23, 42, 0.00)');
 
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 512, 512);
@@ -35,8 +35,8 @@ function createContactShadowCanvas(): HTMLCanvasElement {
 }
 
 /**
- * Creates a high-fidelity studio environment map via PMREMGenerator
- * providing rich specular reflections for brushed brass, steel, and cast iron.
+ * Creates a high-fidelity bright studio environment map via PMREMGenerator
+ * providing crisp specular reflections for catalog steel, gold brass, and workstation chassis.
  */
 function createStudioEnvironment(renderer: THREE.WebGLRenderer): {
   envMap: THREE.Texture;
@@ -50,37 +50,37 @@ function createStudioEnvironment(renderer: THREE.WebGLRenderer): {
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
   if (ctx) {
-    // 1. Studio backdrop ambient gradient
+    // 1. Studio backdrop ambient gradient (crisp white to pale steel)
     const bgGrad = ctx.createLinearGradient(0, 0, 0, 512);
-    bgGrad.addColorStop(0, '#10141f');
-    bgGrad.addColorStop(0.35, '#18212e');
-    bgGrad.addColorStop(0.70, '#0c1017');
-    bgGrad.addColorStop(1, '#07090d');
+    bgGrad.addColorStop(0, '#ffffff');
+    bgGrad.addColorStop(0.35, '#f8fafc');
+    bgGrad.addColorStop(0.70, '#e2e8f0');
+    bgGrad.addColorStop(1, '#cbd5e1');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1024, 512);
 
-    // 2. Warm Key Softbox Light (Ceiling overhead)
+    // 2. High-key Softbox Light (Ceiling overhead)
     const softbox = ctx.createRadialGradient(512, 100, 20, 512, 100, 280);
-    softbox.addColorStop(0, 'rgba(255, 248, 235, 0.95)');
-    softbox.addColorStop(0.40, 'rgba(240, 225, 200, 0.45)');
-    softbox.addColorStop(1, 'rgba(24, 33, 46, 0.00)');
+    softbox.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+    softbox.addColorStop(0.45, 'rgba(248, 250, 252, 0.85)');
+    softbox.addColorStop(1, 'rgba(226, 232, 240, 0.0)');
     ctx.fillStyle = softbox;
     ctx.beginPath();
     ctx.arc(512, 100, 280, 0, Math.PI * 2);
     ctx.fill();
 
-    // 3. Cool Archival Rim Lightbox (Side reflection strip)
+    // 3. Technical Rim Lightbox (Side reflection strip)
     const rimGrad = ctx.createLinearGradient(120, 0, 280, 0);
-    rimGrad.addColorStop(0, 'rgba(180, 210, 255, 0.00)');
-    rimGrad.addColorStop(0.5, 'rgba(200, 225, 255, 0.70)');
-    rimGrad.addColorStop(1, 'rgba(180, 210, 255, 0.00)');
+    rimGrad.addColorStop(0, 'rgba(255, 255, 255, 0.0)');
+    rimGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.95)');
+    rimGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
     ctx.fillStyle = rimGrad;
     ctx.fillRect(120, 80, 160, 320);
 
-    // 4. Warm Ground Bounce
+    // 4. Clean Floor Bounce
     const floorBounce = ctx.createRadialGradient(512, 450, 40, 512, 450, 320);
-    floorBounce.addColorStop(0, 'rgba(197, 160, 89, 0.28)');
-    floorBounce.addColorStop(1, 'rgba(7, 9, 13, 0.00)');
+    floorBounce.addColorStop(0, 'rgba(241, 245, 249, 0.9)');
+    floorBounce.addColorStop(1, 'rgba(203, 213, 225, 0.0)');
     ctx.fillStyle = floorBounce;
     ctx.fillRect(160, 320, 704, 192);
   }
@@ -123,7 +123,7 @@ function createBrushedMetalCanvas(): HTMLCanvasElement {
 
 /**
  * Procedurally draws a pristine UNPRINTED raw archival cotton vellum document texture
- * with subtle watermark and draft crop marks (Act I & Act II state).
+ * with crisp technical drafting crop marks and catalog border (Act I & Act II state).
  */
 function createBlankDocumentCanvas(): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
@@ -135,84 +135,87 @@ function createBlankDocumentCanvas(): HTMLCanvasElement {
   const w = canvas.width;
   const h = canvas.height;
 
-  // 1. Pristine Parchment Base
-  const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 100, w / 2, h / 2, w * 0.75);
-  bgGrad.addColorStop(0, '#fffefb');
-  bgGrad.addColorStop(0.60, '#f9f3e7');
-  bgGrad.addColorStop(1, '#eee2cc');
-  ctx.fillStyle = bgGrad;
+  // 1. Pristine Crisp White Base
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
-  // Paper grain noise
-  ctx.save();
-  ctx.fillStyle = 'rgba(120, 100, 80, 0.015)';
-  for (let i = 0; i < 4000; i++) {
-    const rx = Math.random() * w;
-    const ry = Math.random() * h;
-    ctx.fillRect(rx, ry, 2, 2);
-  }
-  ctx.restore();
+  // 2. Technical Catalog Borders
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(36, 36, w - 72, h - 72);
 
-  // Faint translucent watermark in center (subtle embossed seal watermark)
-  ctx.save();
-  ctx.strokeStyle = 'rgba(197, 160, 89, 0.12)';
-  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(48, 48, w - 96, h - 96);
+
+  // Technical corner brackets
+  const corner = 36;
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 3;
+  // Top-left
   ctx.beginPath();
-  ctx.arc(w / 2, h / 2, 130, 0, Math.PI * 2);
+  ctx.moveTo(26, 26 + corner);
+  ctx.lineTo(26, 26);
+  ctx.lineTo(26 + corner, 26);
   ctx.stroke();
+  // Top-right
   ctx.beginPath();
-  ctx.arc(w / 2, h / 2, 100, 0, Math.PI * 2);
+  ctx.moveTo(w - 26 - corner, 26);
+  ctx.lineTo(w - 26, 26);
+  ctx.lineTo(w - 26, 26 + corner);
+  ctx.stroke();
+  // Bottom-left
+  ctx.beginPath();
+  ctx.moveTo(26, h - 26 - corner);
+  ctx.lineTo(26, h - 26);
+  ctx.lineTo(26 + corner, h - 26);
+  ctx.stroke();
+  // Bottom-right
+  ctx.beginPath();
+  ctx.moveTo(w - 26 - corner, h - 26);
+  ctx.lineTo(w - 26, h - 26);
+  ctx.lineTo(w - 26, h - 26 - corner);
   ctx.stroke();
 
-  // Faint watermark star
-  ctx.fillStyle = 'rgba(197, 160, 89, 0.09)';
-  ctx.font = 'bold 52px Georgia, serif';
+  // Faint translucent watermark in center (Dell 1996 star mark)
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+  ctx.lineWidth = 2.0;
+  ctx.beginPath();
+  ctx.arc(w / 2, h / 2, 120, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+  ctx.font = 'bold 52px "Times New Roman", serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('✦', w / 2, h / 2);
   ctx.restore();
 
-  // Faint draft corner crop marks
-  ctx.strokeStyle = 'rgba(100, 116, 139, 0.22)';
-  ctx.lineWidth = 1.2;
-  const corner = 32;
-  // Top-left
-  ctx.beginPath();
-  ctx.moveTo(44, 44 + corner);
-  ctx.lineTo(44, 44);
-  ctx.lineTo(44 + corner, 44);
-  ctx.stroke();
-  // Top-right
-  ctx.beginPath();
-  ctx.moveTo(w - 44 - corner, 44);
-  ctx.lineTo(w - 44, 44);
-  ctx.lineTo(w - 44, 44 + corner);
-  ctx.stroke();
-  // Bottom-left
-  ctx.beginPath();
-  ctx.moveTo(44, h - 44 - corner);
-  ctx.lineTo(44, h - 44);
-  ctx.lineTo(44 + corner, h - 44);
-  ctx.stroke();
-  // Bottom-right
-  ctx.beginPath();
-  ctx.moveTo(w - 44 - corner, h - 44);
-  ctx.lineTo(w - 44, h - 44);
-  ctx.lineTo(w - 44, h - 44 - corner);
-  ctx.stroke();
+  // Center watermark label
+  ctx.font = 'bold 16px "Courier New", Courier, monospace';
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.textAlign = 'center';
+  ctx.fillText('[ RAW UNPRINTED 280 GSM COTTON VELLUM // SPECIMEN SUBSTRATE ]', w / 2, h / 2 + 160);
+
+  // Header telemetry
+  ctx.font = 'bold 12px "Courier New", Courier, monospace';
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'left';
+  ctx.fillText('DELL 1996 ARCHIVAL PAPER LAB // FORM 96-CERT', 72, 80);
+  ctx.textAlign = 'right';
+  ctx.fillText('STATUS: RAW UNENGAGED // QUEUED', w - 72, 80);
 
   // Micro watermark indicator at bottom
-  ctx.font = 'bold 11px "Courier New", Courier, monospace';
-  ctx.fillStyle = 'rgba(148, 163, 184, 0.35)';
   ctx.textAlign = 'center';
-  ctx.fillText('ARCHIVAL 280 GSM COTTON VELLUM // RAW UNPRINTED SPECIMEN SUBSTRATE', w / 2, h - 36);
+  ctx.fillText('ARCHIVAL 280 GSM COTTON VELLUM // A4 LANDSCAPE (1:1.415) // SUB-SECOND DISPATCH', w / 2, h - 60);
 
   return canvas;
 }
 
 /**
  * Procedurally draws a high-resolution archival document texture with guilloche rosettes,
- * gold foil hot-stamped borders, and elegant typography (Act IV & Act V state).
+ * bold Dell 1996 catalog borders, carmine wax seal, and elegant typography (Act IV & Act V state).
  */
 function createArchivalDocumentCanvas(): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
@@ -224,74 +227,53 @@ function createArchivalDocumentCanvas(): HTMLCanvasElement {
   const w = canvas.width;
   const h = canvas.height;
 
-  // 1. Parchment Base with subtle warm radial gradient
-  const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 100, w / 2, h / 2, w * 0.75);
-  bgGrad.addColorStop(0, '#fffefb');
-  bgGrad.addColorStop(0.60, '#f9f3e7');
-  bgGrad.addColorStop(1, '#eee2cc');
-  ctx.fillStyle = bgGrad;
+  // 1. Crisp Archival White Base
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
-  // Subtle paper grain noise
-  ctx.save();
-  ctx.fillStyle = 'rgba(120, 100, 80, 0.015)';
-  for (let i = 0; i < 4000; i++) {
-    const rx = Math.random() * w;
-    const ry = Math.random() * h;
-    ctx.fillRect(rx, ry, 2, 2);
-  }
-  ctx.restore();
+  // 2. Archival Security Borders & Black Contours (Dell 1996 Style)
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 4.5;
+  ctx.strokeRect(36, 36, w - 72, h - 72);
 
-  // 2. Archival Security Borders & Engraved Filigree
-  ctx.strokeStyle = '#1e293b';
-  ctx.lineWidth = 3.5;
-  ctx.strokeRect(44, 44, w - 88, h - 88);
-
-  ctx.strokeStyle = '#c5a059';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(58, 58, w - 116, h - 116);
-
-  ctx.save();
-  ctx.setLineDash([3, 5]);
-  ctx.strokeStyle = '#8d7b68';
-  ctx.lineWidth = 1.2;
-  ctx.strokeRect(68, 68, w - 136, h - 136);
-  ctx.restore();
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(48, 48, w - 96, h - 96);
 
   // Corner bracket accents
   const cornerSize = 40;
-  ctx.strokeStyle = '#1e293b';
+  ctx.strokeStyle = '#000000';
   ctx.lineWidth = 4;
   // Top-left
   ctx.beginPath();
-  ctx.moveTo(34, 34 + cornerSize);
-  ctx.lineTo(34, 34);
-  ctx.lineTo(34 + cornerSize, 34);
+  ctx.moveTo(26, 26 + cornerSize);
+  ctx.lineTo(26, 26);
+  ctx.lineTo(26 + cornerSize, 26);
   ctx.stroke();
   // Top-right
   ctx.beginPath();
-  ctx.moveTo(w - 34 - cornerSize, 34);
-  ctx.lineTo(w - 34, 34);
-  ctx.lineTo(w - 34, 34 + cornerSize);
+  ctx.moveTo(w - 26 - cornerSize, 26);
+  ctx.lineTo(w - 26, 26);
+  ctx.lineTo(w - 26, 26 + cornerSize);
   ctx.stroke();
   // Bottom-left
   ctx.beginPath();
-  ctx.moveTo(34, h - 34 - cornerSize);
-  ctx.lineTo(34, h - 34);
-  ctx.lineTo(34 + cornerSize, h - 34);
+  ctx.moveTo(26, h - 26 - cornerSize);
+  ctx.lineTo(26, h - 26);
+  ctx.lineTo(26 + cornerSize, h - 26);
   ctx.stroke();
   // Bottom-right
   ctx.beginPath();
-  ctx.moveTo(w - 34 - cornerSize, h - 34);
-  ctx.lineTo(w - 34, h - 34);
-  ctx.lineTo(w - 34, h - 34 - cornerSize);
+  ctx.moveTo(w - 26 - cornerSize, h - 26);
+  ctx.lineTo(w - 26, h - 26);
+  ctx.lineTo(w - 26, h - 26 - cornerSize);
   ctx.stroke();
 
-  // Guilloche Security Rosette (Parametric Hypocycloid)
+  // Guilloche Security Rosette (Parametric Hypocycloid in Dell Gold)
   const drawGuillocheRosette = (cx: number, cy: number, R: number, r: number, p: number, loops: number) => {
     ctx.save();
-    ctx.strokeStyle = 'rgba(197, 160, 89, 0.40)';
-    ctx.lineWidth = 0.8;
+    ctx.strokeStyle = 'rgba(252, 194, 15, 0.45)';
+    ctx.lineWidth = 0.9;
     ctx.beginPath();
     const steps = loops * 100;
     for (let theta = 0; theta <= loops * 2 * Math.PI; theta += (2 * Math.PI) / steps) {
@@ -304,14 +286,14 @@ function createArchivalDocumentCanvas(): HTMLCanvasElement {
     ctx.restore();
   };
 
-  drawGuillocheRosette(w / 2, 175, 52, 18, 32, 9);
-  drawGuillocheRosette(145, h - 145, 60, 20, 36, 9);
+  drawGuillocheRosette(w / 2, 185, 52, 18, 32, 9);
+  drawGuillocheRosette(150, h - 145, 60, 20, 36, 9);
 
   // Corner registration crosshairs
   const drawCrosshair = (cx: number, cy: number) => {
     ctx.save();
-    ctx.strokeStyle = '#c5a059';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.moveTo(cx - 14, cy);
     ctx.lineTo(cx + 14, cy);
@@ -323,58 +305,75 @@ function createArchivalDocumentCanvas(): HTMLCanvasElement {
     ctx.stroke();
     ctx.restore();
   };
-  drawCrosshair(92, 92);
-  drawCrosshair(w - 92, 92);
-  drawCrosshair(92, h - 92);
-  drawCrosshair(w - 92, h - 92);
+  drawCrosshair(82, 82);
+  drawCrosshair(w - 82, 82);
+  drawCrosshair(82, h - 82);
+  drawCrosshair(w - 82, h - 82);
 
-  // 3. Document Telemetry Header Bar
-  ctx.font = 'bold 13px "Courier New", Courier, monospace';
-  ctx.fillStyle = '#64748b';
-  ctx.fillText('ARCHIVAL TELEMETRY CERTIFICATE // ATELIER ATOMIC COMPILATION', 120, 96);
-  ctx.textAlign = 'right';
-  ctx.fillText('SPECIFICATION v1.0 • DETERMINISTIC SHA-256', w - 120, 96);
+  // 3. Document Telemetry Header Ribbon Bar (Black Ribbon with Yellow Sticker)
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(68, 64, w - 136, 36);
+
+  ctx.font = 'bold 12px Arial, Helvetica, sans-serif';
+  ctx.fillStyle = '#ffffff';
   ctx.textAlign = 'left';
+  ctx.fillText('ARCHIVAL TELEMETRY CERTIFICATE // ATELIER ATOMIC COMPILATION', 86, 87);
+
+  // Yellow badge sticker in ribbon
+  ctx.fillStyle = '#fcc20f';
+  ctx.fillRect(w - 380, 70, 290, 24);
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(w - 380, 70, 290, 24);
+  ctx.font = 'bold 11px "Courier New", Courier, monospace';
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.fillText('SPECIFICATION v1.0 • SHA-256 VERIFIED', w - 235, 86);
 
   // 4. Main Certificate Header & Award Title
   ctx.textAlign = 'center';
 
   ctx.font = 'bold 15px "Courier New", Courier, monospace';
-  ctx.fillStyle = '#c5a059';
+  ctx.fillStyle = '#000000';
   ctx.fillText('✦ CERTIFICATE OF FELLOWSHIP & ACHIEVEMENT ✦', w / 2, 280);
 
-  ctx.font = 'bold 28px Georgia, serif';
-  ctx.fillStyle = '#1e293b';
+  ctx.font = 'bold 28px Arial, Helvetica, sans-serif';
+  ctx.fillStyle = '#000000';
   ctx.fillText('ARCHIVAL ACADEMY OF ADVANCED COMPUTING', w / 2, 332);
 
-  ctx.font = 'italic 18px Georgia, serif';
-  ctx.fillStyle = '#64748b';
-  ctx.fillText('This authoritative archival record certifies the successful batch compilation for', w / 2, 400);
+  ctx.font = 'italic 18px "Times New Roman", Georgia, serif';
+  ctx.fillStyle = '#444444';
+  ctx.fillText('This authoritative archival record certifies the successful batch compilation for', w / 2, 396);
 
   // 5. Recipient Name Hero Section
-  ctx.font = 'bold 54px Georgia, serif';
-  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 56px "Times New Roman", Georgia, serif';
+  ctx.fillStyle = '#000000';
   ctx.fillText('Dr. Elena Rostova', w / 2, 475);
 
-  ctx.strokeStyle = '#c5a059';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.moveTo(w / 2 - 280, 505);
   ctx.lineTo(w / 2 + 280, 505);
   ctx.stroke();
 
+  // Small yellow decorative center pip
+  ctx.fillStyle = '#fcc20f';
+  ctx.fillRect(w / 2 - 6, 500, 12, 10);
+  ctx.strokeRect(w / 2 - 6, 500, 12, 10);
+
   // Event Context & Citation
-  ctx.font = 'bold 24px Georgia, serif';
-  ctx.fillStyle = '#1e293b';
+  ctx.font = 'bold 24px "Times New Roman", Georgia, serif';
+  ctx.fillStyle = '#000000';
   ctx.fillText('Global Quantum Computing Summit 2026', w / 2, 555);
 
-  ctx.font = '16px Georgia, serif';
-  ctx.fillStyle = '#475569';
+  ctx.font = '16px "Times New Roman", Georgia, serif';
+  ctx.fillStyle = '#333333';
   ctx.fillText('For demonstrated mastery in distributed fault-tolerant quantum algorithms', w / 2, 595);
 
   // Serial Number & Integrity Hashes
   ctx.font = 'bold 12px "Courier New", Courier, monospace';
-  ctx.fillStyle = '#475569';
+  ctx.fillStyle = '#000000';
   ctx.fillText('DETERMINISTIC ID: CERT-2026-466DBC643C27 • SHA-256: 466dbc643c27f09d8e3b1', w / 2, 655);
   ctx.fillText('ISSUED: OCTOBER 2026 • ENGINE: ATELIER v1.0 • QUEUE: ATOMIC CELERY', w / 2, 678);
 
@@ -383,8 +382,8 @@ function createArchivalDocumentCanvas(): HTMLCanvasElement {
   const sealY = h - 220;
   const sealRadius = 60;
 
-  // Ribbon tails
-  ctx.fillStyle = '#7f1d1d';
+  // Ribbon tails in Dell Red
+  ctx.fillStyle = '#b91c1c';
   ctx.beginPath();
   ctx.moveTo(sealX - 16, sealY + 30);
   ctx.lineTo(sealX - 30, sealY + 95);
@@ -394,7 +393,7 @@ function createArchivalDocumentCanvas(): HTMLCanvasElement {
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = '#991b1b';
+  ctx.fillStyle = '#e91d2a';
   ctx.beginPath();
   ctx.moveTo(sealX + 2, sealY + 30);
   ctx.lineTo(sealX + 12, sealY + 95);
@@ -404,32 +403,32 @@ function createArchivalDocumentCanvas(): HTMLCanvasElement {
   ctx.closePath();
   ctx.fill();
 
-  // Wax body
+  // Wax body (Dell Red)
   const sealGrad = ctx.createRadialGradient(sealX - 12, sealY - 12, 10, sealX, sealY, sealRadius);
-  sealGrad.addColorStop(0, '#dc2626');
-  sealGrad.addColorStop(0.7, '#991b1b');
-  sealGrad.addColorStop(1, '#450a0a');
+  sealGrad.addColorStop(0, '#ff3847');
+  sealGrad.addColorStop(0.7, '#e91d2a');
+  sealGrad.addColorStop(1, '#991b1b');
   ctx.fillStyle = sealGrad;
   ctx.beginPath();
   ctx.arc(sealX, sealY, sealRadius, 0, Math.PI * 2);
   ctx.fill();
 
   // Seal gold relief rings
-  ctx.strokeStyle = '#fef08a';
+  ctx.strokeStyle = '#fcc20f';
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.arc(sealX, sealY, sealRadius - 8, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.strokeStyle = '#ca8a04';
-  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.0;
   ctx.beginPath();
   ctx.arc(sealX, sealY, sealRadius - 15, 0, Math.PI * 2);
   ctx.stroke();
 
   // Star Emblem Center
-  ctx.fillStyle = '#fef08a';
-  ctx.font = 'bold 24px Georgia, serif';
+  ctx.fillStyle = '#fcc20f';
+  ctx.font = 'bold 24px "Times New Roman", Georgia, serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('✦', sealX, sealY - 4);
@@ -441,26 +440,26 @@ function createArchivalDocumentCanvas(): HTMLCanvasElement {
   const sigX = w - 240;
   ctx.textAlign = 'center';
 
-  ctx.strokeStyle = '#334155';
+  ctx.strokeStyle = '#000000';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(sigX - 120, h - 130);
   ctx.lineTo(sigX + 120, h - 130);
   ctx.stroke();
 
-  ctx.font = 'italic 28px Georgia, serif';
-  ctx.fillStyle = '#1e293b';
+  ctx.font = 'italic 28px "Times New Roman", Georgia, serif';
+  ctx.fillStyle = '#000000';
   ctx.fillText('Marcus Vance', sigX, h - 142);
 
   ctx.font = 'bold 12px "Courier New", Courier, monospace';
-  ctx.fillStyle = '#64748b';
+  ctx.fillStyle = '#000000';
   ctx.fillText('DIRECTOR OF ARCHIVAL STANDARDS', sigX, h - 110);
   ctx.fillText('ACCREDITED CERTIFICATION COUNCIL', sigX, h - 90);
 
   // 8. Micro-print footer guarantee
   ctx.textAlign = 'center';
   ctx.font = '600 11px "Courier New", Courier, monospace';
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = '#555555';
   ctx.fillText(
     'REPORTLAB VECTOR RASTER // ATOMIC CELERY DISPATCH // SHA-256 INTEGRITY CHECK // BATCH GEN ENGINE v1.0',
     w / 2,
@@ -471,51 +470,53 @@ function createArchivalDocumentCanvas(): HTMLCanvasElement {
 }
 
 /**
- * Procedural texture for intake recipient document slips.
+ * Procedural texture for intake recipient document slips in crisp catalog style.
  */
-function createIntakeSlipCanvas(name: string, event: string, id: string): HTMLCanvasElement {
+function createIntakeSlipCanvas(name: string, event: string, id: string, accentColor = '#e91d2a'): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = 700;
   canvas.height = 200;
   const ctx = canvas.getContext('2d');
   if (!ctx) return canvas;
 
-  ctx.fillStyle = '#faf7f0';
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(0, 0, 14, canvas.height);
+  // Left catalog accent color strip
+  ctx.fillStyle = accentColor;
+  ctx.fillRect(0, 0, 16, canvas.height);
 
-  ctx.strokeStyle = '#d5caba';
-  ctx.lineWidth = 2.5;
+  // 2.5px solid black border
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 3;
   ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
 
   ctx.font = 'bold 13px "Courier New", Courier, monospace';
-  ctx.fillStyle = '#7d8b9e';
-  ctx.fillText(`REC-SPEC // ${id} • RFC-5322 SANITIZED`, 32, 40);
+  ctx.fillStyle = '#000000';
+  ctx.fillText(`REC-SPEC // ${id} • RFC-5322 SANITIZED`, 36, 40);
 
-  ctx.font = 'bold 28px Georgia, serif';
-  ctx.fillStyle = '#161a22';
-  ctx.fillText(name, 32, 88);
+  ctx.font = 'bold 28px "Times New Roman", Georgia, serif';
+  ctx.fillStyle = '#000000';
+  ctx.fillText(name, 36, 88);
 
-  ctx.font = '16px Georgia, serif';
-  ctx.fillStyle = '#556377';
-  ctx.fillText(event, 32, 126);
+  ctx.font = '16px "Times New Roman", Georgia, serif';
+  ctx.fillStyle = '#444444';
+  ctx.fillText(event, 36, 126);
 
-  ctx.fillStyle = '#f0fdf4';
-  ctx.fillRect(32, 146, 170, 30);
-  ctx.strokeStyle = '#bbf7d0';
+  ctx.fillStyle = '#c0d4a7';
+  ctx.fillRect(36, 146, 170, 30);
+  ctx.strokeStyle = '#000000';
   ctx.lineWidth = 1.5;
-  ctx.strokeRect(32, 146, 170, 30);
+  ctx.strokeRect(36, 146, 170, 30);
   ctx.font = 'bold 12px "Courier New", Courier, monospace';
-  ctx.fillStyle = '#15803d';
-  ctx.fillText('✓ RFC-5322 VALID', 44, 166);
+  ctx.fillStyle = '#000000';
+  ctx.fillText('✓ RFC-5322 VALID', 48, 166);
 
   return canvas;
 }
 
 /**
- * Procedural brass atelier builder's plaque texture.
+ * Procedural Dell 1996 yellow builder's plaque texture.
  */
 function createBuilderPlaqueCanvas(): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
@@ -524,21 +525,41 @@ function createBuilderPlaqueCanvas(): HTMLCanvasElement {
   const ctx = canvas.getContext('2d');
   if (!ctx) return canvas;
 
-  ctx.fillStyle = '#c5a059';
+  ctx.fillStyle = '#fcc20f'; // Dell Yellow
   ctx.fillRect(0, 0, 512, 128);
 
-  ctx.strokeStyle = '#685020';
+  ctx.strokeStyle = '#000000';
   ctx.lineWidth = 4;
-  ctx.strokeRect(6, 6, 500, 116);
+  ctx.strokeRect(4, 4, 504, 120);
 
-  ctx.fillStyle = '#2d1e05';
+  ctx.fillStyle = '#000000';
   ctx.textAlign = 'center';
   ctx.font = 'bold 20px "Courier New", Courier, monospace';
-  ctx.fillText('ATELIER DE PRÉCISION • TYPE 01', 256, 50);
+  ctx.fillText('DELL 1996 ATELIER • WORKSTATION 01', 256, 50);
   ctx.font = 'bold 14px "Courier New", Courier, monospace';
-  ctx.fillText('1200 DPI ARCHIVAL SPECIFICATION • NO. 466DBC', 256, 82);
+  ctx.fillText('1-800-CERT-GEN • PRODUCTION v1.0.0', 256, 84);
 
   return canvas;
+}
+
+/**
+ * Helper to add crisp black wireframe geometric edge contours to meshes
+ * creating the retro 1996 CAD / technical schematic aesthetic.
+ */
+function addMeshEdges(
+  mesh: THREE.Mesh,
+  color = 0x000000,
+  collector?: { geoms: THREE.BufferGeometry[]; mats: THREE.Material[] }
+): THREE.LineSegments {
+  const edges = new THREE.EdgesGeometry(mesh.geometry, 28);
+  const lineMat = new THREE.LineBasicMaterial({ color, linewidth: 1 });
+  const line = new THREE.LineSegments(edges, lineMat);
+  if (collector) {
+    collector.geoms.push(edges);
+    collector.mats.push(lineMat);
+  }
+  mesh.add(line);
+  return line;
 }
 
 // Continuous Timeline Landmarks
@@ -802,49 +823,58 @@ export function createLandingScene(
   groundShadow.rotation.x = -Math.PI / 2;
   groundShadow.position.set(0, -0.15, 0.2);
 
-  // Precision Engineered Materials
+  // Edge contours collector for clean WebGL resource disposal
+  const edgeCollector = { geoms: [] as THREE.BufferGeometry[], mats: [] as THREE.Material[] };
+
+  // Precision Engineered Materials (1996 Technical Catalog & CAD Aesthetic)
   const slateBaseMaterial = new THREE.MeshStandardMaterial({
-    color: 0x141a24,
-    roughness: 0.58,
-    metalness: 0.35,
+    color: 0xe2e8f0, // Clean industrial workstation chassis light gray
+    roughness: 0.42,
+    metalness: 0.18,
   });
 
   const machinedIronMaterial = new THREE.MeshStandardMaterial({
-    color: 0x1e2633,
-    roughness: 0.52,
-    metalness: 0.65,
+    color: 0x8da0ad, // Dell Catalog Steel Blue-Gray
+    roughness: 0.32,
+    metalness: 0.52,
   });
 
   const polishedBrassMaterial = new THREE.MeshStandardMaterial({
-    color: 0xe6c568, // Rich champagne golden brass
-    roughness: 0.14,
-    metalness: 0.90,
+    color: 0xfcc20f, // Dell Yellow / Rich Precision Brass
+    roughness: 0.16,
+    metalness: 0.88,
     bumpMap: brushedMetalTex,
     bumpScale: 0.002,
   });
 
   const steelAxleMaterial = new THREE.MeshStandardMaterial({
-    color: 0xc4d0df, // Bright ground chrome-moly steel
-    roughness: 0.12,
+    color: 0xf8fafc, // High-contrast ground chrome tool steel
+    roughness: 0.10,
     metalness: 0.96,
   });
 
   const bronzeBushingMaterial = new THREE.MeshStandardMaterial({
-    color: 0xa87540, // Phosphor bronze
-    roughness: 0.26,
-    metalness: 0.85,
+    color: 0xca8a04, // Phosphor bronze
+    roughness: 0.28,
+    metalness: 0.82,
   });
 
   const bookclothMaterial = new THREE.MeshStandardMaterial({
-    color: 0x152132, // Archival midnight bookcloth
-    roughness: 0.88,
+    color: 0x1e2e4a, // Archival midnight navy bookcloth
+    roughness: 0.82,
     metalness: 0.08,
   });
 
   const plaqueMaterial = new THREE.MeshStandardMaterial({
     map: plaqueTex,
     roughness: 0.35,
-    metalness: 0.75,
+    metalness: 0.50,
+  });
+
+  const redAccentMaterial = new THREE.MeshStandardMaterial({
+    color: 0xe91d2a, // Dell Red accent
+    roughness: 0.25,
+    metalness: 0.40,
   });
 
   // 6. MASTER ATELIER PRINTING PRESS CHASSIS
@@ -855,6 +885,7 @@ export function createLandingScene(
   const bedMesh = new THREE.Mesh(bedGeometry, slateBaseMaterial);
   bedMesh.position.set(0, -0.08, 0);
   bedMesh.receiveShadow = true;
+  addMeshEdges(bedMesh, 0x000000, edgeCollector);
   pressChassisGroup.add(bedMesh);
 
   // 4 Machined Brass Isolation Leveling Feet
@@ -898,12 +929,14 @@ export function createLandingScene(
   leftGantry.position.set(-1.96, 0.59, 0);
   leftGantry.castShadow = true;
   leftGantry.receiveShadow = true;
+  addMeshEdges(leftGantry, 0x000000, edgeCollector);
   pressChassisGroup.add(leftGantry);
 
   const rightGantry = new THREE.Mesh(gantryGeometry, machinedIronMaterial);
   rightGantry.position.set(1.96, 0.59, 0);
   rightGantry.castShadow = true;
   rightGantry.receiveShadow = true;
+  addMeshEdges(rightGantry, 0x000000, edgeCollector);
   pressChassisGroup.add(rightGantry);
 
   // Builder's Plaque on Left Gantry Outer Face
@@ -1000,12 +1033,14 @@ export function createLandingScene(
   const carriageGeometry = new THREE.BoxGeometry(0.64, 0.20, 0.36);
   const carriageMesh = new THREE.Mesh(carriageGeometry, machinedIronMaterial);
   carriageMesh.castShadow = true;
+  addMeshEdges(carriageMesh, 0x000000, edgeCollector);
   carriageGroup.add(carriageMesh);
 
-  // Polished Brass Cap
+  // Dell Red Accent Cap
   const capGeometry = new THREE.BoxGeometry(0.66, 0.04, 0.38);
-  const capMesh = new THREE.Mesh(capGeometry, polishedBrassMaterial);
+  const capMesh = new THREE.Mesh(capGeometry, redAccentMaterial);
   capMesh.position.set(0, 0.11, 0);
+  addMeshEdges(capMesh, 0x000000, edgeCollector);
   carriageGroup.add(capMesh);
 
   // Optical Lens Barrel
@@ -1014,10 +1049,10 @@ export function createLandingScene(
   lensBarrel.position.set(0, -0.13, 0);
   carriageGroup.add(lensBarrel);
 
-  // Glowing Aperture Emitter Ring
+  // Glowing Aperture Emitter Ring (Dell Red)
   const apertureGeom = new THREE.RingGeometry(0.02, 0.06, 16);
   const apertureMat = new THREE.MeshBasicMaterial({
-    color: 0x38bdf8,
+    color: 0xe91d2a,
     side: THREE.DoubleSide,
   });
   const apertureRing = new THREE.Mesh(apertureGeom, apertureMat);
@@ -1025,10 +1060,10 @@ export function createLandingScene(
   apertureRing.position.set(0, -0.19, 0);
   carriageGroup.add(apertureRing);
 
-  // Volumetric Conical Laser Light Beam (Additive Blending)
+  // Volumetric Conical Laser Light Beam (Dell Red Targeting Beam)
   const beamConeGeom = new THREE.ConeGeometry(0.22, 0.78, 24, 1, true);
   const beamConeMat = new THREE.MeshBasicMaterial({
-    color: 0x38bdf8,
+    color: 0xe91d2a,
     transparent: true,
     opacity: 0.0,
     blending: THREE.AdditiveBlending,
@@ -1039,8 +1074,8 @@ export function createLandingScene(
   beamConeMesh.position.set(0, -0.56, 0);
   carriageGroup.add(beamConeMesh);
 
-  // Dynamic UV Laser PointLight
-  const printLaserLight = new THREE.PointLight(0x38bdf8, 0, 3.0);
+  // Dynamic UV Laser PointLight (Dell Red)
+  const printLaserLight = new THREE.PointLight(0xe91d2a, 0, 3.0);
   printLaserLight.position.set(0, -0.22, 0);
   carriageGroup.add(printLaserLight);
 
@@ -1054,19 +1089,22 @@ export function createLandingScene(
   // Feeder Chute Bed
   const chuteGeometry = new THREE.BoxGeometry(3.2, 0.04, 2.4);
   const chuteMesh = new THREE.Mesh(chuteGeometry, machinedIronMaterial);
+  addMeshEdges(chuteMesh, 0x000000, edgeCollector);
   intakeGroup.add(chuteMesh);
 
   // Feeder Brass Guide Rails
   const guideGeometry = new THREE.BoxGeometry(0.06, 0.12, 2.4);
   const leftGuide = new THREE.Mesh(guideGeometry, polishedBrassMaterial);
   leftGuide.position.set(-1.58, 0.06, 0);
+  addMeshEdges(leftGuide, 0x000000, edgeCollector);
   intakeGroup.add(leftGuide);
   const rightGuide = new THREE.Mesh(guideGeometry, polishedBrassMaterial);
   rightGuide.position.set(1.58, 0.06, 0);
+  addMeshEdges(rightGuide, 0x000000, edgeCollector);
   intakeGroup.add(rightGuide);
 
-  // 3 Textured Recipient Data Slips
-  const slip1Canvas = createIntakeSlipCanvas('Dr. Elena Rostova', 'Global Quantum Computing Summit', 'REC-001');
+  // 3 Textured Recipient Data Slips (Dell Red, Steel, Sage)
+  const slip1Canvas = createIntakeSlipCanvas('Dr. Elena Rostova', 'Global Quantum Computing Summit', 'REC-001', '#e91d2a');
   const slip1Tex = new THREE.CanvasTexture(slip1Canvas);
   slip1Tex.colorSpace = THREE.SRGBColorSpace;
   const slipMat1 = new THREE.MeshStandardMaterial({ map: slip1Tex, roughness: 0.82, side: THREE.DoubleSide });
@@ -1077,7 +1115,7 @@ export function createLandingScene(
   slip1Mesh.position.set(0, 0.03, 0.40);
   intakeGroup.add(slip1Mesh);
 
-  const slip2Canvas = createIntakeSlipCanvas('Marcus Vance, PE', 'Advanced Aerospace Symposium', 'REC-002');
+  const slip2Canvas = createIntakeSlipCanvas('Marcus Vance, PE', 'Advanced Aerospace Symposium', 'REC-002', '#a5b8c0');
   const slip2Tex = new THREE.CanvasTexture(slip2Canvas);
   slip2Tex.colorSpace = THREE.SRGBColorSpace;
   const slipMat2 = new THREE.MeshStandardMaterial({ map: slip2Tex, roughness: 0.82, side: THREE.DoubleSide });
@@ -1087,7 +1125,7 @@ export function createLandingScene(
   slip2Mesh.position.set(0.08, 0.035, -0.40);
   intakeGroup.add(slip2Mesh);
 
-  const slip3Canvas = createIntakeSlipCanvas('Aria Chen', 'Distributed Cryptography', 'REC-003');
+  const slip3Canvas = createIntakeSlipCanvas('Aria Chen', 'Distributed Cryptography', 'REC-003', '#b3bd95');
   const slip3Tex = new THREE.CanvasTexture(slip3Canvas);
   slip3Tex.colorSpace = THREE.SRGBColorSpace;
   const slipMat3 = new THREE.MeshStandardMaterial({ map: slip3Tex, roughness: 0.82, side: THREE.DoubleSide });
@@ -1108,7 +1146,7 @@ export function createLandingScene(
   certTexture.minFilter = THREE.LinearMipmapLinearFilter;
   certTexture.generateMipmaps = true;
 
-  // Shader uniforms driving the dynamic top-to-bottom print wipe & cyan laser glow
+  // Shader uniforms driving the dynamic top-to-bottom print wipe & red laser scan line
   const printUniforms = {
     uPrintProgress: { value: 0.0 }, // 0.0 = completely blank, 1.0 = completely printed
     tBlank: { value: blankTexture },
@@ -1172,9 +1210,9 @@ export function createLandingScene(
         // Smooth print boundary
         float mask = smoothstep(-0.014, 0.014, dist);
 
-        // Glowing UV laser reaction edge right at the print line
+        // Glowing Dell Red laser reaction edge right at the print line
         float laserEdge = (1.0 - smoothstep(0.0, 0.038, abs(dist))) * step(0.005, uPrintProgress) * (1.0 - step(0.995, uPrintProgress));
-        vec3 laserGlow = vec3(0.22, 0.74, 0.98);
+        vec3 laserGlow = vec3(0.91, 0.11, 0.16);
 
         vec4 blendedTexel = mix(blankTexel, printedTexel, mask);
         blendedTexel.rgb += laserGlow * laserEdge * 1.6;
@@ -1209,6 +1247,7 @@ export function createLandingScene(
   const envBackMesh = new THREE.Mesh(envBackGeom, bookclothMaterial);
   envBackMesh.position.set(0, 0.015, 0);
   envBackMesh.receiveShadow = true;
+  addMeshEdges(envBackMesh, 0x000000, edgeCollector);
   archiveDocketGroup.add(envBackMesh);
 
   // Envelope Bottom Pocket Sleeve (Interior clearance for certificate insert)
@@ -1216,6 +1255,7 @@ export function createLandingScene(
   const envPocketMesh = new THREE.Mesh(envPocketGeom, bookclothMaterial);
   envPocketMesh.position.set(0, 0.060, 0.55);
   envPocketMesh.receiveShadow = true;
+  addMeshEdges(envPocketMesh, 0x000000, edgeCollector);
   archiveDocketGroup.add(envPocketMesh);
 
   // Gold Trim Line along pocket mouth
@@ -1239,6 +1279,7 @@ export function createLandingScene(
   const flapGeom = new THREE.BoxGeometry(4.20, 0.020, 1.62);
   const flapMesh = new THREE.Mesh(flapGeom, bookclothMaterial);
   flapMesh.position.set(0, 0.010, 0.81); // Centered relative to hinge
+  addMeshEdges(flapMesh, 0x000000, edgeCollector);
   flapHingeGroup.add(flapMesh);
 
   // Gold Trim on Flap Edge
@@ -1247,11 +1288,16 @@ export function createLandingScene(
   flapTrim.position.set(0, 0.021, 1.60);
   flapHingeGroup.add(flapTrim);
 
-  // Gold Wax Seal Medallion on Flap Tip (Seals shut when flap folds down)
+  // Dell Red Wax Seal Medallion on Flap Tip (Seals shut when flap folds down)
   const flapSealGeom = new THREE.CylinderGeometry(0.24, 0.24, 0.032, 24);
-  const flapSealMesh = new THREE.Mesh(flapSealGeom, polishedBrassMaterial);
+  const flapSealMesh = new THREE.Mesh(flapSealGeom, redAccentMaterial);
   flapSealMesh.position.set(0, 0.030, 1.55);
   flapHingeGroup.add(flapSealMesh);
+
+  const flapSealInnerGeom = new THREE.CylinderGeometry(0.14, 0.14, 0.038, 20);
+  const flapSealInnerMesh = new THREE.Mesh(flapSealInnerGeom, polishedBrassMaterial);
+  flapSealInnerMesh.position.set(0, 0.032, 1.55);
+  flapHingeGroup.add(flapSealInnerMesh);
 
   archiveDocketGroup.add(flapHingeGroup);
 
@@ -1260,6 +1306,11 @@ export function createLandingScene(
   const atelierMasterGroup = new THREE.Group();
   atelierMasterGroup.position.set(0, 0, 0);
 
+  // 1996 Technical CAD Floor Grid Helper
+  const floorGrid = new THREE.GridHelper(12, 24, 0x000000, 0xa5b8c0);
+  floorGrid.position.set(0, -0.155, 0);
+  atelierMasterGroup.add(floorGrid);
+
   atelierMasterGroup.add(groundShadow);
   atelierMasterGroup.add(pressChassisGroup);
   atelierMasterGroup.add(intakeGroup);
@@ -1267,7 +1318,7 @@ export function createLandingScene(
   atelierMasterGroup.add(archiveDocketGroup);
   scene.add(atelierMasterGroup);
 
-  // 10. CINEMATIC ATMOSPHERIC DUST MOTES
+  // 10. TECHNICAL ATMOSPHERIC PARTICLES
   const particleCount = 35;
   const particleGeo = new THREE.BufferGeometry();
   const particlePos = new Float32Array(particleCount * 3);
@@ -1278,21 +1329,20 @@ export function createLandingScene(
   }
   particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
   const particleMat = new THREE.PointsMaterial({
-    color: 0xfde047,
-    size: 0.032,
+    color: 0x000000,
+    size: 0.035,
     transparent: true,
-    opacity: 0.40,
-    blending: THREE.AdditiveBlending,
+    opacity: 0.50,
   });
   const dustParticles = new THREE.Points(particleGeo, particleMat);
   scene.add(dustParticles);
 
-  // 11. REFINED THREE-POINT WARM STUDIO LIGHTING RIG
-  const ambientLight = new THREE.AmbientLight(0xfff8ee, 0.85);
+  // 11. REFINED TECHNICAL THREE-POINT STUDIO LIGHTING RIG
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.20);
   scene.add(ambientLight);
 
   // Primary Studio Key Light
-  const keyLight = new THREE.DirectionalLight(0xfff6ea, 1.5);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
   keyLight.position.set(2.4, 4.2, 3.8);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.width = 1024;
@@ -1300,13 +1350,13 @@ export function createLandingScene(
   keyLight.shadow.bias = -0.0005;
   scene.add(keyLight);
 
-  // Cool Archival Ink Fill Light
-  const fillLight = new THREE.DirectionalLight(0xdbe6f6, 0.40);
+  // Steel Fill Light
+  const fillLight = new THREE.DirectionalLight(0xa5b8c0, 0.65);
   fillLight.position.set(-3.2, -0.8, 2.6);
   scene.add(fillLight);
 
-  // Warm Brass Specular Rim Light from Rear
-  const rimLight = new THREE.PointLight(0xffeed0, 0.85, 12);
+  // Polished Brass Specular Rim Light from Rear
+  const rimLight = new THREE.PointLight(0xfcc20f, 0.70, 12);
   rimLight.position.set(0, 1.8, -2.2);
   scene.add(rimLight);
 
@@ -1630,7 +1680,16 @@ export function createLandingScene(
       flapGeom.dispose();
       flapTrimGeom.dispose();
       flapSealGeom.dispose();
+      flapSealInnerGeom.dispose();
       particleGeo.dispose();
+      floorGrid.geometry.dispose();
+      if (Array.isArray(floorGrid.material)) {
+        floorGrid.material.forEach((m) => m.dispose());
+      } else {
+        floorGrid.material.dispose();
+      }
+      edgeCollector.geoms.forEach((g) => g.dispose());
+      edgeCollector.mats.forEach((m) => m.dispose());
 
       // Dispose Materials
       shadowMat.dispose();
@@ -1640,6 +1699,7 @@ export function createLandingScene(
       steelAxleMaterial.dispose();
       bronzeBushingMaterial.dispose();
       plaqueMaterial.dispose();
+      redAccentMaterial.dispose();
       apertureMat.dispose();
       beamConeMat.dispose();
       slipMat1.dispose();

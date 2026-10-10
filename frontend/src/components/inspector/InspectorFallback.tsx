@@ -54,19 +54,19 @@ export const InspectorFallback: React.FC<InspectorFallbackProps> = ({
   return (
     <div className="space-y-3">
       {/* Fallback Banner */}
-      <div className="flex items-center justify-between p-2.5 rounded bg-[#fffbeb] border border-[#fde68a] text-xs font-mono-telemetry text-[#92400e]">
-        <span className="flex items-center gap-1.5 font-bold">
-          <ShieldAlert className="w-4 h-4 text-[#b45309]" />
+      <div className="flex items-center justify-between p-2.5 bg-[#fcc20f] border-2 border-black text-xs font-ui font-bold text-black uppercase tracking-wider">
+        <span className="flex items-center gap-1.5">
+          <ShieldAlert className="w-4 h-4 text-black" />
           2D ARCHIVAL FALLBACK MODE (WEBGL UNAVAILABLE)
         </span>
-        <span className="text-[#b45309] text-[11px]">
+        <span className="font-serif normal-case text-xs">
           Rendering authoritative PDF raster directly (Zero Divergence preserved)
         </span>
       </div>
 
       {/* 2D Canvas Viewport */}
       <div
-        className="relative w-full h-[550px] bg-[#141820] border border-[#2e394c] rounded-lg overflow-hidden flex items-center justify-center p-6 select-none cursor-grab active:cursor-grabbing shadow-xl"
+        className="relative w-full h-[550px] bg-neutral-900 border-2 border-black overflow-hidden flex items-center justify-center p-6 select-none cursor-grab active:cursor-grabbing shadow-[3px_3px_0px_#000000]"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -79,20 +79,20 @@ export const InspectorFallback: React.FC<InspectorFallbackProps> = ({
             transition: isDragging ? 'none' : 'transform 0.15s ease-out',
             aspectRatio: String(aspectRatio),
           }}
-          className="max-w-full max-h-full flex items-center justify-center [&>canvas]:max-w-full [&>canvas]:h-auto [&>canvas]:block [&>canvas]:shadow-2xl [&>canvas]:rounded"
+          className="max-w-full max-h-full flex items-center justify-center [&>canvas]:max-w-full [&>canvas]:h-auto [&>canvas]:block [&>canvas]:shadow-2xl"
         />
 
         {/* 2D Controls Bar */}
-        <div className="absolute bottom-4 right-4 flex items-center gap-1.5 p-1.5 rounded-lg bg-[#ffffff]/90 backdrop-blur border border-[#dcd3c1] shadow-lg">
+        <div className="absolute bottom-4 right-4 flex items-center gap-1.5 p-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_#000000]">
           <Button
             variant="secondary"
             size="sm"
             onClick={() => setZoom((z) => Math.min(2.5, z + 0.25))}
             disabled={zoom >= 2.5}
-            className="px-2 py-1 h-8 text-xs font-mono-telemetry"
+            className="px-2 py-1 h-8 text-xs"
             aria-label="Zoom in on 2D certificate"
           >
-            <ZoomIn className="w-3.5 h-3.5 text-[#2d3748]" />
+            <ZoomIn className="w-3.5 h-3.5 text-black" />
           </Button>
 
           <Button
@@ -100,23 +100,23 @@ export const InspectorFallback: React.FC<InspectorFallbackProps> = ({
             size="sm"
             onClick={() => setZoom((z) => Math.max(0.75, z - 0.25))}
             disabled={zoom <= 0.75}
-            className="px-2 py-1 h-8 text-xs font-mono-telemetry"
+            className="px-2 py-1 h-8 text-xs"
             aria-label="Zoom out from 2D certificate"
           >
-            <ZoomOut className="w-3.5 h-3.5 text-[#2d3748]" />
+            <ZoomOut className="w-3.5 h-3.5 text-black" />
           </Button>
 
-          <div className="w-px h-4 bg-[#dcd3c1] mx-1" />
+          <div className="w-px h-5 bg-black mx-0.5" />
 
           <Button
             variant="secondary"
             size="sm"
             onClick={handleReset}
-            className="px-2.5 py-1 h-8 text-xs font-mono-telemetry text-[#1f304d] hover:text-[#161a22] font-semibold"
+            className="px-2.5 py-1 h-8 text-xs font-bold"
             aria-label="Reset 2D canvas zoom and pan"
           >
-            <Compass className="w-3.5 h-3.5 mr-1 text-[#1f304d]" />
-            <span>Reset</span>
+            <Compass className="w-3.5 h-3.5 mr-1 text-black" />
+            <span>RESET</span>
           </Button>
         </div>
       </div>

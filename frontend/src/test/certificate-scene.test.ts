@@ -4,7 +4,7 @@ import {
   isWebGLAvailable,
 } from '../lib/three/createCertificateScene';
 
-describe('Three.js Certificate Scene Engine (Phase F6)', () => {
+describe('Three.js Certificate Scene Engine', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });

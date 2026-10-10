@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { RefreshCw, PlusCircle } from 'lucide-react';
+import { RefreshCw, PlusCircle, Archive, ArchiveRestore, Layers } from 'lucide-react';
 import { getJobs } from '../api/jobs';
 import type { PaginatedResponse, JobSummary } from '../types/api';
 import { Button } from '../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Alert } from '../components/ui/Alert';
 import { JobTable } from '../components/jobs/JobTable';
 import { Pagination } from '../components/ui/Pagination';
+import { useArchivedJobs } from '../lib/archiveStore';
 
 const BACKEND_PAGE_SIZE = 50;
 
@@ -23,6 +23,9 @@ export const JobHistoryPage: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+  const [viewFilter, setViewFilter] = useState<'active' | 'archived' | 'all'>('active');
+
+  const { isArchived, toggleArchiveJob, archivedCount } = useArchivedJobs();
 
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
@@ -33,6 +36,14 @@ export const JobHistoryPage: React.FC = () => {
     setIsLoading(true);
     setSearchParams(newPage > 1 ? { page: String(newPage) } : {});
   };
+
+  const handleToggleArchive = useCallback(
+    (jobId: string, event: React.MouseEvent) => {
+      event.stopPropagation();
+      toggleArchiveJob(jobId);
+    },
+    [toggleArchiveJob]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -66,25 +77,39 @@ export const JobHistoryPage: React.FC = () => {
   const totalCount = data?.count || 0;
   const jobs = data?.results || [];
 
+  const pageArchivedCount = jobs.filter((j) => isArchived(j.id)).length;
+  const pageActiveCount = jobs.length - pageArchivedCount;
+
+  const displayedJobs = jobs.filter((job) => {
+    if (viewFilter === 'active') return !isArchived(job.id);
+    if (viewFilter === 'archived') return isArchived(job.id);
+    return true;
+  });
+
   return (
     <div className="space-y-6">
-      {/* Top Ledger Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#e2dac9]">
+      {/* 1. Dell 1996 Section Eyebrow Banner (Tint Salmon) */}
+      <div className="border border-black bg-[#d77a7a] p-3 sm:p-4 text-black flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[2px_2px_0px_#000000]">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#161a22] uppercase font-serif">
+          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+            <h1 className="text-lg sm:text-2xl font-black uppercase font-ui tracking-wide text-black">
               HISTORICAL JOB LEDGER
             </h1>
-            <span className="text-[10px] font-mono-telemetry px-2 py-0.5 rounded bg-[#f5efe4] text-[#161a22] border border-[#dcd3c1] font-semibold">
+            <span className="bg-black text-white px-2 py-0.5 text-[10px] font-ui font-bold">
               {totalCount} TOTAL BATCHES
             </span>
+            {archivedCount > 0 && (
+              <span className="bg-[#fcc20f] text-black border border-black px-1.5 py-0.5 text-[10px] font-ui font-bold">
+                {archivedCount} ARCHIVED
+              </span>
+            )}
           </div>
-          <p className="text-xs text-[#5a6678]">
-            Chronological audit log of all bulk certificate generation runs, ordered newest first by creation timestamp.
+          <p className="text-xs font-serif text-black leading-tight">
+            Chronological audit log of all bulk certificate generation runs, with archive controls to hide unwanted historical records.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <Button
             variant="secondary"
             size="sm"
@@ -99,7 +124,7 @@ export const JobHistoryPage: React.FC = () => {
           <Button
             variant="primary"
             size="md"
-            leftIcon={<PlusCircle className="w-4 h-4" />}
+            leftIcon={<PlusCircle className="w-3.5 h-3.5" />}
             onClick={() => navigate('/jobs/new')}
           >
             New Batch Job
@@ -117,23 +142,104 @@ export const JobHistoryPage: React.FC = () => {
         />
       )}
 
-      {/* Ledger Table Card */}
-      <Card variant="elevated">
-        <CardHeader>
+      {/* Ledger Table Ribbon Card */}
+      <div className="border border-black bg-white shadow-[2px_2px_0px_#000000]">
+        {/* Navigation / Filter Tabs Strip */}
+        <div className="bg-white border-b border-black px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <CardTitle>DISPATCHED BATCHES</CardTitle>
-            <CardDescription>
-              Backend page size: {BACKEND_PAGE_SIZE} jobs per page. Click any batch to view per-recipient outcomes and download bulk ZIP packages.
-            </CardDescription>
+            <h3 className="text-xs font-bold uppercase font-ui text-black">
+              DISPATCHED BATCHES
+            </h3>
+            <p className="text-xs font-serif text-neutral-700">
+              Backend page size: {BACKEND_PAGE_SIZE} jobs per page. Click &apos;Archive&apos; on any batch row to hide it from your active ledger.
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
+
+          {/* Segmented Filter Control */}
+          <div className="inline-flex border-2 border-black bg-neutral-100 p-0.5 font-ui text-xs font-bold select-none self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setViewFilter('active')}
+              className={`px-3 py-1 flex items-center gap-1.5 cursor-pointer uppercase transition-none ${
+                viewFilter === 'active'
+                  ? 'bg-black text-white'
+                  : 'bg-transparent text-neutral-800 hover:bg-neutral-200'
+              }`}
+            >
+              <Layers className="w-3 h-3" />
+              <span>Active</span>
+              <span className={`text-[10px] px-1 py-0.2 border ${
+                viewFilter === 'active' ? 'border-white text-white' : 'border-black text-black bg-white'
+              }`}>
+                {pageActiveCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setViewFilter('archived')}
+              className={`px-3 py-1 flex items-center gap-1.5 cursor-pointer uppercase transition-none ${
+                viewFilter === 'archived'
+                  ? 'bg-[#fcc20f] text-black font-black'
+                  : 'bg-transparent text-neutral-800 hover:bg-neutral-200'
+              }`}
+            >
+              <Archive className="w-3 h-3" />
+              <span>Archived</span>
+              <span className={`text-[10px] px-1 py-0.2 border ${
+                viewFilter === 'archived' ? 'border-black bg-black text-white' : 'border-black text-black bg-white'
+              }`}>
+                {pageArchivedCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setViewFilter('all')}
+              className={`px-3 py-1 flex items-center gap-1.5 cursor-pointer uppercase transition-none ${
+                viewFilter === 'all'
+                  ? 'bg-black text-white'
+                  : 'bg-transparent text-neutral-800 hover:bg-neutral-200'
+              }`}
+            >
+              <ArchiveRestore className="w-3 h-3" />
+              <span>All</span>
+              <span className={`text-[10px] px-1 py-0.2 border ${
+                viewFilter === 'all' ? 'border-white text-white' : 'border-black text-black bg-white'
+              }`}>
+                {jobs.length}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Notice when viewing archived jobs */}
+        {viewFilter === 'archived' && (
+          <div className="bg-[#fcc20f]/20 border-b border-black px-4 py-2 flex items-center justify-between text-xs font-mono text-black">
+            <div className="flex items-center gap-2">
+              <Archive className="w-3.5 h-3.5 text-black" />
+              <span>ARCHIVE REPOSITORY — Displaying batches hidden from active ledger. Click &apos;Restore&apos; to return any batch to the active view.</span>
+            </div>
+          </div>
+        )}
+
+        <div className="p-0">
           <JobTable
-            jobs={jobs}
+            jobs={displayedJobs}
             isLoading={isLoading}
-            emptyTitle="No Batches in Ledger"
-            emptyMessage="The ledger is currently empty. Initialize a new bulk generation batch to create certificates."
+            emptyTitle={
+              viewFilter === 'archived'
+                ? 'No Archived Batches'
+                : 'No Batches in Ledger'
+            }
+            emptyMessage={
+              viewFilter === 'archived'
+                ? 'You have not archived any batches yet. Click "Archive" on any row in the active view to hide unwanted historical records.'
+                : 'The ledger is currently empty. Initialize a new bulk generation batch to create certificates.'
+            }
             onNewJob={() => navigate('/jobs/new')}
+            isArchived={isArchived}
+            onToggleArchive={handleToggleArchive}
           />
 
           {/* Pagination Controls */}
@@ -146,8 +252,8 @@ export const JobHistoryPage: React.FC = () => {
               isLoading={isLoading || isRefreshing}
             />
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

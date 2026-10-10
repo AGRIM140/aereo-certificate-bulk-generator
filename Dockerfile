@@ -7,14 +7,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install system dependencies (including fonts and graphics libraries for ReportLab)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install python dependencies
+# psycopg[binary] and Pillow provide wheels; template/fonts are bundled assets.
+# No compiler toolchain or system font download is required in the runtime image.
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -26,4 +20,4 @@ RUN mkdir -p /app/media
 
 EXPOSE 8000
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120"]
+CMD ["sh", "/app/start-backend.sh"]

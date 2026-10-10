@@ -29,24 +29,24 @@ export const JobDetailPage: React.FC = () => {
   if (isLoading && !job) {
     return (
       <div className="space-y-6">
-        <div className="pb-4 border-b border-[#e2dac9]">
-          <h1 className="text-xl font-bold tracking-tight text-[#161a22] font-serif uppercase">
-            TELEMETRY COMMAND DESK
+        <div className="border-2 border-black bg-[#9ab6c8] p-3 shadow-[2px_2px_0px_#000000]">
+          <h1 className="font-display-dell text-xl font-black uppercase text-black tracking-wider">
+            BATCH TELEMETRY COMMAND DESK
           </h1>
-          <p className="text-xs text-[#5a6678] mt-1 font-mono-telemetry">
+          <p className="font-body-dell text-sm text-black mt-0.5">
             INITIALIZING WORKER STREAM FOR JOB {jobId}…
           </p>
         </div>
 
-        <div className="bg-[#ffffff] border border-[#dcd3c1] rounded-lg p-12 text-center space-y-4 shadow-sm">
+        <div className="bg-white border-2 border-black p-12 text-center space-y-4 shadow-[2px_2px_0px_#000000]">
           <div className="flex justify-center">
-            <Loader2 className="w-8 h-8 text-[#1f304d] animate-spin" />
+            <Loader2 className="w-8 h-8 text-black animate-spin" />
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-[#161a22] font-mono-telemetry">
+            <p className="font-ui text-sm font-bold uppercase tracking-wider text-black">
               CONTACTING TELEMETRY BUS
             </p>
-            <p className="text-xs text-[#647287] font-mono-telemetry">
+            <p className="font-body-dell text-sm text-black">
               Querying generation ledger for batch metadata and progress…
             </p>
           </div>
@@ -63,23 +63,23 @@ export const JobDetailPage: React.FC = () => {
 
     return (
       <div className="space-y-6">
-        <div className="pb-4 border-b border-[#e2dac9]">
-          <h1 className="text-xl font-bold tracking-tight text-[#161a22] font-mono-telemetry uppercase">
-            JOB TELEMETRY — ERROR
+        <div className="border-2 border-black bg-[#d77a7a] p-3 shadow-[2px_2px_0px_#000000]">
+          <h1 className="font-display-dell text-xl font-black uppercase text-black tracking-wider">
+            BATCH TELEMETRY — EXCEPTION ERROR
           </h1>
-          <p className="text-xs text-[#5a6678] mt-1 font-mono-telemetry">
+          <p className="font-mono text-xs text-black mt-0.5 font-bold">
             JOB IDENTIFIER: {jobId}
           </p>
         </div>
 
-        <div className="bg-[#ffffff] border border-[#fecaca] rounded-lg p-8 space-y-5 shadow-sm">
+        <div className="bg-white border-2 border-black p-8 space-y-5 shadow-[2px_2px_0px_#000000]">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[#b83a34] shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-[#e91d2a] shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <h2 className="text-sm font-bold text-[#991b1b] font-mono-telemetry uppercase">
+              <h2 className="font-ui text-sm font-bold text-black uppercase tracking-wider">
                 {isNotFound ? 'BATCH RECORD NOT FOUND' : 'UNABLE TO RETRIEVE BATCH TELEMETRY'}
               </h2>
-              <p className="text-xs text-[#556377]">
+              <p className="font-body-dell text-base text-black">
                 {isNotFound
                   ? `No certificate generation job exists with UUID "${jobId}". Verify the link or check the job ledger.`
                   : error.message || 'An unexpected communication error occurred while connecting to the backend.'}
@@ -93,20 +93,20 @@ export const JobDetailPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 onClick={() => refresh()}
-                className="text-xs font-mono-telemetry"
+                className="text-xs"
               >
                 <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-                Retry Connection
+                RETRY CONNECTION
               </Button>
             )}
             <Button
               variant="secondary"
               size="sm"
               onClick={() => navigate('/jobs')}
-              className="text-xs font-mono-telemetry"
+              className="text-xs"
             >
               <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-              Return to Ledger
+              RETURN TO LEDGER
             </Button>
           </div>
         </div>
@@ -117,20 +117,20 @@ export const JobDetailPage: React.FC = () => {
   if (!job) {
     return (
       <div className="space-y-6">
-        <div className="pb-4 border-b border-[#e2dac9]">
-          <h1 className="text-xl font-bold tracking-tight text-[#161a22] font-serif uppercase">
-            TELEMETRY COMMAND DESK
+        <div className="border-2 border-black bg-[#9ab6c8] p-3 shadow-[2px_2px_0px_#000000]">
+          <h1 className="font-display-dell text-xl font-black uppercase text-black tracking-wider">
+            BATCH TELEMETRY COMMAND DESK
           </h1>
-          <p className="text-xs text-[#5a6678] mt-1 font-mono-telemetry">
+          <p className="font-mono text-xs text-black mt-0.5 font-bold">
             CONNECTING TO WORKER BUS FOR JOB {jobId}…
           </p>
         </div>
 
-        <div className="bg-[#ffffff] border border-[#dcd3c1] rounded-lg p-12 text-center space-y-4 shadow-sm">
+        <div className="bg-white border-2 border-black p-12 text-center space-y-4 shadow-[2px_2px_0px_#000000]">
           <div className="flex justify-center">
-            <Loader2 className="w-8 h-8 text-[#1f304d] animate-spin" />
+            <Loader2 className="w-8 h-8 text-black animate-spin" />
           </div>
-          <p className="text-sm font-semibold text-[#161a22] font-mono-telemetry">
+          <p className="font-ui text-sm font-bold uppercase tracking-wider text-black">
             AWAITING TELEMETRY STREAM…
           </p>
         </div>

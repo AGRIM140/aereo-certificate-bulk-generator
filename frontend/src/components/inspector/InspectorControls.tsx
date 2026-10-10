@@ -23,18 +23,18 @@ export const InspectorControls: React.FC<InspectorControlsProps> = ({
     <div
       role="toolbar"
       aria-label="3D Certificate Viewport Controls"
-      className="inline-flex items-center gap-1.5 p-1.5 rounded-lg bg-[#ffffff]/92 backdrop-blur border border-[#dcd3c1] shadow-lg select-none"
+      className="inline-flex items-center gap-1.5 p-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_#000000] select-none"
     >
       <Button
         variant="secondary"
         size="sm"
         onClick={onRotateLeft}
         disabled={disabled}
-        className="px-2 py-1 h-8 text-xs font-mono-telemetry"
+        className="px-2 py-1 h-8 text-xs"
         aria-label="Rotate certificate counter-clockwise"
         title="Rotate Left"
       >
-        <RotateCcw className="w-3.5 h-3.5 text-[#2d3748]" />
+        <RotateCcw className="w-3.5 h-3.5 text-black" />
       </Button>
 
       <Button
@@ -42,25 +42,25 @@ export const InspectorControls: React.FC<InspectorControlsProps> = ({
         size="sm"
         onClick={onRotateRight}
         disabled={disabled}
-        className="px-2 py-1 h-8 text-xs font-mono-telemetry"
+        className="px-2 py-1 h-8 text-xs"
         aria-label="Rotate certificate clockwise"
         title="Rotate Right"
       >
-        <RotateCw className="w-3.5 h-3.5 text-[#2d3748]" />
+        <RotateCw className="w-3.5 h-3.5 text-black" />
       </Button>
 
-      <div className="w-px h-4 bg-[#dcd3c1] mx-1" />
+      <div className="w-px h-5 bg-black mx-0.5" />
 
       <Button
         variant="secondary"
         size="sm"
         onClick={onZoomIn}
         disabled={disabled}
-        className="px-2 py-1 h-8 text-xs font-mono-telemetry"
+        className="px-2 py-1 h-8 text-xs"
         aria-label="Zoom in on certificate"
         title="Zoom In"
       >
-        <ZoomIn className="w-3.5 h-3.5 text-[#2d3748]" />
+        <ZoomIn className="w-3.5 h-3.5 text-black" />
       </Button>
 
       <Button
@@ -68,26 +68,26 @@ export const InspectorControls: React.FC<InspectorControlsProps> = ({
         size="sm"
         onClick={onZoomOut}
         disabled={disabled}
-        className="px-2 py-1 h-8 text-xs font-mono-telemetry"
+        className="px-2 py-1 h-8 text-xs"
         aria-label="Zoom out from certificate"
         title="Zoom Out"
       >
-        <ZoomOut className="w-3.5 h-3.5 text-[#2d3748]" />
+        <ZoomOut className="w-3.5 h-3.5 text-black" />
       </Button>
 
-      <div className="w-px h-4 bg-[#dcd3c1] mx-1" />
+      <div className="w-px h-5 bg-black mx-0.5" />
 
       <Button
         variant="secondary"
         size="sm"
         onClick={onReset}
         disabled={disabled}
-        className="px-2.5 py-1 h-8 text-xs font-mono-telemetry text-[#1f304d] hover:text-[#161a22] font-semibold"
+        className="px-2.5 py-1 h-8 text-xs font-bold"
         aria-label="Reset camera and rotation orientation"
         title="Reset Orientation"
       >
-        <Compass className="w-3.5 h-3.5 mr-1 text-[#1f304d]" />
-        <span>Reset</span>
+        <Compass className="w-3.5 h-3.5 mr-1 text-black" />
+        <span>RESET</span>
       </Button>
     </div>
   );

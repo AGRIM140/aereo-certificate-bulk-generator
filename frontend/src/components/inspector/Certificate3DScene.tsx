@@ -79,7 +79,7 @@ export const Certificate3DScene: React.FC<Certificate3DSceneProps> = ({
 
   return (
     <div
-      className="relative w-full h-[520px] sm:h-[600px] bg-gradient-to-b from-[#1c222e] via-[#131720] to-[#0c0f16] border border-[#333f54] rounded-lg overflow-hidden flex items-center justify-center shadow-2xl select-none"
+      className="relative w-full h-[520px] sm:h-[600px] bg-neutral-900 border-2 border-black overflow-hidden flex items-center justify-center shadow-[3px_3px_0px_#000000] select-none"
       data-testid="certificate-3d-stage"
     >
       {/* Three.js canvas mount point */}
@@ -90,16 +90,16 @@ export const Certificate3DScene: React.FC<Certificate3DSceneProps> = ({
       />
 
       {/* Archival Telemetry HUD Header */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 px-2.5 py-1 rounded bg-[#181d26]/88 backdrop-blur border border-[#333f54] text-[11px] font-mono-telemetry text-[#cad5e2] pointer-events-none">
-        <Sparkles className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
-        <span>PHYSICAL 3D PAPER SURFACE</span>
-        <span className="text-[#475569]">|</span>
-        <span className="text-[#c5a059]">DOUBLE-SIDED CURVATURE</span>
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 px-2.5 py-1 bg-black text-[#fcc20f] border border-[#fcc20f] text-[10px] font-ui font-bold uppercase tracking-wider pointer-events-none">
+        <Sparkles className="w-3.5 h-3.5 text-[#fcc20f] shrink-0" />
+        <span>3D PHYSICAL PAPER SURFACE</span>
+        <span className="text-neutral-500">|</span>
+        <span>DOUBLE-SIDED CURVATURE</span>
       </div>
 
       {/* Interaction Hint (Top-right) */}
-      <div className="hidden sm:flex absolute top-3 right-3 z-10 items-center gap-1.5 px-2.5 py-1 rounded bg-[#181d26]/88 backdrop-blur border border-[#333f54] text-[10px] font-mono-telemetry text-[#cad5e2] pointer-events-none">
-        <Eye className="w-3 h-3 text-[#c5a059]" />
+      <div className="hidden sm:flex absolute top-3 right-3 z-10 items-center gap-1.5 px-2.5 py-1 bg-white text-black border border-black text-[10px] font-ui font-bold uppercase tracking-wider pointer-events-none">
+        <Eye className="w-3 h-3 text-black" />
         <span>DRAG TO ROTATE • SCROLL TO ZOOM</span>
       </div>
 

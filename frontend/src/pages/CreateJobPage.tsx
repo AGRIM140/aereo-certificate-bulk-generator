@@ -4,7 +4,6 @@ import { Calendar, Building2, Award, Upload } from 'lucide-react';
 import { createJob } from '../api/jobs';
 import type { JobRequest, RecipientInput } from '../types/api';
 import { Input } from '../components/ui/Input';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { RecipientRowEditor, type EditableRecipient } from '../components/jobs/RecipientRowEditor';
@@ -43,7 +42,6 @@ export const CreateJobPage: React.FC = () => {
     setRecipients((prev) =>
       prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
     );
-    // Clear inline error when typing
     if (validationErrors[`recipient-${id}-${field}`]) {
       setValidationErrors((prev) => {
         const copy = { ...prev };
@@ -106,7 +104,6 @@ export const CreateJobPage: React.FC = () => {
       errors.recipients = 'Maximum batch limit is 500 recipients.';
     }
 
-    // Per-recipient client check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     recipients.forEach((r, idx) => {
       const rowNum = idx + 1;
@@ -144,7 +141,6 @@ export const CreateJobPage: React.FC = () => {
 
     try {
       const createdJob = await createJob(payload);
-      // HTTP 202 Accepted returned -> Navigate to Job Command Center
       navigate(`/jobs/${createdJob.id}`);
     } catch (err) {
       setIsSubmitting(false);
@@ -161,13 +157,18 @@ export const CreateJobPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#e2dac9]">
+      {/* 1. Dell 1996 Section Eyebrow Banner (Tint Steel) */}
+      <div className="border border-black bg-[#a5b8c0] p-3 sm:p-4 text-black flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[2px_2px_0px_#000000]">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#161a22] uppercase font-serif">
-            INITIALIZE CERTIFICATE BATCH
-          </h1>
-          <p className="text-xs text-[#5a6678] mt-1">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h1 className="text-lg sm:text-2xl font-black uppercase font-ui tracking-wide text-black">
+              INITIALIZE CERTIFICATE BATCH
+            </h1>
+            <span className="dell-burst-new text-[10px] px-1.5 py-0.2">
+              NEW BATCH
+            </span>
+          </div>
+          <p className="text-xs font-serif text-black leading-tight">
             Configure event credentials and populate the recipient roster for high-volume automated document generation.
           </p>
         </div>
@@ -198,12 +199,14 @@ export const CreateJobPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Batch Credentials & Recipient Roster */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Section 1: Credentials */}
-          <Card>
-            <CardHeader>
-              <CardTitle>1. BATCH CREDENTIALS</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          {/* Section 1: Credentials Ribbon Card */}
+          <div className="border border-black bg-white shadow-[2px_2px_0px_#000000]">
+            <div className="bg-white border-b border-black px-4 py-2.5">
+              <h3 className="font-ui font-bold uppercase text-xs text-black">
+                1. BATCH CREDENTIALS
+              </h3>
+            </div>
+            <div className="p-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="Event Name"
@@ -269,17 +272,19 @@ export const CreateJobPage: React.FC = () => {
                   leftIcon={<Calendar className="w-4 h-4" />}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Section 2: Recipient Editor */}
-          <Card>
-            <CardHeader>
-              <CardTitle>2. RECIPIENT ROSTER</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          <div className="border border-black bg-white shadow-[2px_2px_0px_#000000]">
+            <div className="bg-white border-b border-black px-4 py-2.5">
+              <h3 className="font-ui font-bold uppercase text-xs text-black">
+                2. RECIPIENT ROSTER
+              </h3>
+            </div>
+            <div className="p-4 space-y-3">
               {validationErrors.recipients && (
-                <p role="alert" className="text-xs text-rose-400 font-mono-telemetry">
+                <p role="alert" className="text-xs text-[#e91d2a] font-ui font-bold">
                   ⚠ {validationErrors.recipients}
                 </p>
               )}
@@ -293,8 +298,8 @@ export const CreateJobPage: React.FC = () => {
                 disabled={isSubmitting}
                 errors={validationErrors}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Reactive Summary & Dispatch CTA */}

@@ -8,6 +8,27 @@
 
 ## Current Status
 
+### GitHub/Railway release preparation — 2026-10-11
+
+The final release task supersedes the completed implementation phase boundaries.
+Existing frontend design and browser Archive/Vault work are preserved. Added
+private S3-compatible certificate storage, safe provider errors, runtime ports
+and private Nginx routing, collected static-file serving, and readiness checks.
+No database schema or authentication changes were made.
+
+Verified: 156 backend tests on Windows/PostgreSQL and 156 in the Linux Docker
+image; 138 frontend tests, lint, TypeScript/build; 16 explicit storage/configuration
+tests; real local container Celery/PDF/ZIP flow and downloads after restart;
+real Chrome archive/reload/restore and certificate inspector rendering. Fixed
+absolute pagination query loss, date-test clock mocking, blocked localStorage
+handling and the production PDF.js worker MIME type. See
+`qa_evidence/release_verification_report.md` and `docs/deployment.md`.
+
+External release/deployment remains in progress. Railway login and $5 trial credit
+were verified; no paid upgrade is authorized. Live bucket/persistence and public
+URL acceptance are not established by local tests. API access remains public;
+use synthetic assignment data only.
+
 ```text
 Project Status: COMPLETE & READY FOR SUBMISSION
 Current Phase: Phase 12 COMPLETE & FULL-STACK INTEGRATED

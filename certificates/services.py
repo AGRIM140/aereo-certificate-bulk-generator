@@ -16,6 +16,7 @@ from certificates.models import (
     certificate_upload_path,
 )
 from certificates.serializers import RecipientSerializer
+from certificates.storage import CertificateStorageUnavailable
 
 
 logger = logging.getLogger(__name__)
@@ -215,16 +216,14 @@ def build_job_zip(job: GenerationJob) -> bytes | None:
                 continue
             storage = cert.pdf_file.storage
             name = cert.pdf_file.name
-            if not storage.exists(name):
-                logger.warning(
-                    "Stored PDF file %s for certificate %s is missing during ZIP build",
-                    name,
-                    cert.id,
-                )
-                continue
             try:
+                if not storage.exists(name):
+                    logger.warning("Stored PDF for certificate %s is missing during ZIP build", cert.id)
+                    continue
                 with storage.open(name, "rb") as pdf_stream:
                     content = pdf_stream.read()
+            except CertificateStorageUnavailable:
+                raise
             except OSError:
                 logger.exception(
                     "Could not read PDF file %s for certificate %s during ZIP build",

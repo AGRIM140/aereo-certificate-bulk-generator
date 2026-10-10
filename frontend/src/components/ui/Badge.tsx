@@ -30,54 +30,54 @@ const statusConfig: Record<
   }
 > = {
   PENDING: {
-    bg: 'bg-[#fffbeb]',
-    border: 'border-[#f59e0b]/40',
-    text: 'text-[#92400e]',
+    bg: 'bg-[#fcc20f]',
+    border: 'border-black',
+    text: 'text-black',
     label: 'PENDING',
     icon: Clock,
   },
   PROCESSING: {
-    bg: 'bg-[#edf3fa]',
-    border: 'border-[#3b82f6]/40',
-    text: 'text-[#1e3a5f]',
+    bg: 'bg-[#9ab6c8]',
+    border: 'border-black',
+    text: 'text-black',
     label: 'PROCESSING',
     icon: RefreshCw,
     pulse: true,
   },
   COMPLETED: {
-    bg: 'bg-[#f0fdf4]',
-    border: 'border-[#16a34a]/40',
-    text: 'text-[#15803d]',
+    bg: 'bg-[#c0d4a7]',
+    border: 'border-black',
+    text: 'text-black',
     label: 'COMPLETED',
     icon: CheckCircle2,
   },
   GENERATED: {
-    bg: 'bg-[#f0fdf4]',
-    border: 'border-[#16a34a]/40',
-    text: 'text-[#15803d]',
+    bg: 'bg-[#c0d4a7]',
+    border: 'border-black',
+    text: 'text-black',
     label: 'GENERATED',
     icon: CheckCircle2,
   },
   COMPLETED_WITH_ERRORS: {
-    bg: 'bg-[#fff7ed]',
-    border: 'border-[#ea580c]/40',
-    text: 'text-[#c2410c]',
+    bg: 'bg-[#e6915d]',
+    border: 'border-black',
+    text: 'text-black',
     label: 'COMPLETED W/ ERRORS',
     icon: AlertTriangle,
   },
   FAILED: {
-    bg: 'bg-[#fef2f2]',
-    border: 'border-[#b83a34]/40',
-    text: 'text-[#b83a34]',
+    bg: 'bg-[#d77a7a]',
+    border: 'border-black',
+    text: 'text-black',
     label: 'FAILED',
     icon: XCircle,
   },
   INFO: {
-    bg: 'bg-[#f5efe4]',
-    border: 'border-[#dcd3c1]',
-    text: 'text-[#334155]',
+    bg: 'bg-[#a5b8c0]',
+    border: 'border-black',
+    text: 'text-black',
     label: 'INFO',
-    icon: Clock,
+    icon: RefreshCw,
   },
 };
 
@@ -89,23 +89,23 @@ export const Badge: React.FC<BadgeProps> = ({
   size = 'md',
 }) => {
   const config = statusConfig[status] || statusConfig.INFO;
-  const IconComponent = config.icon;
+  const Icon = config.icon;
   const displayLabel = label || config.label;
 
-  const sizeClasses =
-    size === 'sm'
-      ? 'px-1.5 py-0.5 text-[10px] gap-1'
-      : 'px-2.5 py-1 text-xs gap-1.5';
+  const sizeStyles = {
+    sm: 'px-1.5 py-0.5 text-[10px] gap-1',
+    md: 'px-2 py-0.5 text-xs gap-1.5',
+  }[size];
 
   return (
     <span
       role="status"
       aria-label={`Status: ${displayLabel}`}
-      className={`inline-flex items-center font-mono-telemetry font-semibold uppercase tracking-wider rounded border shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-colors ${config.bg} ${config.border} ${config.text} ${sizeClasses} ${className}`}
+      className={`inline-flex items-center font-ui font-bold uppercase tracking-wider border rounded-none shadow-[1px_1px_0px_#000000] select-none ${config.bg} ${config.border} ${config.text} ${sizeStyles} ${className}`}
     >
       {showIcon && (
-        <IconComponent
-          className={`shrink-0 ${size === 'sm' ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'} ${
+        <Icon
+          className={`shrink-0 ${size === 'sm' ? 'w-2.5 h-2.5' : 'w-3 h-3'} ${
             config.pulse ? 'animate-spin' : ''
           }`}
           aria-hidden="true"

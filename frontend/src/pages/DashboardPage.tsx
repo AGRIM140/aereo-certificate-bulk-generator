@@ -4,13 +4,14 @@ import { PlusCircle, RefreshCw, ArrowRight, ShieldCheck, Database, Cpu } from 'l
 import { getJobs } from '../api/jobs';
 import type { PaginatedResponse, JobSummary } from '../types/api';
 import { Button } from '../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Alert } from '../components/ui/Alert';
 import { DashboardMetrics } from '../components/dashboard/DashboardMetrics';
 import { JobTable } from '../components/jobs/JobTable';
+import { useArchivedJobs } from '../lib/archiveStore';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isArchived, toggleArchiveJob } = useArchivedJobs();
   const [data, setData] = useState<PaginatedResponse<JobSummary> | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -51,28 +52,29 @@ export const DashboardPage: React.FC = () => {
     };
   }, [refreshTrigger]);
 
-  const recentJobs = data?.results.slice(0, 10) || [];
+  const allJobs = data?.results || [];
+  const recentJobs = allJobs.filter((job) => !isArchived(job.id)).slice(0, 10);
   const totalCount = data?.count || 0;
 
   return (
     <div className="space-y-6">
-      {/* Top Banner / Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#e2dac9]">
+      {/* 1. Dell 1996 Section Eyebrow Banner (Tint Olive) */}
+      <div className="border border-black bg-[#8e8a25] p-3 sm:p-4 text-black flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[2px_2px_0px_#000000]">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#161a22] uppercase font-serif">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h1 className="text-lg sm:text-2xl font-black uppercase font-ui tracking-wide text-black">
               OPERATIONAL TELEMETRY CONSOLE
             </h1>
-            <span className="text-[10px] font-mono-telemetry px-2 py-0.5 rounded bg-[#f0fdf4] text-[#15803d] border border-[#bbf7d0] font-semibold">
-              LIVE API
+            <span className="dell-burst-new text-[10px] px-1.5 py-0.2">
+              LIVE
             </span>
           </div>
-          <p className="text-xs text-[#5a6678]">
+          <p className="text-xs font-serif text-black leading-tight">
             Real-time batch generation overview, authoritative database telemetry, and recent certificates.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <Button
             variant="secondary"
             size="sm"
@@ -87,7 +89,7 @@ export const DashboardPage: React.FC = () => {
           <Button
             variant="primary"
             size="md"
-            leftIcon={<PlusCircle className="w-4 h-4" />}
+            leftIcon={<PlusCircle className="w-3.5 h-3.5" />}
             onClick={() => navigate('/jobs/new')}
           >
             Initialize Batch
@@ -105,78 +107,81 @@ export const DashboardPage: React.FC = () => {
         />
       )}
 
-      {/* Bento Telemetry Metrics Cards */}
+      {/* Ribbon Metrics Row */}
       <DashboardMetrics totalJobsCount={totalCount} recentJobs={recentJobs} />
 
-      {/* Recent Jobs Table Card */}
-      <Card variant="elevated">
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      {/* Recent Jobs Table Ribbon Card */}
+      <div className="border border-black bg-white shadow-[2px_2px_0px_#000000]">
+        <div className="bg-white border-b border-black px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <CardTitle>RECENT GENERATION JOBS</CardTitle>
-            <CardDescription>
+            <h3 className="text-xs font-bold uppercase font-ui text-black">
+              RECENT GENERATION JOBS
+            </h3>
+            <p className="text-xs font-serif text-neutral-700">
               Showing the latest batches registered in PostgreSQL. Click any row to inspect per-recipient certificates.
-            </CardDescription>
+            </p>
           </div>
           {totalCount > 0 && (
             <Button
-              variant="ghost"
+              variant="secondary"
               size="sm"
-              rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+              rightIcon={<ArrowRight className="w-3 h-3" />}
               onClick={() => navigate('/jobs')}
-              className="text-xs text-[#1f304d] hover:text-[#166534] font-mono-telemetry font-semibold"
             >
               Full Ledger ({totalCount} jobs)
             </Button>
           )}
-        </CardHeader>
-        <CardContent className="p-0">
+        </div>
+        <div className="p-0">
           <JobTable
             jobs={recentJobs}
             isLoading={isLoading}
             emptyTitle="No Generation Batches Dispatched"
-            emptyMessage="The PostgreSQL database contains no certificate jobs yet. Click below to initialize your first high-volume certificate batch."
+            emptyMessage="The PostgreSQL database contains no active certificate jobs. Click below to initialize your first high-volume certificate batch."
             onNewJob={() => navigate('/jobs/new')}
+            isArchived={isArchived}
+            onToggleArchive={(jobId, e) => {
+              e.stopPropagation();
+              toggleArchiveJob(jobId);
+            }}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* System Architecture Specifications (Secondary Bento Row) */}
+      {/* 3 Ribbon Cards Architecture Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card variant="subtle">
-          <CardHeader className="py-2.5 px-4">
-            <CardTitle className="text-[11px] text-[#334155]">DATA INTEGRITY</CardTitle>
-            <Database className="w-3.5 h-3.5 text-[#1f304d]" />
-          </CardHeader>
-          <CardContent className="p-4 pt-1">
-            <p className="text-[11px] text-[#556377] leading-relaxed">
-              State is strictly persisted in PostgreSQL. Row locking via <code className="text-[#161a22] font-mono-telemetry font-semibold">select_for_update()</code> prevents duplicate worker execution.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Card 1: Tint Periwinkle */}
+        <div className="border border-black bg-[#8c9ae0] shadow-[2px_2px_0px_#000000]">
+          <div className="bg-white border-b border-black px-3 py-1.5 flex items-center justify-between text-black">
+            <span className="font-ui font-bold text-xs uppercase">DATA INTEGRITY</span>
+            <Database className="w-3.5 h-3.5 text-black" />
+          </div>
+          <div className="p-3 text-xs font-serif text-black leading-relaxed">
+            State is strictly persisted in PostgreSQL. Row locking via <strong className="font-mono">select_for_update()</strong> prevents duplicate worker execution.
+          </div>
+        </div>
 
-        <Card variant="subtle">
-          <CardHeader className="py-2.5 px-4">
-            <CardTitle className="text-[11px] text-[#334155]">DISPATCH ISOLATION</CardTitle>
-            <Cpu className="w-3.5 h-3.5 text-[#b45309]" />
-          </CardHeader>
-          <CardContent className="p-4 pt-1">
-            <p className="text-[11px] text-[#556377] leading-relaxed">
-              Celery workers process background jobs independently. Per-certificate failure isolation ensures invalid recipients never halt valid generation.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Card 2: Tint Salmon */}
+        <div className="border border-black bg-[#d77a7a] shadow-[2px_2px_0px_#000000]">
+          <div className="bg-white border-b border-black px-3 py-1.5 flex items-center justify-between text-black">
+            <span className="font-ui font-bold text-xs uppercase">DISPATCH ISOLATION</span>
+            <Cpu className="w-3.5 h-3.5 text-black" />
+          </div>
+          <div className="p-3 text-xs font-serif text-black leading-relaxed">
+            Celery workers process background jobs independently. Per-certificate failure isolation ensures invalid recipients never halt valid generation.
+          </div>
+        </div>
 
-        <Card variant="subtle">
-          <CardHeader className="py-2.5 px-4">
-            <CardTitle className="text-[11px] text-[#334155]">AUTHORITATIVE OUTPUT</CardTitle>
-            <ShieldCheck className="w-3.5 h-3.5 text-[#15803d]" />
-          </CardHeader>
-          <CardContent className="p-4 pt-1">
-            <p className="text-[11px] text-[#556377] leading-relaxed">
-              ReportLab dynamically overlays text onto the fixed 1468×1071 template. The 3D inspector rasterizes the authoritative PDF with zero divergence.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Card 3: Tint Sage */}
+        <div className="border border-black bg-[#b3bd95] shadow-[2px_2px_0px_#000000]">
+          <div className="bg-white border-b border-black px-3 py-1.5 flex items-center justify-between text-black">
+            <span className="font-ui font-bold text-xs uppercase">AUTHORITATIVE OUTPUT</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-black" />
+          </div>
+          <div className="p-3 text-xs font-serif text-black leading-relaxed">
+            ReportLab dynamically overlays text onto the fixed 1468×1071 template. The 3D inspector rasterizes the authoritative PDF with zero divergence.
+          </div>
+        </div>
       </div>
     </div>
   );

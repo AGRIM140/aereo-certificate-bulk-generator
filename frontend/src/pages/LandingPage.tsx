@@ -7,12 +7,12 @@ import { LandingFooter } from '../components/landing/LandingFooter';
 
 export const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-transparent text-[#161a22] selection:bg-[#1f304d]/15 selection:text-[#161a22] overflow-x-clip relative z-10">
-      {/* 1. Header Navigation */}
+    <div className="dell-page-frame flex flex-col text-black selection:bg-black selection:text-white overflow-x-clip relative z-10">
+      {/* 1. Classic Dell Top Banner Header */}
       <LandingHeader />
 
       {/* 2. Cinematic Scroll-Driven Certificate Production Experience */}
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <AtelierProductionExperience />
 
         {/* 3. 4-Stage Architectural Workflow */}
@@ -23,28 +23,35 @@ export const LandingPage: React.FC = () => {
           <LandingSpecs />
         </div>
 
-        {/* 5. Grand Archival Proclamation & Dispatch Callout */}
-        <section className="py-16 lg:py-24 border-t border-[#e2dac9] bg-transparent">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="relative rounded-2xl bg-[#ffffff] border-2 border-[#e2dac9] p-8 sm:p-12 lg:p-16 shadow-lg overflow-hidden flex flex-col items-center text-center space-y-6">
-              {/* Corner crosshair markers */}
-              <div className="absolute top-3 left-3 text-[#b8a892] text-xs font-mono-telemetry select-none pointer-events-none">+</div>
-              <div className="absolute top-3 right-3 text-[#b8a892] text-xs font-mono-telemetry select-none pointer-events-none">+</div>
-              <div className="absolute bottom-3 left-3 text-[#b8a892] text-xs font-mono-telemetry select-none pointer-events-none">+</div>
-              <div className="absolute bottom-3 right-3 text-[#b8a892] text-xs font-mono-telemetry select-none pointer-events-none">+</div>
+        {/* 5. Dell 1996 Catalog Proclamation & Dispatch Callout */}
+        <section className="py-12 lg:py-16 border-t-2 border-black bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="relative rounded-none bg-white border-2 border-black p-6 sm:p-10 lg:p-12 shadow-[6px_6px_0px_#000] overflow-hidden flex flex-col items-center text-center space-y-6">
+              {/* Ribbon Header Strip */}
+              <div className="w-full bg-[#a5b8c0] border-b-2 border-black -mt-6 sm:-mt-10 lg:-mt-12 -mx-6 sm:-mx-10 lg:-mx-12 px-6 py-2.5 flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#e91d2a]" />
+                  <span className="font-ui font-bold text-xs uppercase tracking-wider text-black">
+                    OFFICIAL DISPATCH AUTHORIZATION // CATALOG BULLETIN
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] text-neutral-800 hidden sm:inline">
+                  ORDER DIRECT: 1-800-CERT-GEN
+                </span>
+              </div>
 
-              {/* Archival Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fbf9f4] border border-[#dcd3c1] text-[11px] font-mono-telemetry text-[#161a22]">
-                <span className="w-2 h-2 rounded-full bg-[#15803d] animate-pulse" />
-                <span className="font-semibold uppercase tracking-wider">PRODUCTION ATELIER // DISPATCH READY</span>
+              {/* Archival Badge / Yellow Sticker */}
+              <div className="dell-sticker-yellow px-3 py-1 text-xs font-ui font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-[2px_2px_0px_#000]">
+                <span className="bg-[#6a26a4] text-white px-1.5 py-0.2 text-[10px] font-bold">1996</span>
+                <span>PRODUCTION ATELIER // DISPATCH READY</span>
               </div>
 
               {/* Editorial Proclamation Title */}
               <div className="space-y-3 max-w-3xl">
-                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#161a22] font-serif leading-[1.12]">
+                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display-dell font-black tracking-tight text-black leading-[1.05] uppercase">
                   PREPARED FOR IMMEDIATE PRODUCTION DISPATCH.
                 </h2>
-                <p className="text-xs sm:text-base text-[#556377] font-sans leading-relaxed max-w-2xl mx-auto">
+                <p className="text-sm sm:text-base text-black font-serif leading-relaxed max-w-2xl mx-auto">
                   Configure certificate event parameters, customize template typography, and queue up to 500 recipient records with atomic fault isolation, sub-second vector PDF compilation, and zero-divergence 3D inspection.
                 </p>
               </div>
@@ -53,34 +60,34 @@ export const LandingPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
                 <a
                   href="/jobs/new"
-                  className="bg-[#1f304d] hover:bg-[#2d4263] text-white px-7 py-3.5 rounded-lg font-mono-telemetry text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2"
+                  className="bg-[#e91d2a] hover:bg-[#c81924] text-white px-8 py-3.5 border-2 border-black font-ui text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_#000] flex items-center gap-2 cursor-pointer transition-transform active:translate-x-0.5 active:translate-y-0.5"
                 >
                   <span>Dispatch Production Batch</span>
-                  <span className="text-[#c5a059]">→</span>
+                  <span>→</span>
                 </a>
 
                 <a
                   href="/dashboard"
-                  className="bg-[#fbf9f4] hover:bg-[#ede6d6] text-[#161a22] border border-[#dcd3c1] px-6 py-3.5 rounded-lg font-mono-telemetry text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2"
+                  className="bg-white hover:bg-neutral-100 text-black border-2 border-black px-7 py-3.5 font-ui text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_#000] flex items-center gap-2 cursor-pointer transition-transform active:translate-x-0.5 active:translate-y-0.5"
                 >
                   <span>Open Operational Console</span>
                 </a>
               </div>
 
               {/* Telemetry Seal Strip */}
-              <div className="pt-6 border-t border-[#ece5d6] flex flex-wrap items-center justify-center gap-6 text-[11px] font-mono-telemetry text-[#7d8b9e]">
-                <span>AUTHORITY COMMIT: cf5bb3d</span>
+              <div className="pt-4 border-t border-black w-full flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs font-mono text-black">
+                <span>PRODUCTION RELEASE: <strong>v1.0.0</strong></span>
                 <span>•</span>
                 <span>REPORTLAB 4.x VECTOR COMPILER</span>
                 <span>•</span>
-                <span className="text-[#15803d] font-bold">100% FAULT ISOLATION</span>
+                <span className="bg-[#c0d4a7] text-black px-1.5 py-0.5 font-bold border border-black">100% FAULT ISOLATION</span>
               </div>
             </div>
           </div>
         </section>
       </main>
 
-      {/* 6. Telemetry Footer */}
+      {/* 6. Authentic Dell 1996 Footer */}
       <LandingFooter />
     </div>
   );

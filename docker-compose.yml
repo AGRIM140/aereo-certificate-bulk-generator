@@ -37,10 +37,10 @@ services:
     restart: unless-stopped
     command: >
       sh -c "python manage.py migrate --noinput &&
-             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
+             sh /app/start-backend.sh"
     environment:
       DJANGO_DEBUG: "false"
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-production-deployment-secret-key-change-in-prod}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in your ignored .env}
       DJANGO_ALLOWED_HOSTS: "backend,localhost,127.0.0.1,frontend"
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-bulk_certificates}
       CELERY_BROKER_URL: redis://redis:6379/0
@@ -68,7 +68,7 @@ services:
     command: celery -A config worker --loglevel=info --concurrency=4
     environment:
       DJANGO_DEBUG: "false"
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-production-deployment-secret-key-change-in-prod}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in your ignored .env}
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-bulk_certificates}
       CELERY_BROKER_URL: redis://redis:6379/0
       MEDIA_ROOT: /app/media

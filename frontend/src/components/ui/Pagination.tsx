@@ -32,16 +32,16 @@ export const Pagination: React.FC<PaginationProps> = ({
     <div
       role="navigation"
       aria-label="Pagination Navigation"
-      className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-4 border-t border-[#e2dac9] bg-[#fbf9f4] text-xs font-mono-telemetry select-none"
+      className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2.5 px-4 border-t border-black bg-[#a5b8c0]/20 text-xs font-serif select-none"
     >
-      <div className="text-[#566375]">
-        Showing <span className="font-semibold text-[#161a22]">{startItem}</span> to{' '}
-        <span className="font-semibold text-[#161a22]">{endItem}</span> of{' '}
-        <span className="font-semibold text-[#161a22]">{totalCount}</span> {itemNoun}
+      <div className="text-black">
+        Showing <strong className="font-ui font-bold text-black">{startItem}</strong> to{' '}
+        <strong className="font-ui font-bold text-black">{endItem}</strong> of{' '}
+        <strong className="font-ui font-bold text-black">{totalCount}</strong> {itemNoun}
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-[#647287] mr-2">
+        <span className="text-black font-ui uppercase font-bold text-[11px] mr-2">
           Page {currentPage} of {totalPages}
         </span>
 

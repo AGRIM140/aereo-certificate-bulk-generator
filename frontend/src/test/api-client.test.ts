@@ -29,6 +29,8 @@ describe('normalizeApiPath', () => {
   });
 
   it('preserves query parameters while enforcing trailing slash before query string', () => {
+    expect(normalizeApiPath('https://backend.example/api/jobs/?page=2&status=FAILED'))
+      .toBe('/api/jobs/?page=2&status=FAILED');
     expect(normalizeApiPath('/api/jobs?page=2')).toBe('/api/jobs/?page=2');
     expect(normalizeApiPath('/api/jobs/?page=2')).toBe('/api/jobs/?page=2');
     expect(

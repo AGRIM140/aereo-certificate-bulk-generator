@@ -190,30 +190,28 @@ export const CertificateGalleryPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Top Header & Job Context */}
-      <div className="bg-[#ffffff] border border-[#e2dac9] rounded-lg p-5 shadow-sm text-[#161a22]">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#ece5d6]">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs uppercase tracking-wider font-mono-telemetry text-[#7d8b9e] font-semibold">
+      {/* Top Header & Job Context: Dell 1996 Ribbon Card */}
+      <div className="border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-black">
+        {/* Ribbon Bar */}
+        <div className="bg-[#a5b8c0] border-b-2 border-black p-3 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="font-ui font-black text-xs uppercase tracking-wider text-black">
                 BATCH ARCHIVE
               </span>
               <span
-                className="text-sm font-mono-telemetry font-bold text-[#161a22] bg-[#f5efe4] px-2 py-0.5 rounded border border-[#dcd3c1]"
+                className="font-mono text-xs font-bold text-black bg-white px-2 py-0.5 border border-black"
                 title={jobId}
               >
                 {jobId ? `${jobId.slice(0, 8)}…${jobId.slice(-4)}` : '—'}
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#161a22] font-serif">
+            <h1 className="text-lg sm:text-2xl font-black uppercase font-ui tracking-wide text-black">
               {job ? job.event_name : 'Certificate Archive Ledger'}
             </h1>
-            <p className="text-xs text-[#647287] font-mono-telemetry">
-              ORGANIZATION:{' '}
-              <span className="text-[#161a22] font-semibold">
-                {job ? job.organization_name : 'Official Issuer'}
-              </span>
+            <p className="text-xs font-serif text-black leading-tight">
+              ORGANIZATION: <span className="font-bold">{job ? job.organization_name : 'Official Issuer'}</span>
             </p>
           </div>
 
@@ -223,11 +221,11 @@ export const CertificateGalleryPage: React.FC = () => {
               variant="secondary"
               size="sm"
               onClick={() => navigate(`/jobs/${jobId}`)}
-              className="text-xs font-mono-telemetry"
+              className="text-xs"
               title="Return to operational monitoring view"
             >
-              <Activity className="w-3.5 h-3.5 mr-1.5 text-[#1f304d]" />
-              Job Telemetry
+              <Activity className="w-3.5 h-3.5 mr-1 text-black" />
+              JOB TELEMETRY
             </Button>
 
             <Button
@@ -248,22 +246,22 @@ export const CertificateGalleryPage: React.FC = () => {
 
         {/* Telemetry Summary Strip */}
         {job && job.progress && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 text-xs font-mono-telemetry">
-            <div>
-              <span className="text-[#7d8b9e] block text-[10px] uppercase font-semibold">TOTAL RECORDS</span>
-              <span className="text-[#161a22] font-bold">{job.progress.total}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-[#fbf9f4] border-t border-black text-xs font-mono">
+            <div className="p-2 border border-black bg-white">
+              <span className="text-neutral-600 block text-[10px] uppercase font-ui font-bold">TOTAL RECORDS</span>
+              <span className="text-black font-black text-base">{job.progress.total}</span>
             </div>
-            <div>
-              <span className="text-[#15803d] block text-[10px] uppercase font-semibold">GENERATED</span>
-              <span className="text-[#15803d] font-bold">{job.progress.generated}</span>
+            <div className="p-2 border border-black bg-[#c0d4a7]/40">
+              <span className="text-black block text-[10px] uppercase font-ui font-bold">GENERATED</span>
+              <span className="text-black font-black text-base">{job.progress.generated}</span>
             </div>
-            <div>
-              <span className="text-[#92400e] block text-[10px] uppercase font-semibold">PENDING</span>
-              <span className="text-[#92400e] font-bold">{job.progress.pending}</span>
+            <div className="p-2 border border-black bg-[#fcc20f]/30">
+              <span className="text-black block text-[10px] uppercase font-ui font-bold">PENDING</span>
+              <span className="text-black font-black text-base">{job.progress.pending}</span>
             </div>
-            <div>
-              <span className="text-[#b83a34] block text-[10px] uppercase font-semibold">FAILED</span>
-              <span className={`font-bold ${job.progress.failed > 0 ? 'text-[#b83a34]' : 'text-[#7d8b9e]'}`}>
+            <div className={`p-2 border border-black ${job.progress.failed > 0 ? 'bg-[#d77a7a]/40' : 'bg-white'}`}>
+              <span className="text-neutral-600 block text-[10px] uppercase font-ui font-bold">FAILED</span>
+              <span className={`font-black text-base ${job.progress.failed > 0 ? 'text-[#e91d2a]' : 'text-black'}`}>
                 {job.progress.failed}
               </span>
             </div>

@@ -1,7 +1,7 @@
 """Phase 3 request, recipient, response and error-format tests."""
 
 import uuid
-from datetime import date
+from datetime import date, datetime, UTC
 from unittest.mock import patch
 
 from django.test import SimpleTestCase, TestCase, override_settings
@@ -35,7 +35,7 @@ class RequestValidationTests(SimpleTestCase):
         return data
 
     def test_valid_request_trims_fields_and_defaults_issue_date(self):
-        with patch("certificates.serializers.timezone.localdate", return_value=date(2026, 10, 8)):
+        with patch("django.utils.timezone.now", return_value=datetime(2026, 10, 8, 12, tzinfo=UTC)):
             serializer = JobRequestSerializer(data=self.valid_request())
             self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertEqual(serializer.validated_data["event_name"], "Workshop")
@@ -350,5 +350,4 @@ class PerRecipientValidationPersistenceTests(TestCase):
         certs = list(job.certificates.all())
         self.assertEqual(certs[0].status, Certificate.Status.GENERATED)
         self.assertEqual(certs[1].status, Certificate.Status.FAILED)
-
 

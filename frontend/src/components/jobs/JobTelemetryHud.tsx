@@ -1,6 +1,5 @@
 import React from 'react';
 import { Activity, CheckCircle2, Clock, XCircle, AlertTriangle } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { ProgressBar } from '../ui/ProgressBar';
 import type { GenerationJob } from '../../types/api';
 
@@ -14,31 +13,28 @@ export const JobTelemetryHud: React.FC<JobTelemetryHudProps> = ({ job }) => {
   const isCompletedWithErrors = job.status === 'COMPLETED_WITH_ERRORS';
   const isProcessing = job.status === 'PROCESSING' || job.status === 'PENDING';
 
-  // Only render determinate percent if authoritative progress exists
   const hasProgress = progress && typeof progress.percent_complete === 'number';
   const percent = hasProgress ? progress.percent_complete : 0;
 
   return (
-    <Card className="h-full shadow-sm">
-      <CardHeader className="pb-3 border-b border-[#ece5d6]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-[#1f304d]" />
-            <CardTitle className="text-sm font-mono-telemetry uppercase tracking-wider text-[#161a22]">
-              Generation Telemetry
-            </CardTitle>
-          </div>
-          <span className="text-xs font-mono-telemetry text-[#7d8b9e]">
-            {isProcessing ? 'Active Worker Pipeline' : 'Final Telemetry Ledger'}
-          </span>
+    <div className="border-2 border-black bg-white shadow-[3px_3px_0px_#000000] text-black">
+      <div className="p-3 border-b-2 border-black bg-white flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4 text-black" />
+          <h3 className="font-ui font-bold uppercase tracking-wider text-xs text-black">
+            GENERATION TELEMETRY HUD
+          </h3>
         </div>
-      </CardHeader>
+        <span className="font-ui text-[10px] uppercase font-bold text-neutral-600">
+          {isProcessing ? 'Active Worker Pipeline' : 'Final Telemetry Ledger'}
+        </span>
+      </div>
 
-      <CardContent className="pt-4 space-y-5">
+      <div className="p-4 space-y-4">
         {/* Progress Bar & Status Text */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-baseline text-xs font-mono-telemetry">
-            <span className="text-[#161a22] font-bold uppercase tracking-wider">
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-baseline text-xs font-ui">
+            <span className="text-black font-bold uppercase tracking-wider">
               {isFailed
                 ? 'PIPELINE ABORTED'
                 : isCompletedWithErrors
@@ -48,18 +44,18 @@ export const JobTelemetryHud: React.FC<JobTelemetryHudProps> = ({ job }) => {
                     : 'PIPELINE COMPLETED'}
             </span>
             {hasProgress && !isFailed && (
-              <span className="text-[#15803d] font-bold text-sm">
+              <span className="text-black font-black text-sm">
                 {percent.toFixed(1)}%
               </span>
             )}
           </div>
 
           {isFailed ? (
-            <div className="p-3 bg-[#fef2f2] border border-[#fecaca] rounded text-xs text-[#991b1b] font-mono-telemetry flex items-start gap-2">
-              <XCircle className="w-4 h-4 text-[#b83a34] shrink-0 mt-0.5" />
+            <div className="p-3 bg-[#d77a7a] border border-black text-black text-xs font-serif flex items-start gap-2">
+              <XCircle className="w-4 h-4 text-black shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold">Batch Generation Failed</p>
-                <p className="text-[#b83a34] mt-0.5">
+                <p className="font-ui font-bold uppercase">Batch Generation Failed</p>
+                <p className="mt-0.5">
                   {job.error_message || 'An unrecoverable system exception interrupted certificate generation.'}
                 </p>
               </div>
@@ -75,60 +71,47 @@ export const JobTelemetryHud: React.FC<JobTelemetryHudProps> = ({ job }) => {
           )}
         </div>
 
-        {/* Telemetry Metric Bento Grid */}
+        {/* Telemetry Metric Catalog Tints Grid */}
         {progress && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-            <div className="bg-[#fbf9f4] border border-[#e2dac9] rounded p-3 shadow-inner">
-              <span className="text-[10px] text-[#7d8b9e] uppercase font-mono-telemetry block font-semibold">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+            <div className="bg-[#a5b8c0] border border-black p-2.5 text-black">
+              <span className="text-[10px] uppercase font-ui font-bold block">
                 TOTAL
               </span>
-              <span className="text-lg font-bold font-mono-telemetry text-[#161a22]">
+              <span className="text-xl font-black font-ui text-black">
                 {progress.total}
               </span>
             </div>
 
-            <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded p-3 shadow-inner">
-              <span className="text-[10px] text-[#15803d] uppercase font-mono-telemetry flex items-center gap-1 font-semibold">
-                <CheckCircle2 className="w-3 h-3 text-[#15803d]" /> GENERATED
+            <div className="bg-[#c0d4a7] border border-black p-2.5 text-black">
+              <span className="text-[10px] uppercase font-ui font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-black" /> GENERATED
               </span>
-              <span className="text-lg font-bold font-mono-telemetry text-[#15803d]">
+              <span className="text-xl font-black font-ui text-black">
                 {progress.generated}
               </span>
             </div>
 
-            <div className="bg-[#fffbeb] border border-[#fde68a] rounded p-3 shadow-inner">
-              <span className="text-[10px] text-[#92400e] uppercase font-mono-telemetry flex items-center gap-1 font-semibold">
-                <Clock className="w-3 h-3 text-[#b45309]" /> PENDING
+            <div className="bg-[#fcc20f] border border-black p-2.5 text-black">
+              <span className="text-[10px] uppercase font-ui font-bold flex items-center gap-1">
+                <Clock className="w-3 h-3 text-black" /> PENDING
               </span>
-              <span className="text-lg font-bold font-mono-telemetry text-[#92400e]">
+              <span className="text-xl font-black font-ui text-black">
                 {progress.pending}
               </span>
             </div>
 
-            <div className={`rounded p-3 border shadow-inner ${
-              progress.failed > 0
-                ? 'bg-[#fef2f2] border-[#fecaca]'
-                : 'bg-[#fbf9f4] border-[#e2dac9]'
-            }`}>
-              <span className={`text-[10px] uppercase font-mono-telemetry flex items-center gap-1 font-semibold ${
-                progress.failed > 0 ? 'text-[#b83a34]' : 'text-[#7d8b9e]'
-              }`}>
-                {progress.failed > 0 ? (
-                  <AlertTriangle className="w-3 h-3 text-[#b83a34]" />
-                ) : (
-                  <CheckCircle2 className="w-3 h-3 text-[#7d8b9e]" />
-                )}
-                FAILED
+            <div className="bg-[#d77a7a] border border-black p-2.5 text-black">
+              <span className="text-[10px] uppercase font-ui font-bold flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3 text-black" /> FAILED
               </span>
-              <span className={`text-lg font-bold font-mono-telemetry ${
-                progress.failed > 0 ? 'text-[#b83a34]' : 'text-[#161a22]'
-              }`}>
+              <span className="text-xl font-black font-ui text-black">
                 {progress.failed}
               </span>
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

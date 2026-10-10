@@ -26,47 +26,47 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({
   return (
     <article
       aria-label={`Certificate record ${certificate.certificate_number || rowFormatted} for ${certificate.recipient_name}`}
-      className="group relative flex flex-col justify-between rounded-lg border border-[#e2dac9] bg-[#ffffff] p-5 shadow-sm transition-all duration-200 hover:border-[#b8a892] hover:shadow-md text-[#161a22]"
+      className="group relative flex flex-col justify-between border-2 border-black bg-white shadow-[2px_2px_0px_#000000] text-black transition-none"
     >
       {/* Top Header: Index & Status */}
-      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#ece5d6]">
-        <div className="flex items-center gap-1.5 font-mono-telemetry text-xs text-[#7d8b9e]">
-          <span className="font-semibold text-[#7d8b9e]">ARCHIVE</span>
-          <span className="text-[#c5b9a4]">/</span>
-          <span className="text-[#1f304d] font-bold">#{rowFormatted}</span>
+      <div className="dell-ribbon-bar bg-[#a5b8c0] border-b border-black">
+        <div className="flex items-center gap-1.5 font-mono text-xs text-black">
+          <span className="font-ui font-bold text-[10px] uppercase">ARCHIVE</span>
+          <span>/</span>
+          <span className="font-bold">#{rowFormatted}</span>
         </div>
         <Badge status={certificate.status} size="sm" />
       </div>
 
       {/* Middle Content: Certificate Number & Recipient */}
-      <div className="py-4 space-y-3 flex-1">
+      <div className="p-4 space-y-3 flex-1 bg-white">
         <div>
-          <span className="text-[10px] uppercase font-mono-telemetry tracking-wider text-[#7d8b9e] block mb-0.5 font-semibold">
+          <span className="text-[10px] uppercase font-ui tracking-wider text-neutral-600 block mb-0.5 font-bold">
             CERTIFICATE IDENTIFIER
           </span>
           <p
-            className={`font-mono-telemetry text-xs font-bold tracking-tight truncate ${
+            className={`font-mono text-xs font-bold tracking-tight truncate ${
               isGenerated
-                ? 'text-[#15803d]'
+                ? 'text-black'
                 : isPending
-                  ? 'text-[#b45309] italic'
-                  : 'text-[#9ea8b6] line-through'
+                  ? 'text-[#8e8a25] italic'
+                  : 'text-neutral-400 line-through'
             }`}
             title={certificate.certificate_number || 'Awaiting generation'}
           >
-            {certificate.certificate_number || 'PENDING ASSIGNMENT'}
+            {certificate.certificate_number || 'PENDING ISSUANCE'}
           </p>
         </div>
 
         <div>
           <h2
-            className="text-base font-bold text-[#161a22] tracking-tight truncate font-serif"
+            className="text-base font-bold text-black tracking-tight truncate font-body-dell"
             title={certificate.recipient_name}
           >
             {certificate.recipient_name}
           </h2>
           <p
-            className="text-xs text-[#647287] font-mono-telemetry truncate"
+            className="text-xs text-neutral-600 font-body-dell truncate"
             title={certificate.recipient_email}
           >
             {certificate.recipient_email}
@@ -76,10 +76,10 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({
         {/* Status Specific Notes */}
         {isFailed && certificate.error && (
           <div
-            className="p-2.5 rounded bg-[#fef2f2] border border-[#fecaca] text-[11px] text-[#b83a34] font-mono-telemetry flex items-start gap-1.5"
+            className="p-2 border border-black bg-[#d77a7a]/20 text-[11px] text-[#e91d2a] font-mono flex items-start gap-1.5"
             role="alert"
           >
-            <AlertCircle className="w-3.5 h-3.5 text-[#b83a34] shrink-0 mt-0.5" />
+            <AlertCircle className="w-3.5 h-3.5 text-[#e91d2a] shrink-0 mt-0.5" />
             <span className="truncate" title={`${certificate.error.type}: ${certificate.error.message}`}>
               {certificate.error.message}
             </span>
@@ -87,34 +87,34 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({
         )}
 
         {isPending && (
-          <div className="text-[11px] text-[#b45309] font-mono-telemetry flex items-center gap-1.5 font-medium">
-            <Clock className="w-3.5 h-3.5 text-[#b45309]" />
+          <div className="text-[11px] text-[#8e8a25] font-mono flex items-center gap-1.5 font-bold">
+            <Clock className="w-3.5 h-3.5 text-black" />
             <span>Awaiting pipeline worker processing</span>
           </div>
         )}
 
         {isGenerated && (
-          <div className="text-[11px] text-[#15803d] font-mono-telemetry flex items-center gap-1.5 font-medium">
-            <FileCheck className="w-3.5 h-3.5 text-[#15803d]" />
+          <div className="text-[11px] text-black font-serif flex items-center gap-1.5">
+            <FileCheck className="w-3.5 h-3.5 text-black" />
             <span>Authoritative PDF compiled & stored</span>
           </div>
         )}
       </div>
 
       {/* Actions Bar */}
-      <div className="pt-3 border-t border-[#ece5d6] flex items-center gap-2">
+      <div className="p-3 border-t-2 border-black bg-neutral-50 flex items-center gap-2">
         {isGenerated ? (
           <>
             <Button
               variant="primary"
               size="sm"
               onClick={() => onInspect(certificate)}
-              className="flex-1 text-xs font-mono-telemetry"
+              className="flex-1 text-xs"
               aria-label={`Inspect certificate for ${certificate.recipient_name}`}
-              title="Open Certificate in Inspector (Phase F6)"
+              title="Open Certificate in Inspector"
             >
               <Eye className="w-3.5 h-3.5 mr-1" />
-              Inspect
+              INSPECT
             </Button>
 
             <Button
@@ -123,7 +123,7 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({
               onClick={() => onDownload(certificate)}
               isLoading={isDownloading}
               disabled={isDownloading}
-              className="text-xs font-mono-telemetry px-2.5"
+              className="text-xs px-2.5"
               aria-label={`Download PDF for ${certificate.recipient_name}`}
               title="Download official PDF document"
             >
@@ -132,7 +132,7 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({
             </Button>
           </>
         ) : (
-          <div className="w-full text-center py-1 text-[11px] font-mono-telemetry text-[#7d8b9e] bg-[#fbf9f4] rounded border border-[#e2dac9] font-medium">
+          <div className="w-full text-center py-1 text-[11px] font-ui font-bold uppercase tracking-wider text-neutral-500 border border-black bg-white">
             {isPending ? 'ACTIONS PENDING' : 'DOCUMENT UNAVAILABLE'}
           </div>
         )}

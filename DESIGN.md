@@ -167,4 +167,4 @@ Preconnected in `frontend/index.html` via Google Fonts with `display=swap`. Full
 2. **NO Heavy Glassmorphism Blobs**: No excessive `backdrop-filter: blur(40px)` layers that impair performance or reduce contrast over paper textures.
 3. **NO Fake Telemetry**: Never simulate progress or fabricate certificate results. All numbers reflect actual backend API responses.
 4. **NO Mock Certificates**: Never replace the downloadable PDF or 3D canvas with an image approximation.
-5. **NO Backend Modifications**: Backend is strictly frozen at commit `cf5bb3d`.
+5. **Backend Decoupling & Stability**: Frontend interfaces cleanly with the Django + Celery production backend release `v1.0.0`.

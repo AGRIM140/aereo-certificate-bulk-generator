@@ -9,6 +9,7 @@ ERRORS = {
     405: ("method_not_allowed", "This method is not allowed."),
     409: ("certificate_not_available", "Certificate is not available."),
     415: ("unsupported_media_type", "The content type is not supported."),
+    503: ("storage_unavailable", "Certificate storage is temporarily unavailable."),
 }
 
 

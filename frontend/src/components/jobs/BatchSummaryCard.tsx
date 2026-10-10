@@ -1,7 +1,6 @@
 import React from 'react';
-import { Send, CheckCircle2, AlertCircle, Info, Sparkles } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/Card';
 
 export interface BatchSummaryCardProps {
   eventName: string;
@@ -23,107 +22,110 @@ export const BatchSummaryCard: React.FC<BatchSummaryCardProps> = ({
   onSubmit,
 }) => {
   return (
-    <Card variant="elevated" className="sticky top-20 shadow-md">
-      <CardHeader>
-        <CardTitle>BATCH TELEMETRY SUMMARY</CardTitle>
+    <div className="border-2 border-black bg-white shadow-[3px_3px_0px_#000000] sticky top-20">
+      {/* Header with Ribbon Title */}
+      <div className="bg-white border-b-2 border-black px-4 py-2.5 flex items-center justify-between gap-2">
+        <h3 className="font-ui font-bold uppercase text-xs text-black">
+          BATCH CONFIGURATION SUMMARY
+        </h3>
         <span
-          className={`inline-flex items-center gap-1 font-mono-telemetry text-[10px] font-semibold uppercase px-2 py-0.5 rounded border ${
+          className={`font-ui text-[10px] font-bold uppercase px-2 py-0.5 border border-black flex items-center gap-1 ${
             isValid && recipientCount > 0
-              ? 'bg-[#f0fdf4] border-[#bbf7d0] text-[#15803d]'
-              : 'bg-[#fffbeb] border-[#fde68a] text-[#92400e]'
+              ? 'bg-[#c0d4a7] text-black'
+              : 'bg-[#fcc20f] text-black'
           }`}
         >
           {isValid && recipientCount > 0 ? (
             <>
-              <CheckCircle2 className="w-3 h-3" />
-              <span>READY TO DISPATCH</span>
+              <CheckCircle2 className="w-3 h-3 text-black" />
+              <span>READY</span>
             </>
           ) : (
             <>
-              <AlertCircle className="w-3 h-3" />
-              <span>INCOMPLETE INPUT</span>
+              <AlertCircle className="w-3 h-3 text-black" />
+              <span>INCOMPLETE</span>
             </>
           )}
         </span>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-4 text-xs">
+      <div className="p-4 space-y-3.5 text-xs font-serif text-black">
         {/* Event */}
-        <div className="space-y-1 pb-3 border-b border-[#ece5d6]">
-          <div className="text-[10px] font-mono-telemetry uppercase text-[#7d8b9e] font-semibold">
+        <div className="pb-2.5 border-b border-black">
+          <div className="text-[10px] font-ui uppercase font-bold text-neutral-600">
             EVENT NAME
           </div>
-          <div className="font-semibold text-[#161a22] truncate">
-            {eventName.trim() || <span className="text-[#9ea8b6] italic">Not specified</span>}
+          <div className="font-bold text-sm text-black truncate mt-0.5">
+            {eventName.trim() || <span className="text-neutral-400 italic">Not specified</span>}
           </div>
         </div>
 
         {/* Organization */}
-        <div className="space-y-1 pb-3 border-b border-[#ece5d6]">
-          <div className="text-[10px] font-mono-telemetry uppercase text-[#7d8b9e] font-semibold">
+        <div className="pb-2.5 border-b border-black">
+          <div className="text-[10px] font-ui uppercase font-bold text-neutral-600">
             ORGANIZATION
           </div>
-          <div className="font-semibold text-[#161a22] truncate">
-            {orgName.trim() || <span className="text-[#9ea8b6] italic">Not specified</span>}
+          <div className="font-bold text-sm text-black truncate mt-0.5">
+            {orgName.trim() || <span className="text-neutral-400 italic">Not specified</span>}
           </div>
         </div>
 
         {/* Issue Date */}
-        <div className="space-y-1 pb-3 border-b border-[#ece5d6]">
-          <div className="text-[10px] font-mono-telemetry uppercase text-[#7d8b9e] font-semibold">
+        <div className="pb-2.5 border-b border-black">
+          <div className="text-[10px] font-ui uppercase font-bold text-neutral-600">
             ISSUE DATE
           </div>
-          <div className="font-mono-telemetry text-[#2d3748] font-medium">
-            {issueDate || <span className="text-[#9ea8b6]">Defaults to today</span>}
+          <div className="font-mono text-xs text-black font-bold mt-0.5">
+            {issueDate || <span className="text-neutral-400">Defaults to today</span>}
           </div>
         </div>
 
         {/* Recipient Count Gauge */}
-        <div className="space-y-1.5 pb-3 border-b border-[#ece5d6]">
-          <div className="flex justify-between items-center text-[10px] font-mono-telemetry uppercase text-[#7d8b9e] font-semibold">
+        <div className="space-y-1 pb-2.5 border-b border-black">
+          <div className="flex justify-between items-center text-[10px] font-ui uppercase font-bold text-neutral-600">
             <span>TOTAL RECIPIENTS</span>
-            <span className="text-[#161a22] font-bold">{recipientCount} / 500</span>
+            <span className="text-black font-black">{recipientCount} / 500</span>
           </div>
-          <div className="w-full bg-[#ede5d4] rounded-full h-2 overflow-hidden border border-[#dcd3c1]">
+          <div className="w-full bg-[#dfdfdf] h-3 border border-black overflow-hidden">
             <div
-              className={`h-full transition-all duration-300 rounded-full ${
-                recipientCount > 500 ? 'bg-[#b83a34]' : 'bg-[#15803d]'
+              className={`h-full transition-none ${
+                recipientCount > 500 ? 'bg-[#e91d2a]' : 'bg-black'
               }`}
               style={{ width: `${Math.min(100, (recipientCount / 500) * 100)}%` }}
             />
           </div>
         </div>
 
-        {/* Operational Note */}
-        <div className="p-3 rounded bg-[#f9f5ec] border border-[#e2dac9] space-y-1.5">
-          <div className="flex items-center gap-1.5 text-[#1f304d] font-mono-telemetry text-[11px] font-semibold">
-            <Info className="w-3.5 h-3.5 text-[#1f304d] shrink-0" />
-            <span>DISPATCH PIPELINE</span>
+        {/* Operational Note (Tint Sky) */}
+        <div className="p-2.5 bg-[#9ab6c8] border border-black space-y-1">
+          <div className="flex items-center gap-1.5 text-black font-ui text-[11px] font-bold uppercase">
+            <Info className="w-3.5 h-3.5 text-black shrink-0" />
+            <span>ATELIER DISPATCH NOTE</span>
           </div>
-          <p className="text-[11px] text-[#556377] leading-relaxed">
-            Dispatching stores batch records in PostgreSQL and enqueues Celery background tasks. You will be redirected immediately to the live job progress monitor.
+          <p className="text-[11px] font-serif text-black leading-relaxed">
+            Upon submission, the batch is durably enqueued in PostgreSQL. Celery workers immediately begin ReportLab PDF rasterization with zero recipient leakage.
           </p>
         </div>
-      </CardContent>
+      </div>
 
-      <CardFooter className="flex flex-col gap-2">
+      {/* Footer Dispatch Action in Dell Red Panel Style */}
+      <div className="p-4 border-t-2 border-black bg-neutral-100 flex flex-col gap-2">
         <Button
-          variant="primary"
+          variant="danger"
           size="lg"
-          onClick={onSubmit}
-          isLoading={isSubmitting}
           disabled={isSubmitting}
-          leftIcon={<Sparkles className="w-4 h-4" />}
-          rightIcon={<Send className="w-4 h-4" />}
-          className="w-full font-semibold shadow-sm"
+          isLoading={isSubmitting}
+          onClick={onSubmit}
+          leftIcon={<Send className="w-4 h-4" />}
+          className="w-full justify-center shadow-[2px_2px_0px_#000000]"
         >
           {isSubmitting ? 'Generating Batch…' : 'Generate Certificates'}
         </Button>
 
-        <p className="text-[10px] text-center font-mono-telemetry text-[#7d8b9e]">
-          HTTP 202 ACCEPTED → ASYNCHRONOUS WORKER QUEUE
+        <p className="text-[10px] font-serif text-center text-neutral-600">
+          HTTP 202 Accepted • Instant Transition to Job Ledger
         </p>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };

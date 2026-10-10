@@ -11,21 +11,21 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const variantStyles: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
-    'bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm border border-emerald-700/80 active:translate-y-px',
+    'bg-black bg-emerald-600 hover:bg-neutral-800 text-white font-ui font-bold uppercase tracking-wider border border-black active:translate-y-px rounded-none',
   secondary:
-    'bg-[#ffffff] hover:bg-[#fbf8f2] text-[#1e2633] border border-[#dcd3c1] shadow-[0_1px_2px_rgba(30,20,10,0.04)] hover:border-[#c5b9a4] active:translate-y-px',
+    'bg-white hover:bg-neutral-100 text-black font-ui font-bold uppercase tracking-wider border border-black active:translate-y-px rounded-none shadow-[1px_1px_0px_#000000]',
   outline:
-    'bg-transparent hover:bg-[#f5eee2]/70 text-[#2d3748] border border-[#dcd3c1] active:translate-y-px',
+    'bg-transparent hover:bg-neutral-100 text-black font-ui font-bold uppercase tracking-wider border border-black active:translate-y-px rounded-none',
   ghost:
-    'bg-transparent hover:bg-[#ece3d4]/60 text-[#3b4759] border border-transparent',
+    'bg-transparent hover:bg-neutral-200 text-black font-ui font-bold uppercase tracking-wider border border-transparent rounded-none',
   danger:
-    'bg-[#fef2f2] hover:bg-[#fee2e2] text-[#b83a34] border border-[#b83a34]/40 shadow-sm active:translate-y-px',
+    'bg-[#e91d2a] hover:bg-red-700 text-white font-ui font-bold uppercase tracking-wider border border-black active:translate-y-px rounded-none shadow-[1px_1px_0px_#000000]',
 };
 
 const sizeStyles: Record<NonNullable<ButtonProps['size']>, string> = {
-  sm: 'px-2.5 py-1 text-xs gap-1.5 rounded',
-  md: 'px-3.5 py-1.5 text-sm gap-2 rounded-md',
-  lg: 'px-5 py-2.5 text-base gap-2.5 rounded-md',
+  sm: 'px-2.5 py-1 text-xs gap-1.5',
+  md: 'px-4 py-1.5 text-xs gap-2',
+  lg: 'px-6 py-2.5 text-sm gap-2.5',
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -51,16 +51,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         disabled={isDisabled}
-        className={`inline-flex items-center justify-center font-sans tracking-wide transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f304d] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f6f3eb] disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed select-none ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        className={`inline-flex items-center justify-center transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed select-none ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
         {...props}
       >
         {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
+          <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" aria-hidden="true" />
         ) : (
           leftIcon && <span className="shrink-0">{leftIcon}</span>
         )}
         <span>{children}</span>
-        {!isLoading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
+        {rightIcon && <span className="shrink-0">{rightIcon}</span>}
       </button>
     );
   }

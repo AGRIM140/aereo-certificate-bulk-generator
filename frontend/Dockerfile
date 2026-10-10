@@ -17,7 +17,10 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+ENV PORT=80 \
+    BACKEND_URL=http://backend:8000 \
+    NGINX_ENVSUBST_FILTER="^(PORT|BACKEND_URL)$"
 
 # Copy build artifacts
 COPY --from=builder /app/dist /usr/share/nginx/html

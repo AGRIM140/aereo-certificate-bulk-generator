@@ -56,7 +56,7 @@ function renderInspector(certId = 'c1111111-1111-1111-1111-111111111111') {
   );
 }
 
-describe('CertificateInspectorPage Integration (Phase F6 Zero-Divergence)', () => {
+describe('CertificateInspectorPage Integration (Zero-Divergence)', () => {
   let mockPdfBlob: Blob;
 
   beforeEach(() => {

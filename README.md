@@ -1,6 +1,17 @@
 # Bulk Certificate Generator
 
-A robust, production-grade backend REST API built with **Django**, **Django REST Framework (DRF)**, **PostgreSQL**, **Celery**, and **Redis** that generates personalized PDF certificates in bulk from a predefined design template.
+A full-stack certificate generator with a React/TypeScript frontend and a **Django**, **Django REST Framework (DRF)**, **PostgreSQL**, **Celery**, and **Redis** backend that generates personalized PDFs in bulk from a predefined design template.
+
+## GitHub release and Railway deployment
+
+See [the deployment guide](docs/deployment.md) for the backend, worker and Nginx
+service configuration, private persistent bucket storage, runtime variables,
+health checks, deployment procedure and live acceptance checks. Local development
+retains filesystem storage. `.env.example` contains placeholders only.
+
+The public assignment demo has no authentication: use synthetic recipient data.
+Private bucket storage does not restrict access through the application's API.
+Archive/Vault state is stored in the browser and does not delete backend records.
 
 Clients submit a single JSON request containing event details and a list of participants. The API validates the payload, durably records the job and individual certificate records in PostgreSQL, and dispatches background generation tasks via Celery. A background worker generates high-quality PDF certificates using ReportLab by overlaying dynamic text onto a static template image. The API provides real-time progress tracking, failure isolation, individual PDF downloads, bulk ZIP archive downloads, and stale-job recovery.
 
@@ -191,10 +202,11 @@ python manage.py test --verbosity 2
 ```
 
 ### Test Suite Verification Status
-- **Total Tests:** 140 passed
-- **Execution Time:** ~5.4 seconds
-- **Stability:** Zero flakiness verified across 3 consecutive complete suite runs
-- **Coverage Areas:** Job creation atomicity, request/recipient validation, template PDF rendering, status progress, per-certificate failure isolation, metadata retrieval, binary streaming, bulk ZIP download, stale-job management commands, and Django admin registration.
+
+- **Latest backend run:** 156 tests passed against PostgreSQL (Windows 10.255s; Linux production image 8.329s).
+- **Latest frontend run:** 138 tests passed in 18 Vitest files; lint, TypeScript and production build passed.
+- **Coverage Areas:** Job creation atomicity, request/recipient validation, template PDF rendering, status progress, per-certificate failure isolation, retrieval, PDF/ZIP download, stale-job recovery, private storage and deployment configuration.
+- See [release verification evidence](qa_evidence/release_verification_report.md) for exact commands and the distinction between local and live verification.
 
 ---
 
@@ -519,15 +531,15 @@ For multi-node enterprise scale:
 
 ## Known Limitations & Documented Assumptions
 
-1. **No Authentication:** In accordance with the assignment specification, API endpoints do not require authentication or API keys.
+1. **No Authentication:** API endpoints operate without authentication or API keys. No authenticated gateway is included; public deployments must use synthetic data.
 2. **Recipient Limit:** Each job is capped at `MAX_RECIPIENTS_PER_JOB=500` (configurable in `.env`).
 3. **Latin Character Set:** Names must be in Latin script (accents like `é`, `ü`, `ñ` are supported). Non-Latin scripts (e.g., Devanagari, Cyrillic, CJK) are not supported by the bundled serif font.
-4. **Shared Storage:** Web server and Celery worker must have access to the same local `MEDIA_ROOT` folder.
+4. **Shared Storage:** Local Compose shares `MEDIA_ROOT`. Railway backend and worker must use the same private S3-compatible bucket; their container filesystems are separate and ephemeral.
 5. **No Automatic Retries:** Individual generation failures are recorded and isolated, but the system does not automatically retry failed certificates.
 
 ---
 
-## Scale Benchmark Results (Verified Phase 10)
+## Scale Benchmark Results (Verified Production Engine)
 
 A live end-to-end benchmark was executed with 500 recipients against PostgreSQL 17.11, Redis 8.10, and a live Celery worker:
 
@@ -596,7 +608,7 @@ docker compose down
 Once running:
 - **Web Application:** `http://localhost:5173/`
 - **Backend API:** `http://localhost:8000/api/`
-- **Django Admin:** `http://localhost:8000/admin/`
+- **Backend readiness:** `http://localhost:8000/health/` (the admin route is not exposed).
 
 ---
 
@@ -651,4 +663,3 @@ bulk-certificate-generator/
     ├── phases.md                           # Phased Implementation Plan & Traceability Matrix
     └── memory.md                           # Living Project Memory & Status Checkpoint
 ```
-

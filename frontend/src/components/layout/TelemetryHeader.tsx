@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, Terminal } from 'lucide-react';
+import { Terminal, Phone } from 'lucide-react';
 
 export const TelemetryHeader: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<string>('');
@@ -16,40 +16,53 @@ export const TelemetryHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="h-14 border-b border-[#e2dac9] bg-[#ffffff]/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30 select-none shadow-[0_1px_3px_rgba(35,25,15,0.03)]">
+    <header className="h-14 border-b-2 border-black bg-black text-white px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 select-none">
+      {/* Brand Identity / Top Banner Headline */}
       <Link
         to="/"
-        className="flex items-center gap-3 hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f304d] rounded p-1"
+        className="flex items-center gap-3 hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white p-1"
       >
-        <div className="w-7 h-7 rounded bg-[#f0fdf4] border border-[#bbf7d0] flex items-center justify-center text-[#15803d]">
+        <div className="w-7 h-7 bg-[#e91d2a] border border-white flex items-center justify-center text-white">
           <Terminal className="w-4 h-4" />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-mono-telemetry text-xs font-bold tracking-wider text-[#161a22]">
+            <span className="font-ui font-bold text-xs tracking-wider text-white uppercase">
               ARCHIVAL TELEMETRY
             </span>
-            <span className="text-[10px] font-mono-telemetry px-1.5 py-0.2 rounded bg-[#f5efe4] text-[#4b5563] border border-[#dcd3c1] font-medium">
-              v1.0
+            <span className="text-[10px] font-ui font-bold px-1.5 py-0.2 bg-[#fcc20f] text-black border border-black">
+              1996 v1.0
             </span>
           </div>
-          <p className="text-[10px] text-[#657388] tracking-tight">
-            High-Volume Document & Certificate Generation
+          <p className="text-[10px] font-serif text-neutral-300 tracking-tight hidden sm:block">
+            High-Volume Vector Document Production & Archive Facility
           </p>
         </div>
       </Link>
 
-      <div className="flex items-center gap-4 text-xs font-mono-telemetry">
-        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded bg-[#fbf9f4] border border-[#e2dac9] text-[#2d3748]">
-          <span className="w-2 h-2 rounded-full bg-[#16a34a] animate-pulse" />
-          <span className="text-[#647287]">ENGINE:</span>
-          <span className="text-[#15803d] font-semibold">cf5bb3d (POSTGRESQL + CELERY)</span>
+      {/* Right Action & Phone Callout Anchor */}
+      <div className="flex items-center gap-3 sm:gap-5 text-xs font-ui">
+        {/* Dell 1996 Signature Red Phone Callout */}
+        <div className="flex items-center gap-1.5 bg-black text-[#e91d2a] border border-[#e91d2a] px-2 py-0.5 font-bold tracking-wider text-[11px] sm:text-xs">
+          <Phone className="w-3 h-3 text-[#e91d2a]" />
+          <span>1-800-CERT-GEN</span>
         </div>
 
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#fbf9f4] border border-[#e2dac9] text-[#4a5568]">
-          <Activity className="w-3.5 h-3.5 text-[#1f304d]" />
-          <span>{currentTime || 'SYNCHRONIZING...'}</span>
+        {/* Engine status indicator & Clock */}
+        <div className="hidden lg:flex items-center gap-2 px-2 py-0.5 bg-neutral-900 border border-neutral-700 text-[10px] text-neutral-300 font-mono">
+          <span className="w-2 h-2 bg-[#8e8a25]" />
+          <span>ENGINE: RELEASE v1.0.0</span>
+          {currentTime && <span className="text-neutral-500">| {currentTime}</span>}
         </div>
+
+        {/* Yellow 'NEW BATCH' Tab Sticker */}
+        <Link
+          to="/jobs/new"
+          className="dell-sticker-yellow px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 hover:bg-yellow-400"
+        >
+          <span className="bg-[#6a26a4] text-white px-1 text-[9px] font-bold">NEW</span>
+          <span>DISPATCH</span>
+        </Link>
       </div>
     </header>
   );

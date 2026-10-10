@@ -46,28 +46,28 @@ export const InspectorLoading: React.FC<InspectorLoadingProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="pb-4 border-b border-[#e2dac9]">
-        <h1 className="text-xl font-bold tracking-tight text-[#161a22] font-mono-telemetry uppercase">
+      <div className="border-2 border-black bg-[#9ab6c8] p-3 shadow-[2px_2px_0px_#000000]">
+        <h1 className="text-lg sm:text-xl font-black uppercase font-ui tracking-wide text-black">
           CERTIFICATE INSPECTOR
         </h1>
-        <p className="text-xs text-[#647287] mt-1 font-mono-telemetry">
+        <p className="text-xs font-serif text-black mt-0.5">
           INITIALIZING ZERO-DIVERGENCE PIPELINE FOR {certificateId || 'DOCUMENT'}…
         </p>
       </div>
 
-      <div className="bg-[#ffffff] border border-[#dcd3c1] rounded-lg p-12 text-center space-y-6 shadow-sm text-[#161a22]">
+      <div className="bg-white border-2 border-black p-12 text-center space-y-6 shadow-[2px_2px_0px_#000000] text-black">
         <div className="flex justify-center">
           <div className="relative">
-            <Loader2 className="w-10 h-10 text-[#1f304d] animate-spin" />
-            <FileCode className="w-4 h-4 text-[#1f304d] absolute inset-0 m-auto" />
+            <Loader2 className="w-10 h-10 text-black animate-spin" />
+            <FileCode className="w-4 h-4 text-black absolute inset-0 m-auto" />
           </div>
         </div>
 
         <div className="space-y-1.5 max-w-md mx-auto">
-          <p className="text-sm font-bold text-[#161a22] font-mono-telemetry tracking-wide">
+          <p className="text-sm font-bold text-black font-ui uppercase tracking-wide">
             {current.label}
           </p>
-          <p className="text-xs text-[#647287] font-mono-telemetry">
+          <p className="text-xs text-neutral-600 font-serif">
             {current.detail}
           </p>
         </div>
@@ -82,23 +82,23 @@ export const InspectorLoading: React.FC<InspectorLoadingProps> = ({
             return (
               <div
                 key={key}
-                className={`p-2 rounded border text-[10px] font-mono-telemetry transition-colors ${
+                className={`p-2 border border-black text-[10px] font-mono transition-none ${
                   isCurrent
-                    ? 'border-[#3b82f6]/60 bg-[#edf3fa] text-[#1e3a5f] font-bold shadow-sm'
+                    ? 'bg-[#fcc20f] text-black font-bold shadow-[1px_1px_0px_#000000]'
                     : isCompleted
-                      ? 'border-[#bbf7d0] bg-[#f0fdf4] text-[#15803d]'
-                      : 'border-[#e2dac9] bg-[#fbf9f4] text-[#7d8b9e]'
+                      ? 'bg-[#c0d4a7] text-black'
+                      : 'bg-neutral-100 text-neutral-500'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span>STEP 0{idx + 1}</span>
                   {isCompleted ? (
-                    <CheckCircle2 className="w-3 h-3 text-[#15803d]" />
+                    <CheckCircle2 className="w-3 h-3 text-black" />
                   ) : isCurrent ? (
-                    <span className="w-2 h-2 rounded-full bg-[#2563eb] animate-ping" />
+                    <span className="w-2 h-2 bg-black" />
                   ) : null}
                 </div>
-                <div className="truncate font-semibold">{item.label.split(' ')[0]}</div>
+                <div className="truncate font-bold font-ui uppercase">{item.label.split(' ')[0]}</div>
               </div>
             );
           })}

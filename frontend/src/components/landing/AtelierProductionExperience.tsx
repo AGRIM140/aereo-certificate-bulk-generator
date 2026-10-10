@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   PlusCircle,
@@ -156,113 +156,116 @@ export const AtelierProductionExperience: React.FC = () => {
    * Calculates continuous opacity and translation with strict mutual exclusion.
    * Guarantees zero overlapping text between adjacent acts.
    */
-  const getActStyle = useMemo(() => {
+  const getActStyle = (act: ActMeta): { opacity: number; transform: string; pointerEvents: 'auto' | 'none'; visibility: 'visible' | 'hidden'; zIndex: number } => {
     // Transition boundary points between Acts [I-II, II-III, III-IV, IV-V]
     const boundaries = [0.20, 0.42, 0.66, 0.88];
-    const halfWidth = 0.025; // 0.05 total crossfade window
+    const halfWidth = 0.012; // 0.024 tight clean crossfade window
+    const p = scrollProgress;
+    const actIndex = ACTS.findIndex((a) => a.id === act.id);
+    const isActive = activeAct === act.id;
 
-    return (act: ActMeta): { opacity: number; transform: string; pointerEvents: 'auto' | 'none'; visibility: 'visible' | 'hidden' } => {
-      const p = scrollProgress;
-      const actIndex = ACTS.findIndex((a) => a.id === act.id);
+    // Entry phase (acts after Act I)
+    if (actIndex > 0) {
+      const entryCenter = boundaries[actIndex - 1];
+      const entryStart = entryCenter - halfWidth;
+      const entryEnd = entryCenter + halfWidth;
 
-      // Entry phase (acts after Act I)
-      if (actIndex > 0) {
-        const entryCenter = boundaries[actIndex - 1];
-        const entryStart = entryCenter - halfWidth;
-        const entryEnd = entryCenter + halfWidth;
-
-        if (p < entryStart) {
-          return {
-            opacity: 0,
-            transform: 'translate3d(0, 24px, 0) scale(0.96)',
-            pointerEvents: 'none',
-            visibility: 'hidden',
-          };
-        }
-
-        if (p <= entryEnd) {
-          const t = (p - entryStart) / (entryEnd - entryStart);
-          const ease = 0.5 - 0.5 * Math.cos(t * Math.PI);
-          const scale = 0.96 + 0.04 * ease;
-          const y = (1 - ease) * 24;
-          return {
-            opacity: ease,
-            transform: `translate3d(0, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`,
-            pointerEvents: ease > 0.6 ? 'auto' : 'none',
-            visibility: ease > 0.01 ? 'visible' : 'hidden',
-          };
-        }
+      if (p < entryStart) {
+        return {
+          opacity: 0,
+          transform: 'translate3d(0, 16px, 0) scale(0.98)',
+          pointerEvents: 'none',
+          visibility: 'hidden',
+          zIndex: 10,
+        };
       }
 
-      // Exit phase (acts before Act V)
-      if (actIndex < ACTS.length - 1) {
-        const exitCenter = boundaries[actIndex];
-        const exitStart = exitCenter - halfWidth;
-        const exitEnd = exitCenter + halfWidth;
+      if (p <= entryEnd) {
+        const t = (p - entryStart) / (entryEnd - entryStart);
+        const ease = 0.5 - 0.5 * Math.cos(t * Math.PI);
+        const scale = 0.98 + 0.02 * ease;
+        const y = (1 - ease) * 16;
+        return {
+          opacity: ease,
+          transform: `translate3d(0, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`,
+          pointerEvents: ease > 0.6 ? 'auto' : 'none',
+          visibility: ease > 0.01 ? 'visible' : 'hidden',
+          zIndex: isActive ? 20 : 10,
+        };
+      }
+    }
 
-        if (p > exitEnd) {
-          return {
-            opacity: 0,
-            transform: 'translate3d(0, -24px, 0) scale(0.96)',
-            pointerEvents: 'none',
-            visibility: 'hidden',
-          };
-        }
+    // Exit phase (acts before Act V)
+    if (actIndex < ACTS.length - 1) {
+      const exitCenter = boundaries[actIndex];
+      const exitStart = exitCenter - halfWidth;
+      const exitEnd = exitCenter + halfWidth;
 
-        if (p >= exitStart) {
-          const t = (p - exitStart) / (exitEnd - exitStart);
-          const ease = 0.5 - 0.5 * Math.cos(t * Math.PI);
-          const opacity = 1 - ease;
-          const scale = 0.96 + 0.04 * opacity;
-          const y = -ease * 24;
-          return {
-            opacity,
-            transform: `translate3d(0, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`,
-            pointerEvents: opacity > 0.6 ? 'auto' : 'none',
-            visibility: opacity > 0.01 ? 'visible' : 'hidden',
-          };
-        }
+      if (p > exitEnd) {
+        return {
+          opacity: 0,
+          transform: 'translate3d(0, -16px, 0) scale(0.98)',
+          pointerEvents: 'none',
+          visibility: 'hidden',
+          zIndex: 10,
+        };
       }
 
-      // Fully active interior window
-      return {
-        opacity: 1.0,
-        transform: 'translate3d(0, 0px, 0) scale(1.0)',
-        pointerEvents: 'auto',
-        visibility: 'visible',
-      };
+      if (p >= exitStart) {
+        const t = (p - exitStart) / (exitEnd - exitStart);
+        const ease = 0.5 - 0.5 * Math.cos(t * Math.PI);
+        const opacity = 1 - ease;
+        const scale = 0.98 + 0.02 * opacity;
+        const y = -ease * 16;
+        return {
+          opacity,
+          transform: `translate3d(0, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`,
+          pointerEvents: opacity > 0.6 ? 'auto' : 'none',
+          visibility: opacity > 0.01 ? 'visible' : 'hidden',
+          zIndex: isActive ? 20 : 10,
+        };
+      }
+    }
+
+    // Fully active interior window
+    return {
+      opacity: 1.0,
+      transform: 'translate3d(0, 0px, 0) scale(1.0)',
+      pointerEvents: 'auto',
+      visibility: 'visible',
+      zIndex: 20,
     };
-  }, [scrollProgress]);
+  };
 
   return (
     <section
       id="atelier-experience"
       ref={containerRef}
-      className="relative min-h-[450vh] bg-[#0c0e14] select-none"
+      className="relative min-h-[450vh] bg-white text-black select-none"
       data-testid="atelier-production-experience"
     >
       {/* 1. STICKY FULL-VIEWPORT 3D LIVE CINEMATIC THEATRE */}
-      <div className="sticky top-0 h-[100dvh] w-full overflow-hidden z-0">
+      <div className="sticky top-0 h-[100dvh] w-full overflow-hidden z-0 bg-white">
         <LandingScene scrollProgress={scrollProgress} className="w-full h-full" />
 
-        {/* Floating Master Navigation Island (Anti-Slop Pill Architecture) */}
+        {/* Floating Master Navigation Island (Dell 1996 Catalog Ribbon Bar) */}
         <div className="absolute top-4 inset-x-0 mx-auto w-[92%] max-w-4xl z-30 pointer-events-auto">
-          <div className="p-1 rounded-full bg-black/25 backdrop-blur-md ring-1 ring-white/10">
-            <div className="bg-[#ffffff]/95 backdrop-blur-md rounded-full px-4 sm:px-5 py-2 flex items-center justify-between shadow-xl text-xs font-mono-telemetry border border-[#e2dac9]">
+          <div className="p-0.5 rounded-none bg-black shadow-[4px_4px_0px_#000]">
+            <div className="bg-white rounded-none px-4 sm:px-5 py-2 flex items-center justify-between border-2 border-black text-xs font-ui">
               {/* Active Stage Indicator */}
               <div className="flex items-center gap-2.5">
-                <span className="font-bold text-[#161a22] hidden sm:flex items-center gap-1.5">
-                  <Terminal className="w-3.5 h-3.5 text-[#1f304d]" />
+                <span className="font-bold text-black hidden sm:flex items-center gap-1.5 uppercase">
+                  <Terminal className="w-3.5 h-3.5 text-black" />
                   ATELIER
                 </span>
-                <span className="hidden sm:inline text-[#dcd3c1]">/</span>
-                <span className="text-[#15803d] font-bold flex items-center gap-1.5 text-[11px]">
-                  <span className="w-2 h-2 rounded-full bg-[#15803d] animate-pulse" />
+                <span className="hidden sm:inline text-neutral-400">/</span>
+                <span className="text-black font-bold flex items-center gap-1.5 text-[11px] uppercase">
+                  <span className="w-2 h-2 bg-[#e91d2a]" />
                   {ACTS.find((a) => a.id === activeAct)?.badge}
                 </span>
               </div>
 
-              {/* Interactive Stage Scrub Pills */}
+              {/* Interactive Stage Scrub Tabs */}
               <div className="flex items-center gap-1">
                 {ACTS.map((act) => {
                   const isActive = activeAct === act.id;
@@ -271,22 +274,22 @@ export const AtelierProductionExperience: React.FC = () => {
                       type="button"
                       key={act.id}
                       onClick={() => scrollToAct(act.id)}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                      className={`px-2.5 py-1 rounded-none text-[11px] font-bold border border-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 uppercase ${
                         isActive
-                          ? 'bg-[#1f304d] text-white shadow-sm'
-                          : 'bg-[#fbf9f4] border border-[#e2dac9] text-[#7d8b9e] hover:text-[#161a22] hover:border-[#b8a892]'
+                          ? 'bg-black text-white shadow-none'
+                          : 'bg-white text-black hover:bg-neutral-100'
                       }`}
                     >
                       <span>{act.id}</span>
-                      <span className="hidden md:inline font-mono text-[10px] opacity-60">• {act.navLabel}</span>
+                      <span className="hidden md:inline font-mono text-[10px] opacity-75">• {act.navLabel}</span>
                     </button>
                   );
                 })}
               </div>
 
               {/* Progress Telemetry */}
-              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-[#1f304d]">
-                <span className="w-2 h-2 rounded-sm bg-[#c5a059]" />
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold font-mono text-black">
+                <span className="w-2 h-2 bg-[#fcc20f] border border-black" />
                 <span>{Math.round(scrollProgress * 100)}%</span>
               </div>
             </div>
@@ -294,36 +297,39 @@ export const AtelierProductionExperience: React.FC = () => {
         </div>
 
         {/* Ambient Interaction Guide (Bottom Center) */}
-        <div className="absolute bottom-4 inset-x-0 mx-auto w-max z-20 pointer-events-none hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#161b24]/85 backdrop-blur border border-[#3e4d66] text-[10px] font-mono-telemetry text-[#cad5e2] shadow-lg">
-          <Compass className="w-3.5 h-3.5 text-[#c5a059] animate-spin-slow" />
-          <span>DRAG 360° TO INSPECT ATELIER PRESS</span>
-          <span className="text-[#475569]">|</span>
-          <span className="text-[#c5a059]">SCROLL ADVANCES NARRATIVE</span>
+        <div className="absolute bottom-4 inset-x-0 mx-auto w-max z-20 pointer-events-none hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-none bg-black border-2 border-black text-[10px] font-ui font-bold text-white shadow-[3px_3px_0px_#000]">
+          <Compass className="w-3.5 h-3.5 text-[#fcc20f] animate-spin-slow" />
+          <span>DRAG 360° TO INSPECT 1996 CAD WORKSTATION</span>
+          <span className="text-neutral-500">|</span>
+          <span className="text-[#fcc20f]">SCROLL ADVANCES PRODUCTION STAGES</span>
         </div>
 
         {/* 2. CHOREOGRAPHED PINNED EDITORIAL NARRATIVE ACTS (Smooth In-Place Crossfade) */}
-        <div className="absolute inset-y-0 left-0 w-full lg:w-[46%] xl:w-[42%] flex items-center px-6 sm:px-8 lg:px-12 pointer-events-none z-20">
+        <div className="absolute inset-y-0 left-0 w-full lg:w-[48%] xl:w-[44%] flex items-center px-4 sm:px-8 lg:px-10 pointer-events-none z-20">
           <div className="relative w-full max-w-xl min-h-[460px] flex items-center">
             {/* ACT I: THE ARCHIVAL FOLIO OPENS */}
             <div
               style={getActStyle(ACTS[0])}
               className="absolute inset-x-0 transition-transform duration-75 will-change-transform"
             >
-              <div className="pointer-events-auto p-2 rounded-[2rem] bg-black/15 backdrop-blur-md border border-black/10 shadow-2xl">
-                <div className="p-7 sm:p-9 rounded-[calc(2rem-0.5rem)] bg-[#ffffff] border border-[#e2dac9] shadow-2xl space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fbf9f4] border border-[#dcd3c1] text-xs font-mono-telemetry text-[#2d3748] shadow-sm">
-                    <span className="w-2 h-2 rounded-full bg-[#15803d] animate-pulse" />
-                    <span className="text-[#1f304d] uppercase tracking-wider font-semibold">
-                      ARCHIVE → PAPER → DATA → CERTIFICATE
+              <div className="pointer-events-auto p-1 rounded-none bg-black shadow-[6px_6px_0px_#000]">
+                <div className="p-6 sm:p-8 rounded-none bg-white border-2 border-black space-y-4">
+                  {/* Ribbon Header Strip (Steel) */}
+                  <div className="bg-[#a5b8c0] border-b-2 border-black -mt-6 sm:-mt-8 -mx-6 sm:-mx-8 px-4 py-2 flex items-center justify-between">
+                    <div className="inline-flex items-center gap-2 text-xs font-ui text-black font-bold uppercase tracking-wider">
+                      <span className="w-2.5 h-2.5 bg-[#e91d2a]" />
+                      <span>ARCHIVE → PAPER → DATA → CERTIFICATE</span>
+                    </div>
+                    <span className="font-ui text-[10px] bg-[#fcc20f] text-black border border-black font-bold px-1.5 py-0.2 uppercase">
+                      SPECIFICATION v1.0
                     </span>
-                    <span className="text-[#c5a059] font-bold">✦ SPECIFICATION v1.0</span>
                   </div>
 
-                  <div className="space-y-2.5">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#161a22] font-serif leading-[1.1]">
+                  <div className="space-y-2">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display-dell font-black tracking-tight text-black leading-[1.05] uppercase">
                       HIGH-VOLUME ARCHIVAL CERTIFICATE GENERATION.
                     </h1>
-                    <p className="text-xs sm:text-sm lg:text-base text-[#556377] leading-relaxed font-sans">
+                    <p className="text-xs sm:text-sm text-black font-serif leading-relaxed">
                       Transform structured recipient datasets into high-fidelity, verified, downloadable
                       physical certificates in seconds. Powered by sub-second ReportLab vector compilation,
                       atomic Celery queue dispatch, and zero-divergence 3D physical inspection.
@@ -335,30 +341,26 @@ export const AtelierProductionExperience: React.FC = () => {
                       variant="primary"
                       size="md"
                       onClick={() => navigate('/jobs/new')}
-                      className="rounded-full px-6 py-3 bg-[#1f304d] hover:bg-[#2d4263] text-white text-xs font-mono-telemetry uppercase tracking-wider shadow-md flex items-center justify-center gap-3 group cursor-pointer"
+                      className="rounded-none border-2 border-black px-6 py-2.5 bg-black hover:bg-neutral-800 text-white text-xs font-ui font-bold uppercase tracking-wider shadow-[3px_3px_0px_#000] flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>Initialize Certificate Batch</span>
-                      <span className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center transition-transform group-hover:translate-x-0.5">
-                        <PlusCircle className="w-3.5 h-3.5 text-white" />
-                      </span>
+                      <PlusCircle className="w-3.5 h-3.5" />
                     </Button>
 
                     <Button
                       variant="secondary"
                       size="md"
                       onClick={() => navigate('/jobs')}
-                      className="rounded-full px-6 py-3 text-xs font-mono-telemetry uppercase tracking-wider flex items-center justify-center gap-3 group cursor-pointer"
+                      className="rounded-none border-2 border-black px-6 py-2.5 bg-white hover:bg-neutral-100 text-black text-xs font-ui font-bold uppercase tracking-wider shadow-[3px_3px_0px_#000] flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>View Job Ledger</span>
-                      <span className="w-6 h-6 rounded-full bg-[#1f304d]/10 flex items-center justify-center transition-transform group-hover:translate-x-0.5">
-                        <ArrowRight className="w-3.5 h-3.5 text-[#1f304d]" />
-                      </span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </Button>
                   </div>
 
-                  <div className="pt-2 border-t border-[#ece5d6] flex items-center justify-between text-[11px] font-mono-telemetry text-[#7d8b9e]">
+                  <div className="pt-2 border-t border-black flex items-center justify-between text-xs font-mono text-black">
                     <span>SYSTEM STATUS:</span>
-                    <span className="text-[#15803d] font-bold">READY // 500 RECIPIENTS / BATCH</span>
+                    <span className="bg-[#c0d4a7] text-black px-1.5 py-0.2 font-bold border border-black">READY // 500 RECIPIENTS / BATCH</span>
                   </div>
                 </div>
               </div>
@@ -369,72 +371,81 @@ export const AtelierProductionExperience: React.FC = () => {
               style={getActStyle(ACTS[1])}
               className="absolute inset-x-0 transition-transform duration-75 will-change-transform"
             >
-              <div className="pointer-events-auto p-2 rounded-[2rem] bg-black/15 backdrop-blur-md border border-black/10 shadow-2xl">
-                <div className="p-7 sm:p-9 rounded-[calc(2rem-0.5rem)] bg-[#ffffff] border border-[#e2dac9] shadow-2xl space-y-5">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-[#fbf9f4] border border-[#dcd3c1] text-[11px] font-mono-telemetry text-[#1f304d] font-bold">
-                      ACT II
-                    </span>
-                    <span className="text-xs font-mono-telemetry uppercase tracking-wider text-[#7d8b9e]">
-                      Recipient Data Intake // Feeder Chute
-                    </span>
+              <div className="pointer-events-auto p-1 rounded-none bg-black shadow-[6px_6px_0px_#000]">
+                <div className="p-6 sm:p-8 rounded-none bg-white border-2 border-black space-y-4">
+                  {/* Ribbon Header Strip (Sage) */}
+                  <div className="bg-[#b3bd95] border-b-2 border-black -mt-6 sm:-mt-8 -mx-6 sm:-mx-8 px-4 py-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.2 bg-black text-white text-[10px] font-ui font-bold uppercase">
+                        ACT II
+                      </span>
+                      <span className="font-ui text-xs font-bold uppercase tracking-wider text-black">
+                        Recipient Data Intake // Feeder Chute
+                      </span>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#161a22] font-serif leading-tight">
+                    <h2 className="text-xl sm:text-2xl font-display-dell font-black tracking-tight text-black leading-tight uppercase">
                       STRUCTURED RECIPIENT INGESTION.
                     </h2>
-                    <p className="text-xs sm:text-sm text-[#556377] font-sans leading-relaxed">
+                    <p className="text-xs sm:text-sm text-black font-serif leading-relaxed">
                       Recipient rosters enter the atelier through CSV or JSON imports. Every record is sanitized against RFC 5322 rules, assigned deterministic identifiers, and queued for the mechanical press.
                     </p>
                   </div>
 
                   {/* Specimen Roster Table */}
-                  <div className="border border-[#e2dac9] rounded-xl overflow-hidden font-mono-telemetry text-xs bg-[#fbf9f4]">
-                    <div className="bg-[#ede6d6] px-4 py-2 border-b border-[#e2dac9] flex items-center justify-between text-[#161a22] font-semibold text-[11px]">
-                      <div className="flex items-center gap-2">
-                        <FileSpreadsheet className="w-3.5 h-3.5 text-[#1f304d]" />
+                  <div className="border-2 border-black rounded-none overflow-hidden font-serif text-xs bg-white">
+                    <div className="bg-[#a5b8c0] px-3 py-1.5 border-b-2 border-black flex items-center justify-between text-black font-ui font-bold text-xs uppercase">
+                      <div className="flex items-center gap-1.5">
+                        <FileSpreadsheet className="w-3.5 h-3.5 text-black" />
                         <span>SPECIMEN ROSTER // CHUTE QUEUE</span>
                       </div>
-                      <span className="text-[10px] text-[#7d8b9e]">3 SAMPLE RECORDS</span>
+                      <span className="text-[10px] font-mono">3 SAMPLE RECORDS</span>
                     </div>
 
-                    <div className="divide-y divide-[#ece5d6]">
-                      <div className="px-4 py-2 flex items-center justify-between bg-[#ffffff]">
-                        <div>
-                          <div className="font-bold text-[#161a22]">Elena Rostova, ScD</div>
-                          <div className="text-[11px] text-[#7d8b9e]">Global Quantum Computing Summit</div>
-                        </div>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#f0fdf4] text-[#15803d] border border-[#bbf7d0]">
-                          RFC 5322 VALID
-                        </span>
-                      </div>
-
-                      <div className="px-4 py-2 flex items-center justify-between bg-[#ffffff]">
-                        <div>
-                          <div className="font-bold text-[#161a22]">Marcus Vance, PE</div>
-                          <div className="text-[11px] text-[#7d8b9e]">Advanced Aerospace Symposium</div>
-                        </div>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#f0fdf4] text-[#15803d] border border-[#bbf7d0]">
-                          RFC 5322 VALID
-                        </span>
-                      </div>
-
-                      <div className="px-4 py-2 flex items-center justify-between bg-[#ffffff]">
-                        <div>
-                          <div className="font-bold text-[#161a22]">Aria Chen</div>
-                          <div className="text-[11px] text-[#7d8b9e]">Distributed Cryptography</div>
-                        </div>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#f0fdf4] text-[#15803d] border border-[#bbf7d0]">
-                          RFC 5322 VALID
-                        </span>
-                      </div>
-                    </div>
+                    <table className="dell-table w-full">
+                      <tbody>
+                        <tr>
+                          <td>
+                            <strong className="text-black font-serif">Elena Rostova, ScD</strong>
+                            <div className="text-[10px] text-neutral-600 font-mono">Global Quantum Computing Summit</div>
+                          </td>
+                          <td className="text-right">
+                            <span className="text-[10px] font-ui font-bold px-1.5 py-0.2 bg-[#c0d4a7] text-black border border-black uppercase">
+                              RFC 5322 VALID
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <strong className="text-black font-serif">Marcus Vance, PE</strong>
+                            <div className="text-[10px] text-neutral-600 font-mono">Advanced Aerospace Symposium</div>
+                          </td>
+                          <td className="text-right">
+                            <span className="text-[10px] font-ui font-bold px-1.5 py-0.2 bg-[#c0d4a7] text-black border border-black uppercase">
+                              RFC 5322 VALID
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <strong className="text-black font-serif">Aria Chen</strong>
+                            <div className="text-[10px] text-neutral-600 font-mono">Distributed Cryptography</div>
+                          </td>
+                          <td className="text-right">
+                            <span className="text-[10px] font-ui font-bold px-1.5 py-0.2 bg-[#c0d4a7] text-black border border-black uppercase">
+                              RFC 5322 VALID
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] font-mono-telemetry pt-2 border-t border-[#ece5d6] text-[#7d8b9e]">
+                  <div className="flex items-center justify-between text-xs font-mono pt-2 border-t border-black text-black">
                     <span>FEEDER MECHANISM:</span>
-                    <span className="text-[#15803d] font-bold">CHUTE ENGAGED // PAPERS ADVANCING</span>
+                    <span className="bg-[#c0d4a7] text-black px-1.5 py-0.2 font-bold border border-black">CHUTE ENGAGED // PAPERS ADVANCING</span>
                   </div>
                 </div>
               </div>
@@ -445,77 +456,80 @@ export const AtelierProductionExperience: React.FC = () => {
               style={getActStyle(ACTS[2])}
               className="absolute inset-x-0 transition-transform duration-75 will-change-transform"
             >
-              <div className="pointer-events-auto p-2 rounded-[2rem] bg-black/15 backdrop-blur-md border border-black/10 shadow-2xl">
-                <div className="p-7 sm:p-9 rounded-[calc(2rem-0.5rem)] bg-[#ffffff] border border-[#e2dac9] shadow-2xl space-y-5">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-[#fbf9f4] border border-[#dcd3c1] text-[11px] font-mono-telemetry text-[#1f304d] font-bold">
-                      ACT III
-                    </span>
-                    <span className="text-xs font-mono-telemetry uppercase tracking-wider text-[#7d8b9e]">
-                      Active Atelier Press // Mechanical Compilation
-                    </span>
+              <div className="pointer-events-auto p-1 rounded-none bg-black shadow-[6px_6px_0px_#000]">
+                <div className="p-6 sm:p-8 rounded-none bg-white border-2 border-black space-y-4">
+                  {/* Ribbon Header Strip (Salmon) */}
+                  <div className="bg-[#d77a7a] border-b-2 border-black -mt-6 sm:-mt-8 -mx-6 sm:-mx-8 px-4 py-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.2 bg-black text-white text-[10px] font-ui font-bold uppercase">
+                        ACT III
+                      </span>
+                      <span className="font-ui text-xs font-bold uppercase tracking-wider text-black">
+                        Active Atelier Press // Mechanical Compilation
+                      </span>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#161a22] font-serif leading-tight">
+                    <h2 className="text-xl sm:text-2xl font-display-dell font-black tracking-tight text-black leading-tight uppercase">
                       ASYNCHRONOUS COMPILATION REACTOR.
                     </h2>
-                    <p className="text-xs sm:text-sm text-[#556377] font-sans leading-relaxed">
-                      Django <code className="text-[#1f304d] font-mono font-bold">on_commit</code> hooks guarantee tasks enter Redis only after database state commits. Dedicated Celery workers execute atomic row-level try/catch blocks, calling ReportLab to compile 1200 DPI vector PDFs with embedded typography.
+                    <p className="text-xs sm:text-sm text-black font-serif leading-relaxed">
+                      Django <code className="text-black font-mono font-bold bg-neutral-200 px-1 border border-black">on_commit</code> hooks guarantee tasks enter Redis only after database state commits. Dedicated Celery workers execute atomic row-level try/catch blocks, calling ReportLab to compile 1200 DPI vector PDFs with embedded typography.
                     </p>
                   </div>
 
                   {/* 4 Pipeline Stations */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono-telemetry">
-                    <div className="p-3 rounded-lg bg-[#ffffff] border border-[#e2dac9] shadow-sm space-y-0.5">
-                      <div className="flex items-center justify-between text-[#1f304d] font-bold">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-ui">
+                    <div className="p-2.5 rounded-none bg-white border border-black space-y-0.5">
+                      <div className="flex items-center justify-between text-black font-bold">
                         <span>STAGE I</span>
-                        <span className="text-[10px] text-[#7d8b9e]">INGESTION</span>
+                        <span className="text-[10px] font-mono text-neutral-600">INGESTION</span>
                       </div>
-                      <h3 className="font-bold text-[#161a22]">DATA INGESTION PROTOCOL</h3>
-                      <p className="text-[11px] text-[#556377] font-sans">CSV/JSON validation with RFC 5322 sanitization.</p>
+                      <h3 className="font-bold text-black uppercase text-[11px]">DATA INGESTION PROTOCOL</h3>
+                      <p className="text-[11px] text-black font-serif">CSV/JSON validation with RFC 5322 sanitization.</p>
                     </div>
 
-                    <div className="p-3 rounded-lg bg-[#ffffff] border border-[#e2dac9] shadow-sm space-y-0.5">
-                      <div className="flex items-center justify-between text-[#1f304d] font-bold">
+                    <div className="p-2.5 rounded-none bg-white border border-black space-y-0.5">
+                      <div className="flex items-center justify-between text-black font-bold">
                         <span>STAGE II</span>
-                        <span className="text-[10px] text-[#7d8b9e]">TRANSACTION</span>
+                        <span className="text-[10px] font-mono text-neutral-600">TRANSACTION</span>
                       </div>
-                      <h3 className="font-bold text-[#161a22]">QUEUE DISPATCH</h3>
-                      <p className="text-[11px] text-[#556377] font-sans">HTTP 202 queue allocation via Celery over Redis.</p>
+                      <h3 className="font-bold text-black uppercase text-[11px]">QUEUE DISPATCH</h3>
+                      <p className="text-[11px] text-black font-serif">HTTP 202 queue allocation via Celery over Redis.</p>
                     </div>
 
-                    <div className="p-3 rounded-lg bg-[#ffffff] border border-[#e2dac9] shadow-sm space-y-0.5">
-                      <div className="flex items-center justify-between text-[#15803d] font-bold">
+                    <div className="p-2.5 rounded-none bg-white border border-black space-y-0.5">
+                      <div className="flex items-center justify-between text-black font-bold">
                         <span>STAGE III</span>
-                        <span className="text-[10px] text-[#15803d]">ACTIVE</span>
+                        <span className="text-[10px] font-mono text-emerald-700 font-bold">ACTIVE</span>
                       </div>
-                      <h3 className="font-bold text-[#161a22]">VECTOR COMPILER</h3>
-                      <p className="text-[11px] text-[#556377] font-sans">142 certs/sec raster rate with fault containment.</p>
+                      <h3 className="font-bold text-black uppercase text-[11px]">VECTOR COMPILER</h3>
+                      <p className="text-[11px] text-black font-serif">142 certs/sec raster rate with fault containment.</p>
                     </div>
 
-                    <div className="p-3 rounded-lg bg-[#ffffff] border border-[#e2dac9] shadow-sm space-y-0.5">
-                      <div className="flex items-center justify-between text-[#1f304d] font-bold">
+                    <div className="p-2.5 rounded-none bg-white border border-black space-y-0.5">
+                      <div className="flex items-center justify-between text-black font-bold">
                         <span>STAGE IV</span>
-                        <span className="text-[10px] text-[#7d8b9e]">DELIVERY</span>
+                        <span className="text-[10px] font-mono text-neutral-600">DELIVERY</span>
                       </div>
-                      <h3 className="font-bold text-[#161a22]">STREAMING VAULT</h3>
-                      <p className="text-[11px] text-[#556377] font-sans">Authoritative PDF texture and bulk ZIP export.</p>
+                      <h3 className="font-bold text-black uppercase text-[11px]">STREAMING VAULT</h3>
+                      <p className="text-[11px] text-black font-serif">Authoritative PDF texture and bulk ZIP export.</p>
                     </div>
                   </div>
 
                   {/* Machinery Telemetry Box */}
-                  <div className="p-3.5 rounded-xl bg-[#ffffff] border border-[#e2dac9] space-y-1.5 font-mono-telemetry text-xs shadow-sm">
-                    <div className="flex justify-between items-center text-[#7d8b9e] text-[11px] pb-1.5 border-b border-[#ece5d6]">
+                  <div className="p-2.5 rounded-none bg-white border border-black space-y-1 font-mono text-xs">
+                    <div className="flex justify-between items-center text-black text-[11px] pb-1 border-b border-black">
                       <span>REACTOR STATUS</span>
-                      <span className="text-[#15803d] font-bold flex items-center gap-1.5">
-                        <Activity className="w-3.5 h-3.5 text-[#15803d] animate-pulse" />
+                      <span className="text-black font-bold flex items-center gap-1.5">
+                        <Activity className="w-3.5 h-3.5 text-[#e91d2a] animate-pulse" />
                         BRASS ROLLERS SPINNING // ~142 CERTS/SEC
                       </span>
                     </div>
                     <div className="flex justify-between text-[11px]">
-                      <span className="text-[#556377]">FAULT CONTAINMENT:</span>
-                      <span className="text-[#161a22] font-semibold">ATOMIC ROW TRY/CATCH SAFETIES</span>
+                      <span className="text-neutral-700">FAULT CONTAINMENT:</span>
+                      <span className="text-black font-semibold">ATOMIC ROW TRY/CATCH SAFETIES</span>
                     </div>
                   </div>
                 </div>
@@ -527,67 +541,72 @@ export const AtelierProductionExperience: React.FC = () => {
               style={getActStyle(ACTS[3])}
               className="absolute inset-x-0 transition-transform duration-75 will-change-transform"
             >
-              <div className="pointer-events-auto p-2 rounded-[2rem] bg-black/15 backdrop-blur-md border border-black/10 shadow-2xl">
-                <div className="p-7 sm:p-9 rounded-[calc(2rem-0.5rem)] bg-[#ffffff] border border-[#e2dac9] shadow-2xl space-y-5">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-[#fbf9f4] border border-[#dcd3c1] text-[11px] font-mono-telemetry text-[#15803d] font-bold">
-                      ACT IV
-                    </span>
-                    <span className="text-xs font-mono-telemetry uppercase tracking-wider text-[#7d8b9e]">
-                      Specimen Emergence // Physical Reveal
-                    </span>
+              <div className="pointer-events-auto p-1 rounded-none bg-black shadow-[6px_6px_0px_#000]">
+                <div className="p-6 sm:p-8 rounded-none bg-white border-2 border-black space-y-4">
+                  {/* Ribbon Header Strip (Lime) */}
+                  <div className="bg-[#c0d4a7] border-b-2 border-black -mt-6 sm:-mt-8 -mx-6 sm:-mx-8 px-4 py-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.2 bg-black text-white text-[10px] font-ui font-bold uppercase">
+                        ACT IV
+                      </span>
+                      <span className="font-ui text-xs font-bold uppercase tracking-wider text-black">
+                        Specimen Emergence // Physical Reveal
+                      </span>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#161a22] font-serif leading-tight">
+                    <h2 className="text-xl sm:text-2xl font-display-dell font-black tracking-tight text-black leading-tight uppercase">
                       PHYSICALLY ACCURATE SPECIMEN REVELATION.
                     </h2>
-                    <p className="text-xs sm:text-sm text-[#556377] font-sans leading-relaxed">
+                    <p className="text-xs sm:text-sm text-black font-serif leading-relaxed">
                       As the rendering cycle completes, each certificate glides forward out of the rollers into prominent inspection view. Curved vellum deflection, layered paper shadow, and reactive studio lighting bring tactile authenticity to the digital document.
                     </p>
                   </div>
 
                   {/* Emergence Specimen Box */}
-                  <div className="p-4 rounded-xl bg-[#ffffff] border-2 border-[#e2dac9] space-y-3 shadow-sm relative overflow-hidden">
-                    <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#fcfbf9] border border-[#c5a059]/40 text-[#855d14] text-[10px] font-mono-telemetry font-bold">
-                      <Sparkles className="w-3 h-3 text-[#c5a059]" />
-                      <span>EMBOSSED SEAL VERIFIED</span>
+                  <div className="p-3.5 rounded-none bg-white border-2 border-black space-y-2.5 relative">
+                    <div className="flex items-center justify-between pb-1 border-b border-black">
+                      <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-wider">
+                        REPRESENTATIVE SPECIMEN // LIVE GL VIEW
+                      </div>
+                      <div className="dell-sticker-yellow px-2 py-0.5 text-[10px] font-ui font-bold uppercase flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-black" />
+                        <span>EMBOSSED SEAL VERIFIED</span>
+                      </div>
                     </div>
 
                     <div className="space-y-0.5">
-                      <div className="text-[10px] font-mono-telemetry text-[#7d8b9e] uppercase tracking-wider">
-                        REPRESENTATIVE SPECIMEN // LIVE GL VIEW
-                      </div>
-                      <h4 className="text-xl sm:text-2xl font-bold text-[#161a22] font-serif">
+                      <h4 className="text-xl sm:text-2xl font-bold text-black font-serif">
                         Elena Rostova, ScD
                       </h4>
-                      <div className="text-xs text-[#556377] font-mono-telemetry">
+                      <div className="text-xs text-neutral-700 font-mono">
                         Global Quantum Computing Summit • CERT-2026-466DBC643C27
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2.5 border-t border-[#ece5d6] text-xs font-mono-telemetry">
-                      <div className="p-2 rounded bg-[#fbf9f4] border border-[#e2dac9]">
-                        <span className="text-[10px] text-[#7d8b9e] block">TYPOGRAPHY</span>
-                        <span className="font-semibold text-[#161a22]">Archival Serif</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 border-t border-black text-xs font-mono">
+                      <div className="p-1.5 rounded-none bg-neutral-50 border border-black">
+                        <span className="text-[10px] text-neutral-600 block">TYPOGRAPHY</span>
+                        <span className="font-semibold text-black">Archival Serif</span>
                       </div>
-                      <div className="p-2 rounded bg-[#fbf9f4] border border-[#e2dac9]">
-                        <span className="text-[10px] text-[#7d8b9e] block">SUBSTRATE</span>
-                        <span className="font-semibold text-[#161a22]">280 GSM Ivory</span>
+                      <div className="p-1.5 rounded-none bg-neutral-50 border border-black">
+                        <span className="text-[10px] text-neutral-600 block">SUBSTRATE</span>
+                        <span className="font-semibold text-black">280 GSM Ivory</span>
                       </div>
-                      <div className="p-2 rounded bg-[#fbf9f4] border border-[#e2dac9] col-span-2 sm:col-span-1">
-                        <span className="text-[10px] text-[#7d8b9e] block">RESOLUTION</span>
-                        <span className="font-semibold text-[#15803d]">1200 DPI Vector</span>
+                      <div className="p-1.5 rounded-none bg-neutral-50 border border-black col-span-2 sm:col-span-1">
+                        <span className="text-[10px] text-neutral-600 block">RESOLUTION</span>
+                        <span className="font-semibold text-black">1200 DPI Vector</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] font-mono-telemetry pt-2 border-t border-[#ece5d6]">
-                    <span className="text-[#15803d] font-bold flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#15803d]" />
+                  <div className="flex items-center justify-between text-xs font-mono pt-2 border-t border-black">
+                    <span className="text-black font-bold flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-[#e91d2a]" />
                       ZERO-DIVERGENCE PHYSICAL PARITY
                     </span>
-                    <span className="text-[#7d8b9e]">PDF.JS / THREE.JS VERIFIED</span>
+                    <span className="text-neutral-600">PDF.JS / THREE.JS VERIFIED</span>
                   </div>
                 </div>
               </div>
@@ -598,46 +617,49 @@ export const AtelierProductionExperience: React.FC = () => {
               style={getActStyle(ACTS[4])}
               className="absolute inset-x-0 transition-transform duration-75 will-change-transform"
             >
-              <div className="pointer-events-auto p-2 rounded-[2rem] bg-black/15 backdrop-blur-md border border-black/10 shadow-2xl">
-                <div className="p-7 sm:p-9 rounded-[calc(2rem-0.5rem)] bg-[#ffffff] border border-[#e2dac9] shadow-2xl space-y-5">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-[#fbf9f4] border border-[#dcd3c1] text-[11px] font-mono-telemetry text-[#15803d] font-bold">
-                      ACT V
-                    </span>
-                    <span className="text-xs font-mono-telemetry uppercase tracking-wider text-[#7d8b9e]">
-                      Envelope Sealed // Archival Vault Complete
-                    </span>
+              <div className="pointer-events-auto p-1 rounded-none bg-black shadow-[6px_6px_0px_#000]">
+                <div className="p-6 sm:p-8 rounded-none bg-white border-2 border-black space-y-4">
+                  {/* Ribbon Header Strip (Peach) */}
+                  <div className="bg-[#e6915d] border-b-2 border-black -mt-6 sm:-mt-8 -mx-6 sm:-mx-8 px-4 py-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.2 bg-black text-white text-[10px] font-ui font-bold uppercase">
+                        ACT V
+                      </span>
+                      <span className="font-ui text-xs font-bold uppercase tracking-wider text-black">
+                        Envelope Sealed // Archival Vault Complete
+                      </span>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#161a22] font-serif leading-tight">
+                    <h2 className="text-xl sm:text-2xl font-display-dell font-black tracking-tight text-black leading-tight uppercase">
                       ACCUMULATED CERTIFICATE COLLECTION.
                     </h2>
-                    <p className="text-xs sm:text-sm text-[#556377] font-sans leading-relaxed">
+                    <p className="text-xs sm:text-sm text-black font-serif leading-relaxed">
                       The finished specimen docks securely into the midnight bookcloth presentation folio and is sealed shut with the embossed gold wax medallion. Batches resolve cleanly into indexed archival folios, downloadable as cryptographically deterministic ZIP packages with complete job audit ledgers.
                     </p>
                   </div>
 
                   {/* Completed Collection Dossier */}
-                  <div className="p-3.5 rounded-xl bg-[#ffffff] border border-[#e2dac9] space-y-2.5 font-mono-telemetry text-xs shadow-sm">
-                    <div className="flex justify-between items-center text-[11px] pb-1.5 border-b border-[#ece5d6]">
-                      <span className="text-[#7d8b9e]">ARCHIVAL STATUS:</span>
-                      <span className="text-[#15803d] font-bold bg-[#f0fdf4] px-2 py-0.5 rounded border border-[#bbf7d0]">
+                  <div className="p-3 rounded-none bg-white border border-black space-y-2 font-mono text-xs">
+                    <div className="flex justify-between items-center text-[11px] pb-1 border-b border-black">
+                      <span className="text-neutral-700">ARCHIVAL STATUS:</span>
+                      <span className="text-black font-bold bg-[#c0d4a7] px-2 py-0.5 border border-black">
                         500 / 500 COMPLETE
                       </span>
                     </div>
 
                     <div className="flex justify-between items-center py-0.5">
                       <div className="flex items-center gap-2">
-                        <Layers className="w-4 h-4 text-[#1f304d]" />
-                        <span className="font-semibold text-[#161a22]">certificates_batch_quantum_2026.zip</span>
+                        <Layers className="w-4 h-4 text-black" />
+                        <span className="font-semibold text-black">certificates_batch_quantum_2026.zip</span>
                       </div>
-                      <span className="text-[10px] bg-[#f5efe4] text-[#1f304d] px-2 py-0.5 rounded border border-[#dcd3c1] font-bold">
+                      <span className="text-[10px] bg-[#fcc20f] text-black px-1.5 py-0.2 border border-black font-bold">
                         STREAMING ZIP (FR-016)
                       </span>
                     </div>
 
-                    <div className="text-[10px] text-[#7d8b9e] pt-1.5 border-t border-[#ece5d6]">
+                    <div className="text-[10px] text-neutral-600 pt-1 border-t border-black">
                       <span>CRYPTOGRAPHIC DETERMINISM (FR-021) // AUDITABLE RUNTIME</span>
                     </div>
                   </div>
@@ -648,7 +670,7 @@ export const AtelierProductionExperience: React.FC = () => {
                       variant="primary"
                       size="md"
                       onClick={() => navigate('/jobs/new')}
-                      className="rounded-full px-6 py-3 bg-[#1f304d] hover:bg-[#2d4263] text-white text-xs font-mono-telemetry uppercase tracking-wider shadow-md flex items-center justify-center gap-3 group cursor-pointer"
+                      className="rounded-none border-2 border-black px-6 py-2.5 bg-black hover:bg-neutral-800 text-white text-xs font-ui font-bold uppercase tracking-wider shadow-[3px_3px_0px_#000] flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <PlusCircle className="w-4 h-4" />
                       <span>Create Certificate Batch</span>
@@ -658,7 +680,7 @@ export const AtelierProductionExperience: React.FC = () => {
                       variant="secondary"
                       size="md"
                       onClick={() => navigate('/jobs')}
-                      className="rounded-full px-6 py-3 text-xs font-mono-telemetry uppercase tracking-wider flex items-center justify-center gap-3 group cursor-pointer"
+                      className="rounded-none border-2 border-black px-6 py-2.5 bg-white hover:bg-neutral-100 text-black text-xs font-ui font-bold uppercase tracking-wider shadow-[3px_3px_0px_#000] flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>View Job History</span>
                       <ArrowRight className="w-4 h-4" />
