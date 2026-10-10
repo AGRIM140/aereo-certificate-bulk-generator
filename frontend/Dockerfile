@@ -20,7 +20,8 @@ FROM nginx:alpine
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 ENV PORT=80 \
     BACKEND_URL=http://backend:8000 \
-    NGINX_ENVSUBST_FILTER="^(PORT|BACKEND_URL)$"
+    NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 \
+    NGINX_ENVSUBST_FILTER="^(PORT|BACKEND_URL|NGINX_LOCAL_RESOLVERS)$"
 
 # Copy build artifacts
 COPY --from=builder /app/dist /usr/share/nginx/html
