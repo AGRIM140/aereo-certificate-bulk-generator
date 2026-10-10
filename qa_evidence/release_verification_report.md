@@ -76,7 +76,7 @@ repository; deployment and synthetic acceptance steps are in the deployment guid
   https://github.com/AGRIM140/aereo-certificate-bulk-generator and pushed `master`.
   Initial release commits `b5140e0` and `1dd17f4` were verified against the remote.
   The final documentation commit is available through Git history.
-- Final pre-commit security scan: 312 historical blobs plus current publishable
+- Final pre-commit security scan: 318 historical blobs plus current publishable
   files, zero credential/sensitive-path findings. `git diff --check` passed.
 - Railway official login completed. Workspace had no projects, $5 remaining
   credit and 30 trial days. No paid upgrade was authorized.
@@ -108,6 +108,16 @@ repository; deployment and synthetic acceptance steps are in the deployment guid
   reject legacy `railway.json` configuration, so equivalent settings were applied
   directly via API; bucket `virtual-host` style requires boto3 `virtual`.
   Frontend was redeployed after backend private-domain references resolved.
+- The subsequent full redeployment exposed a third issue: Nginx retained the
+  backend's old private IP, causing API timeouts. Added request-time DNS resolution
+  using the official entrypoint's `/etc/resolv.conf` resolver list and a 10-second
+  cache. Frontend Docker build and `nginx -t` passed even with an unavailable
+  backend hostname. Deployed fix `136ab75`, then replaced only the backend.
+  Backend deployment `93068ece-fac3-467f-8fed-85f29cecc374` was created at
+  `2026-10-10T20:33:50.763Z`; unchanged frontend deployment
+  `71054d2a-bcc7-4479-af50-e4f77b245034` predates it (`20:32:19.206Z`).
+  The existing PDFs, matching bucket content and two-PDF ZIP remained available.
+  Real Chrome archive/restore and inspector checks passed again with no errors.
 - Post-deployment trial check: 30 trial days, approximately $4.998 remaining,
   no payment method. No paid upgrade was enabled. Trial hosting is temporary.
 - The application has no authentication. Buckets remain private, but application
@@ -135,6 +145,12 @@ railway restart --service backend --yes --json
 railway restart --service worker --yes --json
 .\.venv\Scripts\python.exe scratch/live_storage_check.py
 .\.venv\Scripts\python.exe scratch/railway_budget_check.py
+docker build -t aereo-release-dns-check ./frontend
+docker run --rm -e BACKEND_URL=http://unresolved-backend.invalid:8000 aereo-release-dns-check nginx -t
+railway redeploy --service backend --yes --json
+.\.venv\Scripts\python.exe scratch/live_storage_check.py
+node scratch/release_browser_check.cjs
+.\.venv\Scripts\python.exe scratch/verify_dns_redeploy.py
 ```
 
 The storage check reads actual bucket credentials from ignored local tooling,

@@ -139,8 +139,11 @@ rejects missing secrets, non-PostgreSQL databases, and incomplete S3 settings.
 Set `PORT=8080` and
 `BACKEND_URL=http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:8000` using the actual
 backend service name. Leave storage/database/broker secrets off this service.
-This is a runtime Nginx setting, not a `VITE_` build variable. Only `PORT` and
-`BACKEND_URL` are substituted; Nginx's `$uri` and other variables remain intact.
+This is a runtime Nginx setting, not a `VITE_` build variable. Only `PORT`,
+`BACKEND_URL`, and `NGINX_LOCAL_RESOLVERS` are substituted; Nginx's `$uri` and other
+variables remain intact. The official entrypoint reads resolvers from the
+container's `/etc/resolv.conf`. API proxy DNS refreshes every 10 seconds, so a
+backend redeploy can change its private IP without requiring a frontend restart.
 Do not add a trailing path to `BACKEND_URL`.
 
 Generate a public frontend domain with target port 8080. Put that exact hostname

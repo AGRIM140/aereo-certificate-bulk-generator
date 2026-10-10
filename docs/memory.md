@@ -33,6 +33,11 @@ Chrome verified archive/reload/restore, CSV/JSON import and inspector rendering.
 Actual bucket objects matched API downloads and rejected anonymous direct GET.
 The same PDFs remained retrievable with matching hashes after backend/worker
 restart, confirming bucket persistence separately from local container tests.
+An additional redeployment check found Nginx retained the backend's old private
+IP. Enabled the official entrypoint's local DNS resolvers and request-time proxy
+resolution (10-second cache). Frontend image/build and `nginx -t` passed. After
+replacing only the backend container, existing PDF/ZIP downloads and Chrome
+archive/inspector checks passed without restarting the frontend.
 Railway rejects legacy Config as Code for new services: applied explicit service
 settings through its API instead. Mapped provider `virtual-host` to boto3 `virtual`.
 No paid upgrade or payment method; approximately $4.998 trial credit remained
