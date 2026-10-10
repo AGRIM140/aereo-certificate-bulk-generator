@@ -80,15 +80,20 @@ export const AtelierProductionExperience: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [activeAct, setActiveAct] = useState<ActId>('I');
 
-  const [isReducedMotion] = useState<boolean>(() => {
+  const [isReducedMotion, setIsReducedMotion] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
 
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (event: MediaQueryListEvent) => setIsReducedMotion(event.matches);
+    preference.addEventListener('change', onChange);
+    return () => preference.removeEventListener('change', onChange);
+  }, []);
+
   // Continuous Scroll Observer
   useEffect(() => {
-    if (isReducedMotion) return;
-
     let rafId: number | null = null;
     let lastProgress = -1;
     let lastAct: ActId = 'I';
@@ -102,7 +107,7 @@ export const AtelierProductionExperience: React.FC = () => {
       if (totalScrollable <= 0) return;
 
       const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-      const containerTop = containerRef.current.offsetTop;
+      const containerTop = scrollY + containerRef.current.getBoundingClientRect().top;
       const rawProgress = (scrollY - containerTop) / totalScrollable;
       const progress = Math.min(1.0, Math.max(0.0, rawProgress));
 
@@ -128,13 +133,15 @@ export const AtelierProductionExperience: React.FC = () => {
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
     onScroll();
 
     return () => {
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
       if (rafId !== null) cancelAnimationFrame(rafId);
     };
-  }, [isReducedMotion]);
+  }, []);
 
   // Jump smoothly to a specific act
   const scrollToAct = (actId: ActId) => {
@@ -148,7 +155,7 @@ export const AtelierProductionExperience: React.FC = () => {
 
     window.scrollTo({
       top: targetScroll,
-      behavior: 'smooth',
+      behavior: isReducedMotion ? 'auto' : 'smooth',
     });
   };
 
@@ -157,6 +164,16 @@ export const AtelierProductionExperience: React.FC = () => {
    * Guarantees zero overlapping text between adjacent acts.
    */
   const getActStyle = (act: ActMeta): { opacity: number; transform: string; pointerEvents: 'auto' | 'none'; visibility: 'visible' | 'hidden'; zIndex: number } => {
+    if (isReducedMotion) {
+      const visible = activeAct === act.id;
+      return {
+        opacity: visible ? 1 : 0,
+        transform: 'none',
+        pointerEvents: visible ? 'auto' : 'none',
+        visibility: visible ? 'visible' : 'hidden',
+        zIndex: visible ? 20 : 10,
+      };
+    }
     // Transition boundary points between Acts [I-II, II-III, III-IV, IV-V]
     const boundaries = [0.20, 0.42, 0.66, 0.88];
     const halfWidth = 0.012; // 0.024 tight clean crossfade window

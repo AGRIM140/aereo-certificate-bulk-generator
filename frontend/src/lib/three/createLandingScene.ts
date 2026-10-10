@@ -1471,7 +1471,7 @@ export function createLandingScene(
     const total = section.offsetHeight - window.innerHeight;
     if (total <= 0) return;
     const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-    const sectionTop = section.offsetTop;
+    const sectionTop = scrollY + section.getBoundingClientRect().top;
     const rawProgress = (scrollY - sectionTop) / total;
     targetScrollProgress = Math.max(0, Math.min(1, rawProgress));
   };
@@ -1566,6 +1566,10 @@ export function createLandingScene(
     const elapsedTime = time * 0.001;
 
     if (isReducedMotion) {
+      // Scroll still selects production stages; only automatic motion and
+      // smoothing are disabled by the user's accessibility preference.
+      currentSmoothProgress = targetScrollProgress;
+      evaluateTimeline(currentSmoothProgress);
       camera.position.set(0.00, 2.75, 6.10);
       camera.lookAt(0.00, 0.45, 0.35);
     } else {
@@ -1630,8 +1634,8 @@ export function createLandingScene(
       onDoubleClick();
     },
     setScrollProgress: (progress: number) => {
+      targetScrollProgress = Math.max(0, Math.min(1, progress));
       if (isReducedMotion) {
-        targetScrollProgress = Math.max(0, Math.min(1, progress));
         currentSmoothProgress = targetScrollProgress;
         evaluateTimeline(currentSmoothProgress);
       }

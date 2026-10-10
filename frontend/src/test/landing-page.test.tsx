@@ -183,4 +183,57 @@ describe('Interactive 3D Landing Page', () => {
       expect(screen.getByText('DASHBOARD CONSOLE')).toBeInTheDocument();
     });
   });
+
+  it('advances the scene and narrative on scroll with reduced motion enabled', async () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    vi.spyOn(threeLandingLib, 'isWebGLAvailable').mockReturnValue(true);
+    const setScrollProgress = vi.fn();
+    vi.spyOn(threeLandingLib, 'createLandingScene').mockReturnValue({
+      setScrollProgress,
+      setReducedMotion: vi.fn(),
+      dispose: vi.fn(),
+    });
+    render(<MemoryRouter><LandingPage /></MemoryRouter>);
+    const section = screen.getByTestId('atelier-production-experience');
+    Object.defineProperty(section, 'offsetHeight', { value: window.innerHeight + 1000 });
+    // A positioned ancestor makes offsetTop differ from document coordinates.
+    Object.defineProperty(section, 'offsetTop', { value: 9999 });
+    vi.spyOn(section, 'getBoundingClientRect').mockReturnValue({
+      top: -540, left: 0, right: 1000, bottom: 1000,
+      width: 1000, height: 1540, x: 0, y: -540, toJSON: () => ({}),
+    });
+    fireEvent.scroll(window);
+    await waitFor(() => expect(setScrollProgress).toHaveBeenLastCalledWith(0.54));
+    expect(screen.getByText('ACT III: ATELIER PRESS')).toBeInTheDocument();
+    const heading = screen.getByRole('heading', { name: 'ASYNCHRONOUS COMPILATION REACTOR.' });
+    expect(heading.closest('div[style]')).toHaveStyle({ opacity: '1', transform: 'none' });
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    fireEvent.click(screen.getByRole('button', { name: /^IV/ }));
+    expect(scrollTo).toHaveBeenCalledWith({ top: 220, behavior: 'auto' });
+  });
+
+  it('recalculates scroll stages on viewport resize', async () => {
+    vi.spyOn(threeLandingLib, 'isWebGLAvailable').mockReturnValue(true);
+    const setScrollProgress = vi.fn();
+    vi.spyOn(threeLandingLib, 'createLandingScene').mockReturnValue({
+      setScrollProgress,
+      setReducedMotion: vi.fn(),
+      dispose: vi.fn(),
+    });
+    render(<MemoryRouter><LandingPage /></MemoryRouter>);
+    const section = screen.getByTestId('atelier-production-experience');
+    Object.defineProperty(section, 'offsetHeight', { value: window.innerHeight + 1000 });
+    vi.spyOn(section, 'getBoundingClientRect').mockReturnValue({
+      top: -940, left: 0, right: 1000, bottom: 1000,
+      width: 1000, height: 1940, x: 0, y: -940, toJSON: () => ({}),
+    });
+    fireEvent.resize(window);
+    await waitFor(() => expect(setScrollProgress).toHaveBeenLastCalledWith(0.94));
+    expect(screen.getByText('ACT V: ARCHIVE COMPLETED')).toBeInTheDocument();
+  });
 });
